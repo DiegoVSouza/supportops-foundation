@@ -1,0 +1,23 @@
+{
+  "python": {
+    "version": "3.13.12",
+    "source": "https://docs.python.org/3.13/",
+    "checked": "2026-10-15"
+  },
+  "pydantic": {
+    "version": "2.14.1",
+    "source": "https://pydantic.dev/docs/validation/2.12/concepts/models/",
+    "checked": "2026-10-15",
+    "note": "API constrained to stable BaseModel, Field, model_validate, model_dump, and model_json_schema behavior; verify installed version from uv.lock."
+  },
+  "pytest": {
+    "version": "9.1.1",
+    "source": "https://docs.pytest.org/en/stable/",
+    "checked": "2026-10-15"
+  },
+  "uv": {
+    "version": "PENDING",
+    "source": "https://docs.astral.sh/uv/",
+    "checked": "2026-10-15"
+  }
+}
