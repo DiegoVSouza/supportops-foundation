@@ -34,10 +34,15 @@ class LLMResponse:
     parsed: Any = None
     tool_calls: tuple[ToolCall, ...] = ()
     usage: Usage = field(default_factory=Usage)
-    estimated_cost_usd: Decimal = Decimal("0")
+    estimated_cost_usd: Decimal = Decimal(0)
     latency_ms: int = 0
     model: str = "fake"
     provider: str = "fake"
+
+    @property
+    def cost_usd(self) -> Decimal:
+        """Compatibility name from the frozen P00 brief."""
+        return self.estimated_cost_usd
 
     def __post_init__(self) -> None:
         if self.estimated_cost_usd < 0 or self.latency_ms < 0:
@@ -49,6 +54,7 @@ class LLMClient(Protocol):
     def complete(
         self,
         messages: Sequence[Message | Mapping[str, str]],
+        *,
         schema: type[BaseModel] | None = None,
         tools: Sequence[Mapping[str, Any]] | None = None,
         model: str | None = None,
@@ -67,11 +73,13 @@ class FakeClient:
     """Deterministic scripted client. It has no transport or network capability."""
 
     def __init__(self, replies: Sequence[FakeReply | str] = ()) -> None:
-        self._replies = tuple(FakeReply(item) if isinstance(item, str) else item for item in replies)
+        self._replies = tuple(
+            FakeReply(item) if isinstance(item, str) else item for item in replies
+        )
         self.calls: list[tuple[Message, ...]] = []
         self._cursor = 0
 
-    def complete(self, messages, schema=None, tools=None, model=None) -> LLMResponse:
+    def complete(self, messages, *, schema=None, tools=None, model=None) -> LLMResponse:
         normalized = tuple(
             item if isinstance(item, Message) else Message(item["role"], item["content"])
             for item in messages
@@ -88,8 +96,12 @@ class FakeClient:
             except ValidationError as exc:
                 raise ValueError(f"response does not match {schema.__name__}") from exc
         return LLMResponse(
-            text=reply.text, parsed=parsed, tool_calls=reply.tool_calls,
-            usage=reply.usage, model=model or reply.model, provider="fake",
+            text=reply.text,
+            parsed=parsed,
+            tool_calls=reply.tool_calls,
+            usage=reply.usage,
+            model=model or reply.model,
+            provider="fake",
         )
 
 
@@ -100,10 +112,11 @@ class ReplayClient:
         self._records = tuple(records)
         self._cursor = 0
 
-    def complete(self, messages, schema=None, tools=None, model=None) -> LLMResponse:
+    def complete(self, messages, *, schema=None, tools=None, model=None) -> LLMResponse:
         normalized = [
             {"role": item.role, "content": item.content}
-            if isinstance(item, Message) else {"role": item["role"], "content": item["content"]}
+            if isinstance(item, Message)
+            else {"role": item["role"], "content": item["content"]}
             for item in messages
         ]
         if self._cursor >= len(self._records):
@@ -123,9 +136,12 @@ class ReplayClient:
                 raise ValueError(f"replay response does not match {schema.__name__}") from exc
         usage = raw.get("usage", {})
         return LLMResponse(
-            text=raw["text"], parsed=parsed,
+            text=raw["text"],
+            parsed=parsed,
             tool_calls=tuple(ToolCall.model_validate(item) for item in raw.get("tool_calls", [])),
-            usage=Usage(**usage), estimated_cost_usd=Decimal(raw.get("estimated_cost_usd", "0")),
-            latency_ms=raw.get("latency_ms", 0), model=raw.get("model", "replay"),
+            usage=Usage(**usage),
+            estimated_cost_usd=Decimal(raw.get("estimated_cost_usd", "0")),
+            latency_ms=raw.get("latency_ms", 0),
+            model=raw.get("model", "replay"),
             provider=raw.get("provider", "replay"),
         )

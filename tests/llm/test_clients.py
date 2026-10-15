@@ -6,8 +6,19 @@ from pydantic import BaseModel
 
 from supportops_foundation.domain import ToolCall
 from supportops_foundation.llm import (
-    Budget, CassetteError, FakeClient, FakeReply, LiveClient,
-    LiveConfigurationError, LiveError, Message, ReplayClient, Usage, load_cassette,
+    Budget,
+    CassetteError,
+    CassetteRecorder,
+    FakeClient,
+    FakeReply,
+    LiveClient,
+    LiveConfigurationError,
+    LiveError,
+    Message,
+    ReplayClient,
+    Usage,
+    get_llm,
+    load_cassette,
 )
 
 
@@ -33,28 +44,61 @@ def test_fake_schema_parse_failure_is_clear() -> None:
         FakeClient(["not-json"]).complete([Message("user", "x")], schema=Answer)
 
 
+def test_factory_defaults_to_fake_and_never_falls_back_from_replay(monkeypatch) -> None:
+    monkeypatch.delenv("LLM_MODE", raising=False)
+    assert get_llm().complete([Message("user", "x")]).provider == "fake"
+    monkeypatch.setenv("LLM_MODE", "replay")
+    monkeypatch.delenv("LLM_CASSETTE_PATH", raising=False)
+    with pytest.raises(CassetteError, match="required"):
+        get_llm()
+
+
+def test_recorder_writes_replayable_jsonl(tmp_path) -> None:
+    path = tmp_path / "nested" / "record.jsonl"
+    recorder = CassetteRecorder(FakeClient(["captured"]), path)
+    recorder.complete([Message("user", "hello")], model="m1")
+    replay = ReplayClient(load_cassette(path))
+    assert replay.complete([Message("user", "hello")], model="m1").text == "captured"
+
+
 def test_replay_is_ordered_and_requires_exact_request(tmp_path) -> None:
     path = tmp_path / "calls.jsonl"
     record = {
         "request": {"messages": [{"role": "user", "content": "hello"}], "tools": [], "model": "m1"},
-        "response": {"text": '{"answer":"world"}', "usage": {"input_tokens": 1, "output_tokens": 2}},
+        "response": {
+            "text": '{"answer":"world"}',
+            "usage": {"input_tokens": 1, "output_tokens": 2},
+        },
     }
     path.write_text(json.dumps(record) + "\n", encoding="utf-8")
     client = ReplayClient(load_cassette(path))
-    assert client.complete([Message("user", "hello")], schema=Answer, model="m1").parsed.answer == "world"
+    assert (
+        client.complete([Message("user", "hello")], schema=Answer, model="m1").parsed.answer
+        == "world"
+    )
     with pytest.raises(RuntimeError, match="exhausted"):
         client.complete([Message("user", "hello")], model="m1")
 
 
 def test_replay_mismatch_does_not_consume_record() -> None:
-    record = {"request": {"messages": [{"role": "user", "content": "right"}], "tools": [], "model": None}, "response": {"text": "ok"}}
+    record = {
+        "request": {"messages": [{"role": "user", "content": "right"}], "tools": [], "model": None},
+        "response": {"text": "ok"},
+    }
     client = ReplayClient([record])
     with pytest.raises(RuntimeError, match="mismatch"):
         client.complete([Message("user", "wrong")])
     assert client.complete([Message("user", "right")]).text == "ok"
 
 
-@pytest.mark.parametrize("contents", ["{broken}\n", '{"request": {}}\n'])
+@pytest.mark.parametrize(
+    "contents",
+    [
+        "{broken}\n",
+        '{"request": {}}\n',
+        '{"request":{"messages":[],"tools":[],"model":null},"response":{}}\n',
+    ],
+)
 def test_malformed_cassette_fails_with_line(contents, tmp_path) -> None:
     path = tmp_path / "bad.jsonl"
     path.write_text(contents, encoding="utf-8")
@@ -74,10 +118,12 @@ class StubTransport:
 
 def live_client(transport, cap="0.02"):
     return LiveClient(
-        endpoint="https://provider.invalid/v1", api_key="test-only",
+        endpoint="https://provider.invalid/v1",
+        api_key="test-only",
         budget=Budget(Decimal(cap)),
-        input_usd_per_million=Decimal("1"),
-        output_usd_per_million=Decimal("1"), transport=transport,
+        input_usd_per_million=Decimal(1),
+        output_usd_per_million=Decimal(1),
+        transport=transport,
     )
 
 
@@ -85,7 +131,7 @@ def test_live_missing_configuration_and_budget_fail_before_transport(monkeypatch
     monkeypatch.delenv("LLM_BASE_URL", raising=False)
     monkeypatch.delenv("LLM_API_KEY", raising=False)
     with pytest.raises(LiveConfigurationError, match="required"):
-        LiveClient(input_usd_per_million=Decimal("1"), output_usd_per_million=Decimal("1"))
+        LiveClient(input_usd_per_million=Decimal(1), output_usd_per_million=Decimal(1))
     transport = StubTransport(b"{}")
     client = live_client(transport, cap="0.001")
     with pytest.raises(LiveError, match="preflight"):
@@ -93,11 +139,30 @@ def test_live_missing_configuration_and_budget_fail_before_transport(monkeypatch
     assert transport.calls == []
 
 
+@pytest.mark.parametrize("raw", [None, "0", "-1", "not-a-number"])
+def test_environment_budget_must_be_present_positive_and_decimal(monkeypatch, raw) -> None:
+    if raw is None:
+        monkeypatch.delenv("LAB_MAX_USD", raising=False)
+    else:
+        monkeypatch.setenv("LAB_MAX_USD", raw)
+    with pytest.raises(LiveConfigurationError, match="LAB_MAX_USD"):
+        Budget.from_environment()
+
+
 def test_live_fake_transport_returns_usage_and_tool_calls_without_network() -> None:
     result = {
-        "model": "m1", "choices": [{"message": {
-            "content": "ok", "tool_calls": [{"id": "tc", "function": {"name": "lookup", "arguments": "{\"id\":\"1\"}"}}],
-        }}], "usage": {"prompt_tokens": 2, "completion_tokens": 3},
+        "model": "m1",
+        "choices": [
+            {
+                "message": {
+                    "content": "ok",
+                    "tool_calls": [
+                        {"id": "tc", "function": {"name": "lookup", "arguments": '{"id":"1"}'}}
+                    ],
+                }
+            }
+        ],
+        "usage": {"prompt_tokens": 2, "completion_tokens": 3},
     }
     transport = StubTransport(json.dumps(result).encode())
     client = live_client(transport)
@@ -107,6 +172,29 @@ def test_live_fake_transport_returns_usage_and_tool_calls_without_network() -> N
     assert response.estimated_cost_usd == Decimal("0.000005")
     assert transport.calls[0][0] == "https://provider.invalid/v1/chat/completions"
     assert transport.calls[0][2]["max_completion_tokens"] == 4096
+
+
+def test_live_budget_accepts_exact_preflight_boundary() -> None:
+    transport = StubTransport(
+        b'{"choices":[{"message":{"content":"ok"}}],"usage":{"prompt_tokens":1,"completion_tokens":1}}'
+    )
+    request_bytes = len(
+        json.dumps(
+            {"messages": [{"role": "user", "content": "hello"}], "tools": []}, ensure_ascii=False
+        ).encode()
+    )
+    cap = Decimal(request_bytes + 4096) / Decimal(1_000_000)
+    client = live_client(transport, cap=str(cap))
+    client.complete([Message("user", "hello")], model="m1")
+    assert client.budget.reserved_usd == cap
+
+
+def test_live_schema_parse_failure_is_reported_after_reservation() -> None:
+    transport = StubTransport(b'{"choices":[{"message":{"content":"not json"}}]}')
+    client = live_client(transport)
+    with pytest.raises(LiveError, match="provider completion failed"):
+        client.complete([Message("user", "x")], schema=Answer, model="m1")
+    assert client.budget.reserved_usd > 0
 
 
 def test_live_provider_error_keeps_budget_reserved() -> None:

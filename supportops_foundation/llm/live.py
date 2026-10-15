@@ -11,10 +11,11 @@ from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
+
+from supportops_foundation.domain import ToolCall
 
 from .client import LLMResponse, Message, Usage
-from supportops_foundation.domain import ToolCall
 
 
 class LiveConfigurationError(RuntimeError):
@@ -32,11 +33,11 @@ class Budget:
         if maximum_usd <= 0:
             raise ValueError("budget must be positive")
         self.maximum_usd = maximum_usd
-        self._reserved = Decimal("0")
+        self._reserved = Decimal(0)
         self._lock = threading.Lock()
 
     @classmethod
-    def from_environment(cls) -> "Budget":
+    def from_environment(cls) -> Budget:
         raw = os.getenv("LAB_MAX_USD")
         if not raw:
             raise LiveConfigurationError("LAB_MAX_USD must be set to a positive amount")
@@ -78,9 +79,14 @@ class LiveClient:
     """
 
     def __init__(
-        self, *, endpoint: str | None = None, api_key: str | None = None,
-        budget: Budget | None = None, input_usd_per_million: Decimal,
-        output_usd_per_million: Decimal, transport: HTTPTransport | None = None,
+        self,
+        *,
+        endpoint: str | None = None,
+        api_key: str | None = None,
+        budget: Budget | None = None,
+        input_usd_per_million: Decimal,
+        output_usd_per_million: Decimal,
+        transport: HTTPTransport | None = None,
         timeout_seconds: float = 20.0,
     ) -> None:
         self.endpoint = (endpoint or os.getenv("LLM_BASE_URL", "")).rstrip("/")
@@ -95,20 +101,30 @@ class LiveClient:
         self.transport = transport or UrllibTransport()
         self.timeout_seconds = timeout_seconds
 
-    def complete(self, messages, schema=None, tools=None, model=None) -> LLMResponse:
+    def complete(self, messages, *, schema=None, tools=None, model=None) -> LLMResponse:
         if not model:
             raise LiveConfigurationError("model must be explicitly selected")
         normalized = [
             {"role": item.role, "content": item.content}
-            if isinstance(item, Message) else {"role": item["role"], "content": item["content"]}
+            if isinstance(item, Message)
+            else {"role": item["role"], "content": item["content"]}
             for item in messages
         ]
-        # Character-based upper bound is conservative for UTF-8 text and avoids a paid tokenizer.
-        input_tokens = max(1, sum(len(item["content"]) for item in normalized))
+        # UTF-8 byte length is a tokenizer-free conservative estimate for byte-pair tokenizers.
+        request_text = json.dumps(
+            {"messages": normalized, "tools": list(tools or [])}, ensure_ascii=False
+        )
+        input_tokens = max(1, len(request_text.encode("utf-8")))
         output_tokens = 4096
-        estimate = (Decimal(input_tokens) * self.input_rate + Decimal(output_tokens) * self.output_rate) / Decimal(1_000_000)
+        estimate = (
+            Decimal(input_tokens) * self.input_rate + Decimal(output_tokens) * self.output_rate
+        ) / Decimal(1_000_000)
         self.budget.reserve(estimate)
-        payload: dict[str, Any] = {"model": model, "messages": normalized, "max_completion_tokens": output_tokens}
+        payload: dict[str, Any] = {
+            "model": model,
+            "messages": normalized,
+            "max_completion_tokens": output_tokens,
+        }
         if tools:
             payload["tools"] = list(tools)
         started = time.perf_counter()
@@ -116,7 +132,8 @@ class LiveClient:
             raw_bytes = self.transport.post(
                 f"{self.endpoint}/chat/completions",
                 {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
-                json.dumps(payload).encode("utf-8"), self.timeout_seconds,
+                json.dumps(payload).encode("utf-8"),
+                self.timeout_seconds,
             )
             raw = json.loads(raw_bytes)
             choice = raw["choices"][0]["message"]
@@ -129,17 +146,36 @@ class LiveClient:
             parsed = schema.model_validate_json(text) if schema is not None else None
             calls = tuple(
                 ToolCall(
-                    id=item["id"], name=item["function"]["name"],
+                    id=item["id"],
+                    name=item["function"]["name"],
                     arguments=json.loads(item["function"]["arguments"]),
                 )
                 for item in choice.get("tool_calls", [])
             )
-        except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError, KeyError, IndexError, ValidationError, ValueError) as exc:
+        except (
+            HTTPError,
+            URLError,
+            TimeoutError,
+            OSError,
+            json.JSONDecodeError,
+            KeyError,
+            IndexError,
+            ValidationError,
+            ValueError,
+        ) as exc:
             # The reservation remains: a failed request may still have reached the provider.
             raise LiveError(f"provider completion failed after budget reservation: {exc}") from exc
-        actual = (Decimal(usage.input_tokens) * self.input_rate + Decimal(usage.output_tokens) * self.output_rate) / Decimal(1_000_000)
+        actual = (
+            Decimal(usage.input_tokens) * self.input_rate
+            + Decimal(usage.output_tokens) * self.output_rate
+        ) / Decimal(1_000_000)
         return LLMResponse(
-            text=text, parsed=parsed, tool_calls=calls,
-            usage=usage, estimated_cost_usd=actual, latency_ms=round((time.perf_counter() - started) * 1000),
-            model=raw.get("model", model), provider="openai-compatible",
+            text=text,
+            parsed=parsed,
+            tool_calls=calls,
+            usage=usage,
+            estimated_cost_usd=actual,
+            latency_ms=round((time.perf_counter() - started) * 1000),
+            model=raw.get("model", model),
+            provider="openai-compatible",
         )
