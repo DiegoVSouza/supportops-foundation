@@ -14,6 +14,6 @@
 
 - Phase 002 fake/replay/live contracts, ordered JSONL cassette parser/recorder, strict replay matching, provider transport injection, and spend preflight completed. No live provider calls were made.
 - Phase 003 package setup, Ruff lint/format, compile/test gate, CI, optional local Compose, doctor, bilingual README, shared README, Makefile template, and interview knowledge docs completed.
-- Current development contract version is `0.1.0`; release version `1.0.0` remains pending the final release/provenance commit after all P00 checks.
+- The final contract is frozen as `1.0.0`; its local wheel and source provenance are recorded after the version commit and are not published externally.
 - `artifacts/evidence/check-full.txt` records the full gate and Compose configuration. `artifacts/evidence/doctor.md` records service ports unavailable; local runtime E2E remains INCOMPLETE.
 - Model quality, live cost, and latency metrics remain PENDING because no authorized real provider run occurred.

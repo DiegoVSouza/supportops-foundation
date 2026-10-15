@@ -1,6 +1,6 @@
 # ADR-001: Freeze the SupportOps domain contract
 
-- Status: Accepted for implementation; release freeze occurs with P00 v1.0.0.
+- Status: Accepted; domain contract frozen in P00 v1.0.0.
 - Date: 2026-10-15.
 - Context: P01–P04 need a shared vocabulary, but their repositories and Git histories remain independent. Relative sibling imports would couple builds and violate reproducibility.
 - Decision: expose Pydantic v2 models from `supportops_foundation.domain`: `Customer`, `Ticket`, `TicketCategory`, `Priority`, `Invoice`, `KBArticle`, `ToolCall`, `ToolResult`, `AgentRun`, and `TriageDecision`. Enum values are lowercase strings. Models reject unknown fields. Ticket timestamps must include timezone; invoice amounts are positive decimals; tool result success/error fields are consistent.

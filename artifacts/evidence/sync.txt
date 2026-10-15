@@ -1,3 +1,9 @@
 Resolved 14 packages in 1ms
-Checked 14 packages in 1ms
+   Building supportops-foundation @ file:///C:/estudo/Golpe/lab/projects/p00
+      Built supportops-foundation @ file:///C:/estudo/Golpe/lab/projects/p00
+Prepared 1 package in 1.41s
+Uninstalled 1 package in 2ms
+Installed 1 package in 8ms
+ - supportops-foundation==0.1.0 (from file:///C:/estudo/Golpe/lab/projects/p00)
+ + supportops-foundation==1.0.0 (from file:///C:/estudo/Golpe/lab/projects/p00)
 EXIT_CODE=0

@@ -2,6 +2,8 @@
 
 SupportOps Foundation is a versioned Python library containing domain models, deterministic datasets, a testkit, and provider-neutral LLM contracts for the independent SupportOps projects.
 
+Current contract release: **1.0.0**. Consumers should record the source commit and wheel SHA-256 when installing a local artifact.
+
 ## Install and validate
 
 Requirements: Python 3.13 and uv 0.12.7.

@@ -1,0 +1,4 @@
+customers=40 tickets=200 golden=60
+dataset_sha256=8d1a2cd8823a108d450010952ec8abf5717d3c0bec2a878603418867c78b3e76
+mode=fake response=Ticket received; a support specialist will review it.
+EXIT_CODE=0
