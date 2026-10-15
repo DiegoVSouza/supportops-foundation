@@ -1,0 +1,4 @@
+COMMAND: uv run --locked python -m pytest -q --basetemp=artifacts/tmp/pytest-p00-contract tests/domain tests/testkit
+...........                                                              [100%]
+11 passed in 0.05s
+EXIT_CODE=0

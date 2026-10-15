@@ -17,3 +17,10 @@
 - The final contract is frozen as `1.0.0`; its local wheel and source provenance are recorded after the version commit and are not published externally.
 - `artifacts/evidence/check-full.txt` records the full gate and Compose configuration. `artifacts/evidence/doctor.md` records service ports unavailable; local runtime E2E remains INCOMPLETE.
 - Model quality, live cost, and latency metrics remain PENDING because no authorized real provider run occurred.
+
+## 2026-10-15 — Audit follow-up
+
+- Live budget reservations now reconcile provider-reported token usage under a lock; missing usage retains the preflight reservation, and observed overspend blocks subsequent calls. Fake-transport tests cover reconciliation, malformed/missing usage, and subsequent-call rejection.
+- The generic adapter cannot guarantee a strict single-request provider-side cap after an unexpected usage overrun; a provider-enforced cap or verified provider quote/tokenizer is required. No live run was performed.
+- Domain malformed-input coverage now exercises every exported model/enum. Golden tests assert all decision fields for the ten named boundary cases and all fifty standard cases. Phase 001 verification and `feature_list.json` now reflect observed results.
+- Focused command output and exit codes are saved in `artifacts/evidence/phase-002-budget-reconciliation.txt` and `artifacts/evidence/phase-001-contract-coverage.txt`.

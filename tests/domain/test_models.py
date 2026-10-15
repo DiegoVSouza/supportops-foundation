@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -6,11 +6,14 @@ from pydantic import ValidationError
 
 from supportops_foundation.domain import (
     Action,
+    AgentRun,
     Customer,
     Invoice,
+    KBArticle,
     Priority,
     Ticket,
     TicketCategory,
+    ToolCall,
     ToolResult,
     TriageDecision,
 )
@@ -67,4 +70,46 @@ def test_escalate_action_requires_escalation_flag():
             action="escalate",
             escalate=False,
             rationale="Bad contract.",
+        )
+
+
+def test_all_public_domain_types_reject_malformed_values():
+    with pytest.raises(ValueError):
+        TicketCategory("unknown")
+    with pytest.raises(ValueError):
+        Priority("immediate")
+    with pytest.raises(ValueError):
+        Action("delete")
+    with pytest.raises(ValidationError):
+        Customer(id="c1", name="", email="customer@example.test")
+    with pytest.raises(ValidationError, match="timezone"):
+        Ticket(
+            id="t1",
+            customer_id="c1",
+            subject="Help",
+            body="Question",
+            created_at=datetime(2026, 1, 1),
+        )
+    with pytest.raises(ValidationError):
+        Invoice(id="i1", customer_id="c1", amount="1.234", due_at="2026-01-01T00:00:00Z")
+    with pytest.raises(ValidationError):
+        KBArticle(id="k1", title="", body="Body", category="billing", updated_at=datetime.now(UTC))
+    with pytest.raises(ValidationError):
+        ToolCall(id="tc1", name="", arguments={})
+    with pytest.raises(ValidationError):
+        ToolResult(call_id="tc1", ok=False)
+    with pytest.raises(ValidationError):
+        AgentRun(
+            id="run1",
+            ticket_id="t1",
+            started_at=datetime.now(UTC),
+            step_count=-1,
+        )
+    with pytest.raises(ValidationError):
+        TriageDecision(
+            category="not-a-category",
+            priority="high",
+            action="refund",
+            escalate=True,
+            rationale="Invalid category value.",
         )

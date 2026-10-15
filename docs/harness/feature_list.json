@@ -1,3 +1,24 @@
 {
-  "features": []
+  "features": [
+    {
+      "id": "domain-contracts",
+      "status": "complete",
+      "evidence": "tests/domain/test_models.py and artifacts/evidence/phase-001-contract-coverage.txt"
+    },
+    {
+      "id": "seeded-dataset-and-golden-decisions",
+      "status": "complete",
+      "evidence": "tests/testkit/test_dataset.py and artifacts/evidence/phase-001-contract-coverage.txt"
+    },
+    {
+      "id": "fake-replay-live-budget-ledger",
+      "status": "complete-with-live-provider-limit",
+      "evidence": "tests/llm/test_clients.py and artifacts/evidence/phase-002-budget-reconciliation.txt"
+    },
+    {
+      "id": "local-services-and-hosted-ci",
+      "status": "incomplete",
+      "evidence": "artifacts/evidence/doctor.md and artifacts/evidence/phase-003-environment.md"
+    }
+  ]
 }
