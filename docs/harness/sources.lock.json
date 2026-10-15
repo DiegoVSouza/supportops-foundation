@@ -15,6 +15,11 @@
     "source": "https://docs.pytest.org/en/stable/",
     "checked": "2026-10-15"
   },
+  "setuptools": {
+    "version": "84.0.0",
+    "source": "https://setuptools.pypa.io/en/latest/userguide/quickstart.html",
+    "checked": "2026-10-15"
+  },
   "uv": {
     "version": "0.12.7",
     "source": "https://docs.astral.sh/uv/",

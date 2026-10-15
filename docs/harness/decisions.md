@@ -8,5 +8,5 @@
 - Runtime: none. `LLMClient` is an application protocol; fake and replay implementations run without network access. Live is an opt-in OpenAI-compatible HTTP adapter and must enforce `LAB_MAX_USD` before a request.
 - Risk: generated data is synthetic; untrusted ticket text is modeled as data. Live mode sends prompts to an external provider, so it is disabled by default and requires an explicit positive budget and credentials. No paid calls are part of verification.
 - Budget: fake/replay only in tests and CI; live budget is `0` unless explicitly supplied by the caller.
-- Contract: public package `supportops_foundation` version `1.0.0` at the end of the contract-freeze phase. Incompatible changes require an ADR, semver bump, and consumer updates.
+- Contract: public package `supportops_foundation` is developed at `0.1.0`; publish the frozen `1.0.0` contract only after all P00 phases pass. Incompatible changes require an ADR, semver bump, and consumer updates.
 - Integration: P01–P04 may use local doubles during parallel implementation. P05 must consume approved, versioned local package artifacts; no sibling source imports or external publishing.
