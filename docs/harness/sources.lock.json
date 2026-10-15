@@ -6,7 +6,7 @@
   },
   "pydantic": {
     "version": "2.14.1",
-    "source": "https://pydantic.dev/docs/validation/2.12/concepts/models/",
+    "source": "https://pydantic.dev/docs/validation/latest/concepts/models/",
     "checked": "2026-10-15",
     "note": "API constrained to stable BaseModel, Field, model_validate, model_dump, and model_json_schema behavior; verify installed version from uv.lock."
   },
@@ -16,7 +16,7 @@
     "checked": "2026-10-15"
   },
   "uv": {
-    "version": "PENDING",
+    "version": "0.12.7",
     "source": "https://docs.astral.sh/uv/",
     "checked": "2026-10-15"
   }
