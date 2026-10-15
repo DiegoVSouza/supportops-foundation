@@ -33,7 +33,9 @@ class Budget:
         if maximum_usd <= 0:
             raise ValueError("budget must be positive")
         self.maximum_usd = maximum_usd
-        self._reserved = Decimal(0)
+        self._committed = Decimal(0)
+        self._in_flight: dict[str, Decimal] = {}
+        self._next_reservation = 0
         self._lock = threading.Lock()
 
     @classmethod
@@ -46,18 +48,32 @@ class Budget:
         except Exception as exc:
             raise LiveConfigurationError("LAB_MAX_USD must be a positive decimal") from exc
 
-    def reserve(self, estimate: Decimal) -> None:
+    def reserve(self, estimate: Decimal) -> str:
         if estimate < 0:
             raise ValueError("estimated cost cannot be negative")
         with self._lock:
-            if self._reserved + estimate > self.maximum_usd:
+            if self._committed + sum(self._in_flight.values()) + estimate > self.maximum_usd:
                 raise LiveError("request blocked by LAB_MAX_USD preflight")
-            self._reserved += estimate
+            self._next_reservation += 1
+            reservation_id = str(self._next_reservation)
+            self._in_flight[reservation_id] = estimate
+            return reservation_id
+
+    def reconcile(self, reservation_id: str, actual_cost: Decimal) -> None:
+        """Replace a preflight reservation with observed provider usage atomically."""
+        if actual_cost < 0:
+            raise ValueError("actual cost cannot be negative")
+        with self._lock:
+            try:
+                self._in_flight.pop(reservation_id)
+            except KeyError as exc:
+                raise ValueError("unknown or already reconciled reservation") from exc
+            self._committed += actual_cost
 
     @property
     def reserved_usd(self) -> Decimal:
         with self._lock:
-            return self._reserved
+            return self._committed + sum(self._in_flight.values())
 
 
 class HTTPTransport(Protocol):
@@ -119,7 +135,7 @@ class LiveClient:
         estimate = (
             Decimal(input_tokens) * self.input_rate + Decimal(output_tokens) * self.output_rate
         ) / Decimal(1_000_000)
-        self.budget.reserve(estimate)
+        reservation_id = self.budget.reserve(estimate)
         payload: dict[str, Any] = {
             "model": model,
             "messages": normalized,
@@ -139,6 +155,9 @@ class LiveClient:
             choice = raw["choices"][0]["message"]
             text = choice.get("content") or ""
             usage_raw = raw.get("usage", {})
+            if not isinstance(usage_raw, dict):
+                raise TypeError("provider usage must be an object")
+            usage_reported = "prompt_tokens" in usage_raw and "completion_tokens" in usage_raw
             usage = Usage(
                 input_tokens=usage_raw.get("prompt_tokens", 0),
                 output_tokens=usage_raw.get("completion_tokens", 0),
@@ -160,15 +179,23 @@ class LiveClient:
             json.JSONDecodeError,
             KeyError,
             IndexError,
+            TypeError,
             ValidationError,
             ValueError,
         ) as exc:
             # The reservation remains: a failed request may still have reached the provider.
             raise LiveError(f"provider completion failed after budget reservation: {exc}") from exc
-        actual = (
-            Decimal(usage.input_tokens) * self.input_rate
-            + Decimal(usage.output_tokens) * self.output_rate
-        ) / Decimal(1_000_000)
+        actual = estimate
+        if usage_reported:
+            actual = (
+                Decimal(usage.input_tokens) * self.input_rate
+                + Decimal(usage.output_tokens) * self.output_rate
+            ) / Decimal(1_000_000)
+        self.budget.reconcile(reservation_id, actual)
+        if self.budget.reserved_usd > self.budget.maximum_usd:
+            raise LiveError(
+                "observed provider cost exceeded LAB_MAX_USD; subsequent requests are blocked"
+            )
         return LLMResponse(
             text=text,
             parsed=parsed,

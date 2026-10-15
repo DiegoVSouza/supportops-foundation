@@ -186,7 +186,47 @@ def test_live_budget_accepts_exact_preflight_boundary() -> None:
     cap = Decimal(request_bytes + 4096) / Decimal(1_000_000)
     client = live_client(transport, cap=str(cap))
     client.complete([Message("user", "hello")], model="m1")
-    assert client.budget.reserved_usd == cap
+    assert client.budget.reserved_usd == Decimal("0.000002")
+
+
+def test_live_missing_usage_keeps_preflight_reservation() -> None:
+    transport = StubTransport(b'{"choices":[{"message":{"content":"ok"}}]}')
+    client = live_client(transport)
+    client.complete([Message("user", "hello")], model="m1")
+    assert client.budget.reserved_usd > 0
+
+
+def test_live_invalid_usage_shape_fails_without_releasing_reservation() -> None:
+    transport = StubTransport(b'{"choices":[{"message":{"content":"ok"}}],"usage":null}')
+    client = live_client(transport)
+    with pytest.raises(LiveError, match="provider completion failed"):
+        client.complete([Message("user", "hello")], model="m1")
+    assert client.budget.reserved_usd > 0
+
+
+def test_live_reconciles_actual_cost_and_blocks_next_request_after_overrun() -> None:
+    request = {"messages": [{"role": "user", "content": "hello"}], "tools": []}
+    request_bytes = len(json.dumps(request, ensure_ascii=False).encode())
+    observed_input_tokens = request_bytes + 100  # Provider framing may exceed local estimate.
+    transport = StubTransport(
+        json.dumps(
+            {
+                "choices": [{"message": {"content": "ok"}}],
+                "usage": {
+                    "prompt_tokens": observed_input_tokens,
+                    "completion_tokens": 4096,
+                },
+            }
+        ).encode()
+    )
+    cap = Decimal(request_bytes + 4096) / Decimal(1_000_000)
+    client = live_client(transport, cap=str(cap))
+    with pytest.raises(LiveError, match="observed provider cost exceeded"):
+        client.complete([Message("user", "hello")], model="m1")
+    assert client.budget.reserved_usd == Decimal(observed_input_tokens + 4096) / Decimal(1_000_000)
+    with pytest.raises(LiveError, match="preflight"):
+        client.complete([Message("user", "hello")], model="m1")
+    assert len(transport.calls) == 1
 
 
 def test_live_schema_parse_failure_is_reported_after_reservation() -> None:
