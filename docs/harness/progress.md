@@ -25,3 +25,8 @@
 - Domain malformed-input coverage now exercises every exported model/enum. Golden tests assert all decision fields for the ten named boundary cases and all fifty standard cases. Phase 001 verification and `feature_list.json` now reflect observed results.
 - Focused command output and exit codes are saved in `artifacts/evidence/phase-002-budget-reconciliation.txt` and `artifacts/evidence/phase-001-contract-coverage.txt`.
 - Release `1.0.1` passed the offline full gate (32 tests), built a local wheel/sdist, and passed isolated offline wheel installation/import smoke. Commit and SHA-256 provenance are in `artifacts/evidence/package-provenance-1.0.1.md`; no external publication occurred.
+
+## 2026-10-15 — Roadmap remediation assurance
+
+- Re-ran `scripts/check_full.py`: exit 0; fast checks, Ruff lint/format, compile, 32 tests, deterministic 60-case dataset contract, and Docker Compose configuration passed. Output is saved in `artifacts/evidence/remediation-check-full.txt`.
+- Docker Compose configuration parsing is PASS; service-backed PostgreSQL/Redis/LocalStack integration remains INCOMPLETE because the Docker engine is unavailable. Provider quality, cost, and latency remain PENDING without an authorized live run.
