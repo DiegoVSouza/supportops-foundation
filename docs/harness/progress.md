@@ -8,7 +8,7 @@
 - Coordinator reviewed the plans and accepted all task boundaries, public contracts, failure cases, validation commands, and stop conditions.
 - Phase 001 owns only domain/testkit paths; phase 002 owns the LLM protocol/modes; phase 003 owns packaging, local infrastructure, CI, and docs.
 - Pydantic `2.14.1` and pytest `9.1.1` were checked against official documentation; uv `0.12.7` was read from the local executable. Sources and lock state are in `docs/harness/sources.lock.json`.
-- Next: execute phase 001 before any P00 product code.
+- Phases 001–003 have been executed and verified; audit follow-up and remaining service/model gates are recorded below.
 
 ## 2026-10-15 — Phase 002 and 003 implementation
 
