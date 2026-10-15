@@ -1,0 +1,7 @@
+.PHONY: verify test
+
+test:
+	uv run --locked pytest -q
+
+verify:
+	uv run --locked python scripts/check_full.py

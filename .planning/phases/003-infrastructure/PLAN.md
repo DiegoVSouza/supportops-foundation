@@ -5,6 +5,7 @@
 - `.github/workflows/**`, `docker-compose.base.yml`, `.env.example`
 - `scripts/**`, `tests/**`, `README.md`, `README.pt-BR.md`
 - `shared/**`, `docs/**`, `artifacts/**`
+- `templates/**`
 
 ## forbidden_changes
 - External deployment, publish, or live provider call.
@@ -19,6 +20,8 @@
 
 ## Validation
 `LLM_MODE=fake uv run make verify`; `make doctor` reports environment state. Compose validation runs only if Docker is installed.
+
+Windows reproduces the same targets with `uv run --locked python scripts/check_full.py` and `uv run --locked python scripts/doctor.py` because GNU Make is not installed there.
 
 ## Stop condition
 If Docker or external dependencies are unavailable, record INCOMPLETE for the relevant integration gate and continue offline checks.

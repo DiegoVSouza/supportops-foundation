@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any, Literal, Self
@@ -48,7 +48,7 @@ class Ticket(ContractModel):
     customer_id: str = Field(min_length=1, max_length=64)
     subject: str = Field(min_length=1, max_length=240)
     body: str = Field(min_length=1, max_length=20_000)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     category: TicketCategory | None = None
     priority: Priority = Priority.NORMAL
     status: Literal["open", "pending", "resolved", "closed"] = "open"
@@ -64,7 +64,7 @@ class Ticket(ContractModel):
 class Invoice(ContractModel):
     id: str = Field(min_length=1, max_length=64)
     customer_id: str = Field(min_length=1, max_length=64)
-    amount: Decimal = Field(gt=Decimal("0"), max_digits=12, decimal_places=2)
+    amount: Decimal = Field(gt=Decimal(0), max_digits=12, decimal_places=2)
     currency: str = Field(default="USD", pattern=r"^[A-Z]{3}$")
     status: Literal["open", "paid", "overdue", "refunded"] = "open"
     due_at: datetime

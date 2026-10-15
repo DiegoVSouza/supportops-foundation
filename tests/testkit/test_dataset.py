@@ -26,4 +26,6 @@ def test_different_seed_changes_generated_records():
 
 
 def test_all_synthetic_emails_use_reserved_test_domain(supportops_dataset):
-    assert all(customer.email.endswith("@example.test") for customer in supportops_dataset.customers)
+    assert all(
+        customer.email.endswith("@example.test") for customer in supportops_dataset.customers
+    )

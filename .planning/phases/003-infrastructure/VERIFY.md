@@ -1,8 +1,8 @@
 # Verify — Package and infrastructure
 
-- [ ] Clean install from lockfile succeeds.
-- [ ] `LLM_MODE=fake uv run make verify` runs lint and all tests successfully.
-- [ ] CI workflow syntax and commands match local validation.
-- [ ] Compose config validates when Docker Compose is available; otherwise that check is recorded INCOMPLETE.
-- [ ] Doctor output reflects real versions and missing services.
-- [ ] README English and Portuguese, knowledge doc, and evidence are complete; metrics remain PENDING absent real model runs.
+- [x] Clean install from lockfile succeeds.
+- [x] `LLM_MODE=fake uv run python scripts/check_full.py` runs lint, format, compile, contract checks, and all tests successfully.
+- [x] CI workflow defines pinned uv sync, Ruff lint/format, and full fake-mode checks; the remote workflow run is **INCOMPLETE** because it requires a push, which was not authorized.
+- [x] Compose config validates with Docker Compose. Runtime services were not started; service E2E remains INCOMPLETE.
+- [x] Doctor output reflects actual versions and unavailable service ports.
+- [x] README English and Portuguese, knowledge docs, and evidence are complete; metrics remain PENDING absent real model runs.

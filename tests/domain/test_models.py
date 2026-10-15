@@ -25,13 +25,19 @@ def test_customer_rejects_empty_identity_and_unknown_fields():
 
 def test_ticket_requires_timezone_and_preserves_public_enum_values():
     with pytest.raises(ValidationError, match="timezone"):
-        Ticket(id="t1", customer_id="c1", subject="Help", body="Question", created_at=datetime(2026, 1, 1))
+        Ticket(
+            id="t1",
+            customer_id="c1",
+            subject="Help",
+            body="Question",
+            created_at=datetime(2026, 1, 1),
+        )
     ticket = Ticket(id="t1", customer_id="c1", subject="Help", body="Question", category="billing")
     assert ticket.category is TicketCategory.BILLING
     assert ticket.priority is Priority.NORMAL
 
 
-@pytest.mark.parametrize("amount", [Decimal("0"), Decimal("-0.01")])
+@pytest.mark.parametrize("amount", [Decimal(0), Decimal("-0.01")])
 def test_invoice_rejects_non_positive_amount(amount):
     with pytest.raises(ValidationError):
         Invoice(id="i1", customer_id="c1", amount=amount, due_at="2026-01-01T00:00:00Z")
@@ -46,7 +52,19 @@ def test_tool_result_requires_error_only_for_failure():
 
 
 def test_escalate_action_requires_escalation_flag():
-    decision = TriageDecision(category="billing", priority="high", action="escalate", escalate=True, rationale="Policy review.")
+    decision = TriageDecision(
+        category="billing",
+        priority="high",
+        action="escalate",
+        escalate=True,
+        rationale="Policy review.",
+    )
     assert decision.action is Action.ESCALATE
     with pytest.raises(ValidationError):
-        TriageDecision(category="billing", priority="high", action="escalate", escalate=False, rationale="Bad contract.")
+        TriageDecision(
+            category="billing",
+            priority="high",
+            action="escalate",
+            escalate=False,
+            rationale="Bad contract.",
+        )

@@ -36,5 +36,23 @@
     "source": "https://platform.openai.com/docs/api-reference/chat/object",
     "checked": "2026-10-15",
     "note": "The generic adapter requests max_completion_tokens. No provider SDK or live account is required or exercised; compatibility must be verified per endpoint."
+  },
+  "ruff": {
+    "version": "0.17.0",
+    "source": "https://github.com/astral-sh/ruff/releases",
+    "checked": "2026-10-15",
+    "note": "Pinned as a development dependency and used by check_full.py and CI."
+  },
+  "docker-compose-images": {
+    "version": "pgvector/pgvector:0.8.7-pg16; redis:7.4.11; localstack/localstack:2026.08.3",
+    "source": "https://hub.docker.com/r/pgvector/pgvector/tags; https://hub.docker.com/_/redis/tags; https://docs.localstack.cloud/aws/customization/other-installations/docker-images/",
+    "checked": "2026-10-15",
+    "note": "Tags are pinned in the optional local Compose file; container runtime was not assumed."
+  },
+  "github-actions": {
+    "version": "actions/checkout v7.0.1; astral-sh/setup-uv v9.0.0",
+    "source": "https://github.com/actions/checkout/releases; https://docs.astral.sh/uv/guides/integration/github/",
+    "checked": "2026-10-15",
+    "note": "Workflow actions are pinned to verified immutable commits; uv binary is pinned to 0.12.7."
   }
 }
