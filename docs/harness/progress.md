@@ -24,3 +24,4 @@
 - The generic adapter cannot guarantee a strict single-request provider-side cap after an unexpected usage overrun; a provider-enforced cap or verified provider quote/tokenizer is required. No live run was performed.
 - Domain malformed-input coverage now exercises every exported model/enum. Golden tests assert all decision fields for the ten named boundary cases and all fifty standard cases. Phase 001 verification and `feature_list.json` now reflect observed results.
 - Focused command output and exit codes are saved in `artifacts/evidence/phase-002-budget-reconciliation.txt` and `artifacts/evidence/phase-001-contract-coverage.txt`.
+- Release `1.0.1` passed the offline full gate (32 tests), built a local wheel/sdist, and passed isolated offline wheel installation/import smoke. Commit and SHA-256 provenance are in `artifacts/evidence/package-provenance-1.0.1.md`; no external publication occurred.

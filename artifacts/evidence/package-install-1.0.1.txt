@@ -1,0 +1,17 @@
+COMMAND: `uv pip install --offline --target artifacts/tmp/wheel-install-1.0.1 --no-deps artifacts/packages/supportops_foundation-1.0.1-py3-none-any.whl`
+EXIT_CODE=0
+OUTPUT:
+```text
+Using CPython 3.13.12 interpreter at: .venv\Scripts\python.exe
+Resolved 1 package in 8ms
+Prepared 1 package in 15ms
+Installed 1 package in 10ms
+ + supportops-foundation==1.0.1 (from file:///C:/estudo/Golpe/lab/projects/p00/artifacts/packages/supportops_foundation-1.0.1-py3-none-any.whl)
+```
+
+COMMAND: From `artifacts/tmp`, run the isolated install smoke with the repository's Python:
+```powershell
+..\..\.venv\Scripts\python.exe -c "import sys; sys.path.insert(0, 'wheel-install-1.0.1'); import supportops_foundation as p; from supportops_foundation.domain import Customer; from supportops_foundation.testkit import generate_dataset; from supportops_foundation.llm import FakeLLM, ReplayLLM, LiveLLM, get_llm, Message; d=generate_dataset(42); r=get_llm().complete([Message('user','smoke')]); assert len(d.customers)==40 and len(d.tickets)==200 and len(d.golden_cases)==60; assert Customer(id='c', name='Test', email='a@example.test'); print(f'version={p.__version__} customers={len(d.customers)} tickets={len(d.tickets)} golden={len(d.golden_cases)} mode={r.provider} clients={FakeLLM.__name__},{ReplayLLM.__name__},{LiveLLM.__name__}')"
+```
+EXIT_CODE=0
+OUTPUT: `version=1.0.1 customers=40 tickets=200 golden=60 mode=fake clients=FakeClient,ReplayClient,LiveClient`
