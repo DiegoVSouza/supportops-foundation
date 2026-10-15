@@ -14,7 +14,7 @@
 
 - Phase 002 fake/replay/live contracts, ordered JSONL cassette parser/recorder, strict replay matching, provider transport injection, and spend preflight completed. No live provider calls were made.
 - Phase 003 package setup, Ruff lint/format, compile/test gate, CI, optional local Compose, doctor, bilingual README, shared README, Makefile template, and interview knowledge docs completed.
-- The final contract is frozen as `1.0.0`; its local wheel and source provenance are recorded after the version commit and are not published externally.
+- The initial contract was frozen as `1.0.0`; its local wheel and source provenance are recorded and were not published externally. Audit follow-up ADR-003 advances the current package to compatible patch release `1.0.1`.
 - `artifacts/evidence/check-full.txt` records the full gate and Compose configuration. `artifacts/evidence/doctor.md` records service ports unavailable; local runtime E2E remains INCOMPLETE.
 - Model quality, live cost, and latency metrics remain PENDING because no authorized real provider run occurred.
 

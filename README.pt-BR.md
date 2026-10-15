@@ -2,7 +2,7 @@
 
 SupportOps Foundation é uma biblioteca Python versionada com modelos de domínio, conjuntos determinísticos, testkit e contratos de LLM sem acoplamento a provedor para os projetos SupportOps independentes.
 
-Versão atual do contrato: **1.0.0**. Consumidores devem registrar o commit de origem e o SHA-256 do wheel local instalado.
+Versão atual do contrato: **1.0.1**. Consumidores devem registrar o commit de origem e o SHA-256 do wheel local instalado.
 
 ## Instalação e validação
 

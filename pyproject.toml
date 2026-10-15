@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "supportops-foundation"
-version = "1.0.0"
+version = "1.0.1"
 description = "Versioned SupportOps domain, deterministic testkit, and LLM mode contracts."
 requires-python = ">=3.13,<3.14"
 dependencies = ["pydantic==2.14.1"]

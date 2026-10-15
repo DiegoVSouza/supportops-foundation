@@ -1,0 +1,13 @@
+P00 release preflight 1.0.1
+
+COMMAND: uv lock --check
+Resolved 14 packages in 1ms
+EXIT_CODE=0
+
+COMMAND: uv run --locked python scripts/check_fast.py
+   Building supportops-foundation @ file:///C:/estudo/Golpe/lab/projects/p00
+      Built supportops-foundation @ file:///C:/estudo/Golpe/lab/projects/p00
+Uninstalled 1 package in 2ms
+Installed 1 package in 9ms
+check-fast: OK
+EXIT_CODE=0

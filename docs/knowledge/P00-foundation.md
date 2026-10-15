@@ -4,7 +4,7 @@
 
 O produto é uma biblioteca instalável com quatro partes: modelos de domínio, gerador determinístico, protocolo LLM e testkit. Consumidores usam artefatos versionados e registram commit de origem e SHA-256; import por caminho de repositório irmão cria acoplamento invisível e não é permitido.
 
-Os modelos rejeitam campos extras e validam invariantes úteis a todos os consumidores. Mudanças incompatíveis passam por ADR, versão major e atualização explícita dos consumidores. O contrato foi congelado em `1.0.0` após a verificação completa.
+Os modelos rejeitam campos extras e validam invariantes úteis a todos os consumidores. Mudanças incompatíveis passam por ADR, versão major e atualização explícita dos consumidores. O contrato inicial foi congelado em `1.0.0`; a versão atual `1.0.1` corrige a reconciliação de gasto live sem alterar assinaturas públicas.
 
 ## Fake, replay e live
 
