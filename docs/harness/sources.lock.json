@@ -24,5 +24,17 @@
     "version": "0.12.7",
     "source": "https://docs.astral.sh/uv/",
     "checked": "2026-10-15"
+  },
+  "urllib": {
+    "version": "Python 3.13.12 standard library",
+    "source": "https://docs.python.org/3.13/library/urllib.request.html",
+    "checked": "2026-10-15",
+    "note": "Request and urlopen timeout are used only by the opt-in adapter; all tests inject a transport."
+  },
+  "openai-compatible-chat-shape": {
+    "version": "API contract inspected 2026-10-15",
+    "source": "https://platform.openai.com/docs/api-reference/chat/object",
+    "checked": "2026-10-15",
+    "note": "The generic adapter requests max_completion_tokens. No provider SDK or live account is required or exercised; compatibility must be verified per endpoint."
   }
 }
