@@ -1,6 +1,6 @@
 # SupportOps Foundation
 
-SupportOps Foundation é uma biblioteca Python versionada com modelos de domínio, conjuntos determinísticos, testkit e contratos de LLM sem acoplamento a provedor para os projetos SupportOps independentes.
+SupportOps Foundation reúne o vocabulário que os projetos SupportOps precisam compartilhar: modelos de domínio, fixtures reproduzíveis, testkit e contratos de LLM independentes de provedor.
 
 Versão atual do contrato: **1.0.1**. Consumidores devem registrar o commit de origem e o SHA-256 do wheel local instalado.
 
@@ -19,7 +19,7 @@ uv run --locked python demo/foundation_demo.py
 
 `supportops_foundation.domain` exporta modelos Pydantic estritos para clientes, tickets, faturas, artigos, chamadas/resultados de ferramentas, execuções de agente e decisões de triagem. Campos desconhecidos são rejeitados. Datas de tickets precisam de fuso horário; valores de fatura devem ser positivos. Alterações públicas exigem ADR, atualização de versão e atualização explícita dos consumidores.
 
-`generate_dataset(seed=42)` cria clientes, tickets, faturas, artigos e um conjunto dourado reproduzível. JSON canônico e SHA-256 permitem revisar mudanças nos fixtures. Os exemplos dourados são fixtures de teste, não métricas de qualidade do modelo.
+`generate_dataset(seed=42)` sempre produz os mesmos clientes, tickets, faturas, artigos e casos dourados. O JSON canônico e o SHA-256 deixam a mudança de fixture visível no diff. Esses casos testam contratos; não medem a qualidade de um modelo.
 
 ## Modos de LLM
 
@@ -31,7 +31,7 @@ Para adicionar um cassette, use uma linha JSON por chamada com `request` e `resp
 
 ## Serviços locais
 
-`docker-compose.base.yml` descreve Postgres com pgvector, Redis e LocalStack para exercícios futuros. `scripts/doctor.py` mostra a disponibilidade real no computador. Validar a sintaxe do Compose não equivale a um teste E2E dos serviços.
+`docker-compose.base.yml` define Postgres com pgvector, Redis e LocalStack para uso local. `scripts/doctor.py` informa o que realmente está disponível na máquina. A validação do Compose só verifica a configuração; não executa um teste E2E.
 
 ## Desenvolvimento
 
