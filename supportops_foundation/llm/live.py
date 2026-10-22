@@ -126,7 +126,6 @@ class LiveClient:
             else {"role": item["role"], "content": item["content"]}
             for item in messages
         ]
-        # UTF-8 byte length is a tokenizer-free conservative estimate for byte-pair tokenizers.
         request_text = json.dumps(
             {"messages": normalized, "tools": list(tools or [])}, ensure_ascii=False
         )
