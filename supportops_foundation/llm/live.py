@@ -87,6 +87,53 @@ class UrllibTransport:
             return response.read()
 
 
+class GroqKeyRotationTransport:
+    """Retry transient transport failures with a bounded rotation of Groq keys.
+
+    Rate-limit responses are returned as errors immediately. Key rotation is not
+    used to work around provider quotas.
+    """
+
+    def __init__(
+        self,
+        api_keys: list[str],
+        *,
+        max_attempts: int = 3,
+        backoff_seconds: float = 0.25,
+        transport: HTTPTransport | None = None,
+    ) -> None:
+        keys = list(dict.fromkeys(key.strip() for key in api_keys if key.strip()))
+        if not keys:
+            raise LiveConfigurationError("at least one Groq API key is required")
+        if max_attempts < 1 or backoff_seconds < 0:
+            raise ValueError("max_attempts must be positive and backoff_seconds non-negative")
+        self.api_keys = keys
+        self.max_attempts = max_attempts
+        self.backoff_seconds = backoff_seconds
+        self.transport = transport or UrllibTransport()
+        self.last_attempt_count = 0
+
+    def post(self, url: str, headers: dict[str, str], body: bytes, timeout: float) -> bytes:
+        self.last_attempt_count = 0
+        for attempt in range(self.max_attempts):
+            self.last_attempt_count = attempt + 1
+            request_headers = dict(headers)
+            request_headers["Authorization"] = (
+                f"Bearer {self.api_keys[attempt % len(self.api_keys)]}"
+            )
+            try:
+                return self.transport.post(url, request_headers, body, timeout)
+            except HTTPError as exc:
+                # 429 must remain visible to the caller; rotating here could bypass quotas.
+                if exc.code == 429 or exc.code < 500 or attempt + 1 >= self.max_attempts:
+                    raise
+            except (URLError, TimeoutError, OSError):
+                if attempt + 1 >= self.max_attempts:
+                    raise
+            time.sleep(min(self.backoff_seconds * (2**attempt), 2.0))
+        raise AssertionError("unreachable retry state")
+
+
 class LiveClient:
     """Adapter for an explicitly configured OpenAI-compatible endpoint.
 
@@ -130,11 +177,14 @@ class LiveClient:
             {"messages": normalized, "tools": list(tools or [])}, ensure_ascii=False
         )
         input_tokens = max(1, len(request_text.encode("utf-8")))
-        output_tokens = 4096
+        output_tokens = int(os.getenv("LLM_MAX_COMPLETION_TOKENS", "4096"))
+        if output_tokens < 1:
+            raise LiveConfigurationError("LLM_MAX_COMPLETION_TOKENS must be positive")
         estimate = (
             Decimal(input_tokens) * self.input_rate + Decimal(output_tokens) * self.output_rate
         ) / Decimal(1_000_000)
-        reservation_id = self.budget.reserve(estimate)
+        max_attempts = max(1, int(getattr(self.transport, "max_attempts", 1)))
+        reservation_id = self.budget.reserve(estimate * max_attempts)
         payload: dict[str, Any] = {
             "model": model,
             "messages": normalized,
@@ -184,12 +234,15 @@ class LiveClient:
         ) as exc:
             # The reservation remains: a failed request may still have reached the provider.
             raise LiveError(f"provider completion failed after budget reservation: {exc}") from exc
-        actual = estimate
+        failed_attempts = max(0, int(getattr(self.transport, "last_attempt_count", 1)) - 1)
+        actual = estimate * failed_attempts
         if usage_reported:
-            actual = (
+            actual += (
                 Decimal(usage.input_tokens) * self.input_rate
                 + Decimal(usage.output_tokens) * self.output_rate
             ) / Decimal(1_000_000)
+        else:
+            actual += estimate
         self.budget.reconcile(reservation_id, actual)
         if self.budget.reserved_usd > self.budget.maximum_usd:
             raise LiveError(

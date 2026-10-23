@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal
+from urllib.error import HTTPError
 
 import pytest
 from pydantic import BaseModel
@@ -11,6 +12,7 @@ from supportops_foundation.llm import (
     CassetteRecorder,
     FakeClient,
     FakeReply,
+    GroqKeyRotationTransport,
     LiveClient,
     LiveConfigurationError,
     LiveError,
@@ -246,3 +248,60 @@ def test_live_provider_error_keeps_budget_reserved() -> None:
     with pytest.raises(LiveError, match="after budget reservation"):
         client.complete([Message("user", "hello")], model="m1")
     assert client.budget.reserved_usd > 0
+
+
+def test_groq_rotation_retries_timeout_with_next_key_and_bounds_attempts(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_MAX_COMPLETION_TOKENS", "10")
+
+    class Flaky:
+        def __init__(self):
+            self.headers = []
+
+        def post(self, url, headers, body, timeout):
+            self.headers.append(headers["Authorization"])
+            if len(self.headers) < 2:
+                raise TimeoutError("synthetic timeout")
+            return b'{"choices":[{"message":{"content":"ok"}}],"usage":{"prompt_tokens":2,"completion_tokens":1}}'
+
+    flaky = Flaky()
+    transport = GroqKeyRotationTransport(
+        ["key-a", "key-b", "key-c"], max_attempts=3, backoff_seconds=0, transport=flaky
+    )
+    client = LiveClient(
+        endpoint="https://api.groq.com/openai/v1",
+        api_key="key-a",
+        budget=Budget(Decimal("0.001")),
+        input_usd_per_million=Decimal("0.075"),
+        output_usd_per_million=Decimal("0.30"),
+        transport=transport,
+    )
+    result = client.complete([Message("user", "synthetic")], model="openai/gpt-oss-20b")
+    assert flaky.headers == ["Bearer key-a", "Bearer key-b"]
+    assert transport.last_attempt_count == 2
+    assert result.text == "ok"
+    assert result.estimated_cost_usd > Decimal(0)
+
+
+def test_groq_rotation_does_not_retry_rate_limit() -> None:
+    class RateLimited:
+        def __init__(self):
+            self.calls = 0
+
+        def post(self, url, headers, body, timeout):
+            self.calls += 1
+            raise HTTPError(url, 429, "rate limited", {}, None)
+
+    transport = RateLimited()
+    rotating = GroqKeyRotationTransport(
+        ["key-a", "key-b"], max_attempts=3, backoff_seconds=0, transport=transport
+    )
+    with pytest.raises(HTTPError) as error:
+        rotating.post("https://api.groq.com", {}, b"{}", 1)
+    assert error.value.code == 429
+    assert transport.calls == 1
+    assert rotating.last_attempt_count == 1
+
+
+def test_groq_rotation_rejects_empty_keys() -> None:
+    with pytest.raises(LiveConfigurationError, match="at least one"):
+        GroqKeyRotationTransport(["", " "])

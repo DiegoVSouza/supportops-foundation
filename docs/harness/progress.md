@@ -30,3 +30,11 @@
 
 - Re-ran `scripts/check_full.py`: exit 0; fast checks, Ruff lint/format, compile, 32 tests, deterministic 60-case dataset contract, and Docker Compose configuration passed. Output is saved in `artifacts/evidence/remediation-check-full.txt`.
 - Docker Compose configuration parsing is PASS; service-backed PostgreSQL/Redis/LocalStack integration remains INCOMPLETE because the Docker engine is unavailable. Provider quality, cost, and latency remain PENDING without an authorized live run.
+
+## 2026-10-23 — Phase 004 Groq live and key rotation
+
+- Added a bounded Groq transport that rotates among configured keys only on transient transport failures, reserves cost for all possible attempts, and never rotates after HTTP 429. Fake transport tests cover timeout recovery and 429 stop behavior.
+- P00 offline gate passed with 35 tests; evidence is in `artifacts/evidence/phase-004-offline-gate.txt`.
+- Official Groq docs list `openai/gpt-oss-20b` as active at $0.075/M input and $0.30/M output. All five configured Groq credentials were rejected at model listing (HTTP 401/403), so no paid Groq inference occurred.
+- One real OpenRouter free-router smoke completed successfully through `cohere/north-mini-code:free`: 11 input tokens, 56 output tokens, 3,737 ms, reported cost $0. Evidence is in `artifacts/evidence/groq-live-smoke.json` and `.txt`.
+- This smoke confirms a real provider path but does not measure GPT-OSS 20B quality. Quality, cost, and latency for Groq remain PENDING until valid Groq credentials are supplied.

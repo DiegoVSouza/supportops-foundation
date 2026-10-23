@@ -1,0 +1,22 @@
+{
+  "attempts": 1,
+  "budget_cap_usd": "0.05",
+  "credential_count": 5,
+  "estimated_cost_usd": "0",
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-23T19:18:48.319070+00:00",
+  "groq_credential_status": "rejected",
+  "groq_model_available": false,
+  "latency_ms": 3737,
+  "model": "openrouter/free",
+  "model_available": true,
+  "provider": "openrouter-free",
+  "response_characters": 35,
+  "routed_model": "cohere/north-mini-code:free",
+  "started_at_utc": "2026-10-23T19:18:43.794355+00:00",
+  "status": "PASS",
+  "usage": {
+    "input_tokens": 11,
+    "output_tokens": 56
+  }
+}

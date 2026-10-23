@@ -3,7 +3,14 @@
 from .cassette import CassetteError, CassetteRecorder, load_cassette
 from .client import FakeClient, FakeReply, LLMClient, LLMResponse, Message, ReplayClient, Usage
 from .factory import get_llm
-from .live import Budget, HTTPTransport, LiveClient, LiveConfigurationError, LiveError
+from .live import (
+    Budget,
+    GroqKeyRotationTransport,
+    HTTPTransport,
+    LiveClient,
+    LiveConfigurationError,
+    LiveError,
+)
 
 FakeLLM = FakeClient
 ReplayLLM = ReplayClient
@@ -16,6 +23,7 @@ __all__ = [
     "FakeClient",
     "FakeLLM",
     "FakeReply",
+    "GroqKeyRotationTransport",
     "HTTPTransport",
     "LLMClient",
     "LLMResponse",
