@@ -1,0 +1,119 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+SIM905 [*] Consider using a list literal instead of `str.split`
+  --> scripts\campaign_batch.py:16:5
+   |
+15 |   ERROR_CLASSES = frozenset(
+16 | /     "configuration credential model_access rate_limit quota transport request_schema "
+17 | |     "output_truncated output_schema classification routing tool_selection missing_evidence "
+18 | |     "grounding citation abstention injection tenant_scope authorization_expired "
+19 | |     "duplicate_effect crash_recovery telemetry_export accounting grader_error".split()
+   | |______________________________________________________________________________________^
+20 |   )
+   |
+help: Replace with list literal
+   |
+15 | ERROR_CLASSES = frozenset(
+   -     "configuration credential model_access rate_limit quota transport request_schema "
+   -     "output_truncated output_schema classification routing tool_selection missing_evidence "
+   -     "grounding citation abstention injection tenant_scope authorization_expired "
+   -     "duplicate_effect crash_recovery telemetry_export accounting grader_error".split()
+16 +     ["configuration", "credential", "model_access", "rate_limit", "quota", "transport", "request_schema", "output_truncated", "output_schema", "classification", "routing", "tool_selection", "missing_evidence", "grounding", "citation", "abstention", "injection", "tenant_scope", "authorization_expired", "duplicate_effect", "crash_recovery", "telemetry_export", "accounting", "grader_error"]
+17 | )
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> scripts\campaign_batch.py:180:20
+    |
+178 |             try:
+179 |                 approved = account_guard(item)
+180 |             except Exception:
+    |                    ^^^^^^^^^
+181 |                 return result("account_guard_unavailable")
+182 |             if approved is not True:
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> scripts\campaign_batch.py:205:21
+    |
+203 |                 observation = execute(item)
+204 |                 if not isinstance(observation, TrialOutcome):
+205 |                     raise ValueError("invalid sanitized outcome")
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+206 |                 observation.validate()
+207 |             except Exception:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> scripts\campaign_batch.py:207:20
+    |
+205 |                     raise ValueError("invalid sanitized outcome")
+206 |                 observation.validate()
+207 |             except Exception:
+    |                    ^^^^^^^^^
+208 |                 # A response or usage may exist; preserve the full reservation.
+209 |                 return result("uncertain_attempt")
+    |
+
+FURB157 [*] Verbose expression in `Decimal` constructor
+  --> tests\llm\test_campaign_batch.py:20:69
+   |
+18 |     ledger = CampaignLedger(tmp_path / "ledger.sqlite", project="p00", campaign_id="batch")
+19 |     options = {
+20 |         "cumulative_caps": ResourceCaps(100, 100000, 25600, Decimal("1")),
+   |                                                                     ^^^
+21 |         "per_trial_caps": ResourceCaps(1, 2048, 256, Decimal("0.01")),
+22 |         "account_guard": lambda trial: True,
+   |
+help: Replace with `1`
+   |
+19 |     options = {
+   -         "cumulative_caps": ResourceCaps(100, 100000, 25600, Decimal("1")),
+20 +         "cumulative_caps": ResourceCaps(100, 100000, 25600, Decimal(1)),
+21 |         "per_trial_caps": ResourceCaps(1, 2048, 256, Decimal("0.01")),
+   |
+
+FURB157 [*] Verbose expression in `Decimal` constructor
+   --> tests\llm\test_campaign_batch.py:117:73
+    |
+115 | def test_invalid_cumulative_caps_never_dispatch(tmp_path, value):
+116 |     ledger, options = setup(tmp_path)
+117 |     options["cumulative_caps"] = ResourceCaps(value, 1000, 500, Decimal("1"))
+    |                                                                         ^^^
+118 |     with pytest.raises(ValueError):
+119 |         run_chunk(ledger, [trial(1)], execute=lambda _: pytest.fail("dispatched"), **options)
+    |
+help: Replace with `1`
+    |
+116 |     ledger, options = setup(tmp_path)
+    -     options["cumulative_caps"] = ResourceCaps(value, 1000, 500, Decimal("1"))
+117 +     options["cumulative_caps"] = ResourceCaps(value, 1000, 500, Decimal(1))
+118 |     with pytest.raises(ValueError):
+    |
+
+FURB157 [*] Verbose expression in `Decimal` constructor
+   --> tests\llm\test_campaign_batch.py:134:69
+    |
+132 | def test_cap_exhaustion_checkpoints_without_dispatching_next_trial(tmp_path):
+133 |     ledger, options = setup(tmp_path)
+134 |     options["cumulative_caps"] = ResourceCaps(1, 1000, 500, Decimal("1"))
+    |                                                                     ^^^
+135 |     result = run_chunk(ledger, [trial(1), trial(2)], execute=passed, **options)
+136 |     assert result["reason"] == "reservation_blocked" and result["attempted"] == 1
+    |
+help: Replace with `1`
+    |
+133 |     ledger, options = setup(tmp_path)
+    -     options["cumulative_caps"] = ResourceCaps(1, 1000, 500, Decimal("1"))
+134 +     options["cumulative_caps"] = ResourceCaps(1, 1000, 500, Decimal(1))
+135 |     result = run_chunk(ledger, [trial(1), trial(2)], execute=passed, **options)
+    |
+
+Found 7 errors.
+[*] 4 fixable with `--fix`.
+EXIT_CODE=1
+command=uv run --locked python scripts/check_full.py; exit_code=1

@@ -1,6 +1,6 @@
 # Plan
 
-- allowed_write_paths: `.planning/phases/014-bounded-campaign-chunks/**`, `scripts/campaign_batch.py`, `tests/llm/test_campaign_batch.py`, `artifacts/evidence/live-campaign-batches/**`, `docs/harness/progress.md`, `docs/knowledge/live-campaign-batches.md`.
+- allowed_write_paths: `.planning/phases/014-bounded-campaign-chunks/**`, `scripts/campaign_batch.py`, `tests/llm/test_campaign_batch.py`, `artifacts/evidence/live-campaign-batches/**`, `artifacts/tmp/campaign-batches-014/**` (ignored test scratch), `docs/harness/progress.md`, `docs/knowledge/live-campaign-batches.md`.
 - llm_mode: fake; no provider/credential access. Fake callbacks are explicit local test doubles.
 - forbidden_changes: campaign CLI enabling, config/budget/approval changes, existing ledger schemas, datasets/graders/prompts, packages, Docker services, kit, sibling repos and unrelated `artifacts/tmp-pytest/`.
 - Validation: focused fault/resume/controller tests, fast and full locked offline gates; store commands/exits and sanitized output. Docker limited to read-only Compose validation already present in the full gate.

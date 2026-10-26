@@ -1,0 +1,89 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+All checks passed!
+EXIT_CODE=0
+
+== format: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff format --check supportops_foundation demo scripts tests ==
+28 files already formatted
+EXIT_CODE=0
+
+== compile: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m compileall -q supportops_foundation demo scripts tests ==
+
+EXIT_CODE=0
+
+== tests: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m pytest -q --basetemp=artifacts/tmp/pytest ==
+........................................................................ [ 72%]
+...........................                                              [100%]
+99 passed in 2.59s
+EXIT_CODE=0
+
+== dataset-contract: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -c from supportops_foundation import __version__; from supportops_foundation.testkit import dataset_sha256, generate_dataset; a=generate_dataset(seed=42); b=generate_dataset(seed=42); assert len(a.customers)==40 and len(a.tickets)==200 and len(a.articles)==30 and len(a.invoices)==80; assert len(a.golden_cases)==60 and dataset_sha256(a)==dataset_sha256(b); print(f'version={__version__} customers=40 tickets=200 golden=60 digest={dataset_sha256(a)}') ==
+version=1.0.1 customers=40 tickets=200 golden=60 digest=8d1a2cd8823a108d450010952ec8abf5717d3c0bec2a878603418867c78b3e76
+EXIT_CODE=0
+
+== compose-config: C:\Program Files\Docker\Docker\resources\bin\docker.EXE compose -f docker-compose.base.yml config ==
+name: p00
+services:
+  localstack:
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+      SERVICES: sqs,sns,s3
+    image: localstack/localstack:2026.08.3
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 4566
+        published: "4566"
+        protocol: tcp
+  postgres:
+    environment:
+      POSTGRES_DB: supportops
+      POSTGRES_PASSWORD: local-only
+      POSTGRES_USER: supportops
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U supportops -d supportops
+      timeout: 3s
+      interval: 5s
+      retries: 10
+    image: pgvector/pgvector:0.8.7-pg16
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 5432
+        published: "5432"
+        protocol: tcp
+  redis:
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      timeout: 3s
+      interval: 5s
+      retries: 10
+    image: redis:7.4.11
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 6379
+        published: "6379"
+        protocol: tcp
+networks:
+  default:
+    name: p00_default
+EXIT_CODE=0
+
+PRODUCT_CHECK=PASS; OPTIONAL_SERVICE_E2E=INCOMPLETE unless separately executed
+command=uv run --locked python scripts/check_full.py; exit_code=0

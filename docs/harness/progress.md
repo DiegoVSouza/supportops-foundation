@@ -67,3 +67,8 @@ The foundation live smoke passed with 147 input and 94 output tokens. All 40 off
 - The offline dry-run now reports fresh-confirmation input/output maxima: 122,880 / 15,360 tokens from 20 cases, 3 trials, and unchanged 2,048 / 256 per-case caps.
 - Focused preparation checks and fast/full fake gates passed; all three `-S` dry-runs exited 0. Paid ceiling remains USD 0; account quota and review approvals are `PENDING`, so campaign remains blocked.
 - Evidence: `artifacts/evidence/live-token-reservations/`.
+## 2026-10-26 — Phase 014 bounded campaign chunks
+
+- Added the deterministic single-attempt controller with at most ten new trials per chunk, required account guard under the caller-configured shared lease, pre-dispatch reservation/checkpoint, pacing/deadline checks and immutable semantic failures on resume.
+- Thirty focused tests and the full locked offline gate (99 tests, lint/format/compile/dataset/Compose checks) passed. Process-death tests prove uncertainty survives execution/outcome-persistence interruption and the OS lease can be recovered; export failure after persisted completion does not cause replay. Quota, account denial, malformed usage, cap exhaustion and accounting overrun stop safely.
+- The public CLI remains denied (exit 2); the dry-run still exits 0 under Python `-S`. Synthetic callbacks do not implement the whole-account guard, real provider timeout/catalog/approval boundary or six-project launcher integration. Campaign, independent review, quality and promotion remain INCOMPLETE. No provider request or Docker service mutation occurred. Evidence: `artifacts/evidence/live-campaign-batches/`.

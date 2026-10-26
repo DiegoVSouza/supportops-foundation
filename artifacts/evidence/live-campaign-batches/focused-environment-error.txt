@@ -1,0 +1,31 @@
+Sanitized final excerpt: default Windows pytest temporary directory was inaccessible; corrected command uses isolated ignored --basetemp.
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\dvsdi\\AppData\\Local\\Temp\\pytest-of-dvsdi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:175: PermissionError
+=========================== short test summary info ===========================
+ERROR tests/llm/test_campaign_batch.py::test_chunk_is_bounded_and_resume_skips_failed_trials
+ERROR tests/llm/test_campaign_batch.py::test_checkpoint_precedes_execution_and_interruption_stays_charged
+ERROR tests/llm/test_campaign_batch.py::test_invalid_cumulative_caps_never_dispatch[PENDING]
+ERROR tests/llm/test_campaign_batch.py::test_invalid_cumulative_caps_never_dispatch[True]
+ERROR tests/llm/test_campaign_batch.py::test_invalid_cumulative_caps_never_dispatch[-1]
+ERROR tests/llm/test_campaign_batch.py::test_invalid_cumulative_caps_never_dispatch[inf]
+ERROR tests/llm/test_campaign_batch.py::test_invalid_cumulative_caps_never_dispatch[value4]
+ERROR tests/llm/test_campaign_batch.py::test_account_guard_must_explicitly_accept_before_reservation[<lambda>0]
+ERROR tests/llm/test_campaign_batch.py::test_account_guard_must_explicitly_accept_before_reservation[<lambda>1]
+ERROR tests/llm/test_campaign_batch.py::test_cap_exhaustion_checkpoints_without_dispatching_next_trial
+ERROR tests/llm/test_campaign_batch.py::test_pacing_and_wall_clock_stop_without_another_reservation
+ERROR tests/llm/test_campaign_batch.py::test_known_provider_failure_is_recorded_and_not_retried
+ERROR tests/llm/test_campaign_batch.py::test_observed_overrun_is_retained_before_stopping
+ERROR tests/llm/test_campaign_batch.py::test_invalid_callback_outcomes_remain_uncertain[outcome0]
+ERROR tests/llm/test_campaign_batch.py::test_invalid_callback_outcomes_remain_uncertain[outcome1]
+ERROR tests/llm/test_campaign_batch.py::test_invalid_callback_outcomes_remain_uncertain[outcome2]
+ERROR tests/llm/test_campaign_batch.py::test_duplicate_manifest_and_per_trial_overflow_fail_before_dispatch
+17 errors in 3.52s
+command=uv run --locked python -m pytest tests/llm/test_campaign_batch.py -q; exit_code=1
