@@ -1,0 +1,1 @@
+command=python -S ../../scripts/harness/live_free_account.py; exit_code=0

@@ -1,0 +1,8 @@
+command=post-run Get-Acl readback with identities compared in memory; exit_code=1
+directory_inheritance_protected=true
+directory_access_entries=4
+database_access_entries=4
+owner_only_access=false
+cause=pre-existing explicit grants survive inheritance removal
+repair=scope icacls reset/owner/grant/inheritance to private review directory and known SQLite files, then independently verify access entries
+failed repair alternatives=Windows PowerShell module load unavailable; Set-Acl required SeSecurityPrivilege; no generation during diagnosis

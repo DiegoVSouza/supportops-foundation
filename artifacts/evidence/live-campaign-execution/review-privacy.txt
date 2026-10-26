@@ -1,0 +1,5 @@
+command=ReviewStore scoped icacls owner/reset/grant/inheritance repair followed by separate Get-Acl readback; identities compared in memory
+directory_acl_protected=true
+directory_owner_only_access=true
+database_owner_only_access=true
+exit_code=0

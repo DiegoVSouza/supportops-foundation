@@ -8,6 +8,7 @@ import json
 import math
 import os
 import re
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -39,30 +40,93 @@ def atomic_text(path: Path, text: str) -> None:
     os.replace(temporary, path)
 
 
-def private_directory(path: Path, project: Path) -> None:
+def private_directory(path: Path, project: Path, *, verify_only: bool = False) -> None:
     if not path.resolve().is_relative_to(project.resolve()):
         raise ExecutionBlocked("review_path_outside_project")
     path.mkdir(parents=True, exist_ok=True, mode=0o700)
     if os.name == "nt":
-        identity = subprocess.run(
-            ["whoami", "/user", "/fo", "csv", "/nh"],
+        shell = shutil.which("pwsh.exe") or shutil.which("powershell.exe")
+        if shell is None:
+            raise ExecutionBlocked("private_review_acl_shell_unavailable")
+        children = list(path.iterdir())
+        allowed = {
+            "answers.sqlite",
+            "answers.sqlite-wal",
+            "answers.sqlite-shm",
+            "answers.sqlite-journal",
+        }
+        if (
+            path.is_symlink()
+            or path.is_junction()
+            or any(
+                child.name not in allowed
+                or child.is_symlink()
+                or child.is_junction()
+                or child.is_dir()
+                for child in children
+            )
+        ):
+            raise ExecutionBlocked("unexpected_private_review_path")
+        if not verify_only:
+            identity = subprocess.run(
+                ["whoami", "/user", "/fo", "csv", "/nh"],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=10,
+            )
+            try:
+                sid = next(csv.reader(identity.stdout.splitlines()))[1]
+            except (IndexError, StopIteration):
+                raise ExecutionBlocked("private_review_identity_unavailable") from None
+            if identity.returncode or not re.fullmatch(r"S-1-[0-9-]+", sid):
+                raise ExecutionBlocked("private_review_identity_unavailable")
+            # /reset clears existing explicit grants; removing inheritance alone
+            # does not. Scope each operation to this directory/known DB files.
+            for item in [path, *children]:
+                grant = f"*{sid}:(OI)(CI)F" if item == path else f"*{sid}:F"
+                for label, options in (
+                    ("owner", ["/setowner", f"*{sid}"]),
+                    ("reset", ["/reset"]),
+                    ("grant", ["/grant:r", grant]),
+                    ("inheritance", ["/inheritance:r"]),
+                ):
+                    result = subprocess.run(
+                        ["icacls", str(item), *options],
+                        capture_output=True,
+                        check=False,
+                        timeout=10,
+                    )
+                    if result.returncode:
+                        raise ExecutionBlocked(f"private_review_acl_{label}_failed")
+        # Read back the DACL without Set-Acl/SACL privileges.
+        script = r"""
+$ErrorActionPreference='Stop'
+$directory=Get-Item -LiteralPath $env:P00_REVIEW_PATH
+$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User
+if($directory.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'review reparse point'}
+$children=@(Get-ChildItem -LiteralPath $directory.FullName -Force)
+$allowed=@('answers.sqlite','answers.sqlite-wal','answers.sqlite-shm','answers.sqlite-journal')
+foreach($child in $children){
+  if($child.PSIsContainer -or $child.Name -notin $allowed -or ($child.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'unexpected review file'}
+}
+foreach($item in @($directory)+$children){
+  $check=Get-Acl -LiteralPath $item.FullName
+  $entries=@($check.Access)
+  if(($item.PSIsContainer -and -not $check.AreAccessRulesProtected) -or $entries.Count -ne 1 -or $entries[0].AccessControlType -ne 'Allow' -or $entries[0].IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -ne $sid.Value -or $check.GetOwner([Security.Principal.SecurityIdentifier]).Value -ne $sid.Value){throw 'review ACL verification'}
+}
+Write-Output 'owner_only=true'
+"""
+        result = subprocess.run(
+            [shell, "-NoProfile", "-NonInteractive", "-Command", script],
+            env={**os.environ, "P00_REVIEW_PATH": str(path)},
             capture_output=True,
             text=True,
             check=False,
-            timeout=10,
+            timeout=15,
         )
-        try:
-            sid = next(csv.reader(identity.stdout.splitlines()))[1]
-        except (IndexError, StopIteration):
-            raise ExecutionBlocked("private_review_identity_unavailable") from None
-        if identity.returncode or not re.fullmatch(r"S-1-[0-9-]+", sid):
-            raise ExecutionBlocked("private_review_identity_unavailable")
-        for options in (["/grant:r", f"*{sid}:(OI)(CI)F"], ["/inheritance:r"]):
-            result = subprocess.run(
-                ["icacls", str(path), *options], capture_output=True, check=False, timeout=10
-            )
-            if result.returncode:
-                raise ExecutionBlocked("private_review_acl_unavailable")
+        if result.returncode or result.stdout.strip() != "owner_only=true":
+            raise ExecutionBlocked("private_review_acl_unavailable")
     else:
         path.chmod(0o700)
 
@@ -86,6 +150,8 @@ class ReviewStore:
             db.commit()
         if os.name != "nt":
             self.path.chmod(0o600)
+        else:
+            private_directory(directory, project, verify_only=True)
 
     def put(
         self, campaign: str, case_id: str, trial: int, content: str, attempt: str | None

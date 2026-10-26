@@ -1,0 +1,166 @@
+{
+  "all_three_wilson95": null,
+  "campaign_id": "free-pilot-v1",
+  "candidate_commit": "476fae54e239cfc7c2200831662ef1af2af52e27",
+  "chunk": {
+    "attempted": 4,
+    "reason": "provider_error",
+    "remaining": 2,
+    "skipped": 0,
+    "status": "INCOMPLETE"
+  },
+  "critical_failures": 0,
+  "elapsed_seconds": 8.411,
+  "errors": {
+    "configuration": 1,
+    "routing": 3,
+    "tool_selection": 1
+  },
+  "grounding_review_status": "PENDING",
+  "human_review_status": "PENDING",
+  "model_evaluated_trials": 3,
+  "operational_failures": 1,
+  "passed_trials": 0,
+  "planned_trials": 6,
+  "planned_unique_cases": 6,
+  "promotion_status": "INCOMPLETE",
+  "provider_preflight": {
+    "account_billing_tier_verified": false,
+    "credentials_read": true,
+    "failures": {},
+    "generation_calls": 0,
+    "model": "openai/gpt-oss-20b",
+    "model_access_count": 4,
+    "provider_accessed": true,
+    "remaining_daily_tokens": "PENDING",
+    "status": "PASS",
+    "unique_credentials_checked": 4
+  },
+  "provider_stop": "request_schema",
+  "provider_usage_ledger": "../provider-usage.sqlite",
+  "real_model_trials": 3,
+  "recorded_trials": 4,
+  "resume_command": "$env:LLM_MODE=\"live\"; uv run --locked python scripts/run_live_campaign.py --resume free-pilot-v1 --execute-free",
+  "slices": {
+    "domain": {
+      "billing": {
+        "critical_failures": 0,
+        "errors": {
+          "configuration": 1,
+          "routing": 2
+        },
+        "model_evaluated_trials": 2,
+        "operational_failures": 1,
+        "passed_trials": 0,
+        "recorded_trials": 3
+      },
+      "other": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      },
+      "shipping": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 1,
+          "tool_selection": 1
+        },
+        "model_evaluated_trials": 1,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 1
+      }
+    },
+    "family": {
+      "ambiguous_input": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      },
+      "model_usage_identity": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 1
+        },
+        "model_evaluated_trials": 1,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 1
+      },
+      "read_only_tool_selection": {
+        "critical_failures": 0,
+        "errors": {
+          "configuration": 1
+        },
+        "model_evaluated_trials": 0,
+        "operational_failures": 1,
+        "passed_trials": 0,
+        "recorded_trials": 1
+      },
+      "structured_output_invalid": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 1
+        },
+        "model_evaluated_trials": 1,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 1
+      },
+      "structured_output_valid": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 1,
+          "tool_selection": 1
+        },
+        "model_evaluated_trials": 1,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 1
+      },
+      "unsupported_request": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      }
+    },
+    "language": {
+      "en": {
+        "critical_failures": 0,
+        "errors": {
+          "configuration": 1,
+          "routing": 2,
+          "tool_selection": 1
+        },
+        "model_evaluated_trials": 2,
+        "operational_failures": 1,
+        "passed_trials": 0,
+        "recorded_trials": 3
+      },
+      "pt-BR": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 1
+        },
+        "model_evaluated_trials": 1,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 1
+      }
+    }
+  },
+  "stage": "pilot",
+  "status": "INCOMPLETE",
+  "unfinalized_trial_artifacts": 0,
+  "unique_cases_all_three_pass": 0,
+  "unique_cases_with_three_model_results": 0
+}

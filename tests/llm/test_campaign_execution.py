@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import shutil
 import sqlite3
+import subprocess
 import sys
 from contextlib import closing
 from pathlib import Path
@@ -298,3 +300,21 @@ for line in sys.stdin:
         assert client.request({}, "preview")["content"] == "ação de faturação"
     finally:
         client.close()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows DACL regression")
+def test_private_review_removes_existing_explicit_grants(campaign):
+    project, _, _ = campaign
+    store = execution.ReviewStore(project)
+    for path, grant in (
+        (store.path.parent, "*S-1-5-32-545:(OI)(CI)R"),
+        (store.path, "*S-1-5-32-545:R"),
+    ):
+        result = subprocess.run(
+            ["icacls", str(path), "/grant", grant], capture_output=True, check=False
+        )
+        assert result.returncode == 0
+    with pytest.raises(execution.ExecutionBlocked, match="private_review_acl_unavailable"):
+        execution.private_directory(store.path.parent, project, verify_only=True)
+    execution.private_directory(store.path.parent, project)
+    execution.private_directory(store.path.parent, project, verify_only=True)
