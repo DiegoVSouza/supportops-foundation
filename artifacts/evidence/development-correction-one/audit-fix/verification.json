@@ -1,0 +1,19 @@
+{
+  "development_cases": 12,
+  "max_trials": 36,
+  "input_bound_min": 1911,
+  "input_bound_max": 2010,
+  "input_cap": 2048,
+  "primary_requests": 126,
+  "confirmation_requests": 60,
+  "source_changes_rejecting_old_resume": [
+    "projects/p00/scripts/campaign_execution.py"
+  ],
+  "provider_receipt_attempts": 16,
+  "provider_accessed": false,
+  "credentials_read": false,
+  "changed_sources_sha256": {
+    "projects/p00/scripts/campaign_execution.py": "3b387b17c70793153046c90e22418c88f5624463e46112ac5207978348cf2371"
+  },
+  "all_other_frozen_source_hashes_unchanged": true
+}

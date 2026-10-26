@@ -8,6 +8,7 @@ import sqlite3
 import subprocess
 import sys
 from contextlib import closing
+from decimal import Decimal
 from pathlib import Path
 from typing import ClassVar
 
@@ -17,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from scripts import campaign_execution as execution
 from scripts.campaign_batch import run_chunk as real_chunk
+from scripts.campaign_runtime import CampaignBlocked, CampaignLedger
 from scripts.run_live_campaign import load_cases, load_json
 
 PROJECT = Path(__file__).resolve().parents[2]
@@ -267,7 +269,189 @@ def test_tampering_result_to_pass_cannot_override_immutable_ledger(campaign):
 def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campaign, monkeypatch):
     monkeypatch.setattr(FixtureClient, "provenance", "live")
     with pytest.raises(execution.ExecutionBlocked, match="provider_usage_proof_unavailable"):
+        project, config, cases = campaign
+        execution.run_campaign(
+            project,
+            config,
+            cases,
+            "development",
+            "free-dev-c1",
+            client_factory=FixtureClient,
+            revision="a" * 40,
+            max_trials=1,
+        )
+
+
+@pytest.mark.parametrize(
+    "stage,name",
+    [
+        ("development", "free-dev-c2"),
+        ("development", "renamed-campaign"),
+        ("pilot", "free-dev-c1"),
+        ("holdout", "free-dev-c1"),
+    ],
+)
+def test_live_scope_rejects_new_ids_and_stages_before_side_effects(tmp_path, stage, name):
+    with pytest.raises(execution.ExecutionBlocked, match="live_scope_not_allocated"):
+        execution.run_campaign(tmp_path, {}, [], stage, name)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_development_cannot_exceed_36_attempts_across_chunks_and_resume(campaign):
+    project, config, cases = campaign
+    for _ in range(5):
+        execution.run_campaign(
+            project,
+            config,
+            cases,
+            "development",
+            "free-dev-c1",
+            client_factory=FixtureClient,
+            revision="a" * 40,
+            max_trials=10,
+        )
+    assert len(FixtureClient.calls) == len(set(FixtureClient.calls)) == 36
+
+
+def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(tmp_path):
+    path = tmp_path / "ledger.sqlite"
+    caps = vars(execution.PRIMARY_CAPS)
+    for campaign_id, count in (("pilot", 4), ("primary", 122)):
+        ledger = CampaignLedger(path, project="p00", campaign_id=campaign_id)
+        for index in range(count):
+            ledger.reserve(
+                case_id=str(index),
+                trial=1,
+                input_tokens=1,
+                output_tokens=1,
+                estimated_cost_usd=Decimal(0),
+                caps=caps,
+            )
+    assert ledger.totals()["requests"] == 126
+    with pytest.raises(CampaignBlocked, match="cumulative reservation cap"):
+        ledger.reserve(
+            case_id="extra",
+            trial=1,
+            input_tokens=1,
+            output_tokens=1,
+            estimated_cost_usd=Decimal(0),
+            caps=caps,
+        )
+    policy = load_json(LAB / "shared/policies/groq-free-campaign.json")["projects"]["p00"]
+    assert policy["requests"] - caps["requests"] == 60
+    assert policy["input_tokens"] - caps["input_tokens"] == 122880
+    assert policy["output_tokens"] - caps["output_tokens"] == 15360
+    assert Decimal(policy["estimated_cost_usd"]) - caps["estimated_cost_usd"] == Decimal("0.013824")
+
+
+@pytest.mark.parametrize(
+    "change", ["dirty", "staged", "untracked_schema", "untracked_script", "root_dirty"]
+)
+def test_candidate_requires_committed_schema_and_all_fingerprinted_sources(tmp_path, change):
+    lab = tmp_path / "lab"
+    project = lab / "projects/p00"
+    schema = project / "agent/schemas/live-decision.json"
+    root_source = lab / "guard.py"
+    schema.parent.mkdir(parents=True)
+    root_source.write_text("guard", encoding="utf-8")
+    schema.write_text("{}", encoding="utf-8")
+
+    def git(owner, *args):
+        return subprocess.run(
+            ["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", *args],
+            cwd=owner,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    for owner, path in ((lab, "guard.py"), (project, "agent/schemas/live-decision.json")):
+        git(owner, "init")
+        git(owner, "add", path)
+        git(owner, "commit", "-m", "test(fixture): freeze sources")
+    sources = {"projects/p00/agent/schemas/live-decision.json": "", "guard.py": ""}
+    assert (
+        execution.require_committed_sources(project, sources)
+        == git(project, "rev-parse", "HEAD").stdout.strip()
+    )
+    if change in {"dirty", "staged"}:
+        schema.write_text("changed", encoding="utf-8")
+        if change == "staged":
+            git(project, "add", "agent/schemas/live-decision.json")
+    elif change == "untracked_schema":
+        git(project, "rm", "--cached", "agent/schemas/live-decision.json")
+        git(project, "commit", "-m", "test(fixture): remove tracked schema")
+    elif change == "untracked_script":
+        extra = project / "scripts/new.py"
+        extra.parent.mkdir()
+        extra.write_text("pass", encoding="utf-8")
+        sources["projects/p00/scripts/new.py"] = ""
+    else:
+        root_source.write_text("changed guard", encoding="utf-8")
+    with pytest.raises(execution.ExecutionBlocked, match="uncommitted_source"):
+        execution.require_committed_sources(project, sources)
+
+
+def test_schema_change_rejects_resume_without_reexecuting(campaign):
+    project, _, _ = campaign
+    run(campaign)
+    schema = project / "agent/schemas/live-decision.json"
+    schema.write_text(schema.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    with pytest.raises(execution.ExecutionBlocked, match="provenance_mismatch"):
         run(campaign)
+    assert len(FixtureClient.calls) == 1
+
+
+def test_explicit_revision_cannot_bypass_live_source_check(campaign, monkeypatch):
+    project, config, cases = campaign
+
+    def reject(*args):
+        raise execution.ExecutionBlocked("candidate_has_uncommitted_source_changes")
+
+    monkeypatch.setattr(execution, "require_committed_sources", reject)
+    with pytest.raises(execution.ExecutionBlocked, match="uncommitted_source"):
+        execution.run_campaign(
+            project,
+            config,
+            cases,
+            "development",
+            "free-dev-c1",
+            revision="a" * 40,
+        )
+
+
+def test_builder_rejects_payload_that_only_fits_without_transport_framing(campaign):
+    project, _, _ = campaign
+    with pytest.raises(execution.ExecutionBlocked, match="serialized_input_exceeds"):
+        execution.build_payload(project, "policy", "x" * 1000, {"model": "openai/gpt-oss-20b"})
+
+
+def test_complete_input_bounds_match_actual_transport_for_development_cases(campaign):
+    project, config, cases = campaign
+    prompt = (project / "agent/prompts/live-campaign.md").read_text(encoding="utf-8").strip()
+    selected = [case for case in cases if case["split"] == "development"]
+    payloads = [
+        execution.build_payload(project, prompt, case["input"], config) for case in selected
+    ]
+    script = (
+        "import sys,json; sys.path.insert(0,sys.argv[1]); "
+        "from live_provider_transport import encode_payload; "
+        "caps=dict(input_tokens_per_call=2048,output_tokens_per_call=256); "
+        "print(json.dumps([encode_payload(p,caps)[1] for p in json.load(sys.stdin)]))"
+    )
+    result = subprocess.run(
+        [sys.executable, "-S", "-c", script, str(LAB / "scripts/harness")],
+        input=json.dumps(payloads),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=True,
+        env={k: v for k, v in os.environ.items() if not k.startswith("GROQ_API_KEY")},
+    )
+    bounds = json.loads(result.stdout)
+    assert len(bounds) == 12
+    assert max(bounds) <= 2048
+    assert bounds == [execution.payload_input_bound(payload) for payload in payloads]
 
 
 def test_three_trial_case_interval_does_not_pool_correlated_trials(campaign):

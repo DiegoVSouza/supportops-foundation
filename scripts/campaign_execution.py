@@ -30,13 +30,43 @@ class ExecutionBlocked(RuntimeError):
     """A sanitized prerequisite or operational stop."""
 
 
-# Phase 016 primary envelope after the immutable four-attempt pilot baseline.
-PRIMARY_REMAINING_CAPS = ResourceCaps(
-    126 - 4,
-    258048 - 2319,
-    32256 - 504,
-    Decimal("0.0290304") - Decimal("0.000325125"),
+# The ledger already includes every historical reservation across campaign IDs.
+# These are full primary ceilings, leaving the separate 60-call confirmation reserve.
+PRIMARY_CAPS = ResourceCaps(
+    126,
+    258048,
+    32256,
+    Decimal("0.0290304"),
 )
+
+
+def validate_live_scope(stage: str, campaign: str) -> None:
+    """Phase 016 allocates exactly one development campaign; IDs cannot reset it."""
+    if (stage, campaign) != ("development", "free-dev-c1"):
+        raise ExecutionBlocked("phase_016_live_scope_not_allocated")
+
+
+def require_committed_sources(project: Path, source_files: dict[str, str]) -> str:
+    """Reject dirty, staged, missing or untracked fingerprinted inputs in either owner."""
+    lab = project.parents[1]
+    grouped: dict[Path, list[str]] = {project: [], lab: []}
+    for name in source_files:
+        path = lab / name
+        owner = project if path.is_relative_to(project) else lab
+        grouped[owner].append(path.relative_to(owner).as_posix())
+    for owner, paths in grouped.items():
+        if not paths:
+            continue
+        for command in (
+            ["git", "ls-files", "--error-unmatch", "--", *paths],
+            ["git", "diff", "--quiet", "HEAD", "--", *paths],
+        ):
+            result = subprocess.run(command, cwd=owner, capture_output=True, check=False)
+            if result.returncode:
+                raise ExecutionBlocked("candidate_has_uncommitted_source_changes")
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=project, text=True, capture_output=True, check=True
+    ).stdout.strip()
 
 
 def atomic_text(path: Path, text: str) -> None:
@@ -295,12 +325,18 @@ def build_payload(project: Path, prompt: str, user_input: str, config: dict) -> 
             "json_schema": {"name": "live_decision", "strict": True, "schema": schema},
         },
     }
-    # UTF-8 bytes upper-bound tokenizer input because every token occupies at least one byte.
-    # Count all serialized fields, including schema and provider framing fields.
-    serialized = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-    if len(serialized) > 2048:
+    if payload_input_bound(payload) > 2048:
         raise ExecutionBlocked("serialized_input_exceeds_reserved_bound")
     return payload
+
+
+def payload_input_bound(payload: dict[str, Any]) -> int:
+    """Mirror protocol v1 wire normalization and conservative chat/tool framing."""
+    wire = {**payload, "stream": False}
+    encoded = json.dumps(wire, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode(
+        "utf-8"
+    )
+    return len(encoded) + 256 + 64 * len(wire["messages"]) + 128 * len(wire.get("tools", []))
 
 
 def sanitized_diagnostic(result: dict[str, Any], *, evaluated: bool) -> dict[str, Any]:
@@ -496,6 +532,8 @@ def run_campaign(
 
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}", campaign):
         raise ExecutionBlocked("invalid_campaign_id")
+    if client_factory is ProviderClient or getattr(client_factory, "provenance", None) == "live":
+        validate_live_scope(stage, campaign)
     started = time.monotonic()
     deadline = started + config["execution"]["max_wall_clock_seconds"]
     lab = project.parents[1]
@@ -503,41 +541,20 @@ def run_campaign(
     policy = json.loads(policy_path.read_text())
     caps = policy["projects"]["p00"]
     source_files = fingerprint(project, policy_path)
-    if revision is None:
-        check = subprocess.run(
-            [
-                "git",
-                "diff",
-                "--quiet",
-                "HEAD",
-                "--",
-                "scripts",
-                "supportops_foundation",
-                "agent/prompts",
-                "evals",
-                "pyproject.toml",
-                "uv.lock",
-            ],
-            cwd=project,
-            check=False,
-        )
-        if check.returncode:
-            raise ExecutionBlocked("candidate_has_uncommitted_source_changes")
-        revision = subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=project, text=True, capture_output=True, check=True
-        ).stdout.strip()
+    if revision is None or client_factory is ProviderClient:
+        revision = require_committed_sources(project, source_files)
     selected = (
         [case for case in cases if case["case_id"] in config["pilot_case_ids"]]
         if stage == "pilot"
         else [case for case in cases if case["split"] == stage]
     )
     trial_count = config["pilot_trials"] if stage == "pilot" else config["trials"]
-    if (
-        stage == "development"
-        and campaign == "free-dev-c1"
-        and (len(selected) != 12 or trial_count != 3)
-    ):
+    if stage == "development" and (len(selected) != 12 or trial_count != 3):
         raise ExecutionBlocked("development_scope_mismatch")
+    prompt = (project / "agent/prompts/live-campaign.md").read_text(encoding="utf-8").strip()
+    payloads = {
+        case["case_id"]: build_payload(project, prompt, case["input"], config) for case in selected
+    }
     directory = project / "artifacts/evals/live" / campaign
     manifest_path = directory / "manifest.json"
     frozen = {
@@ -592,7 +609,6 @@ def run_campaign(
     ):
         raise ExecutionBlocked("completed_ledger_without_trial_artifact")
     review = ReviewStore(project)
-    prompt = (project / "agent/prompts/live-campaign.md").read_text().strip()
     price = policy["pricing_per_million"]
 
     def cost(inp, out):
@@ -624,7 +640,7 @@ def run_campaign(
             "trial": item.trial,
             "call_index": 1,
             "timeout_seconds": min(15, remaining),
-            "payload": build_payload(project, prompt, by_id[item.case_id]["input"], config),
+            "payload": payloads[item.case_id],
         }
 
     def guard(item):
@@ -734,7 +750,7 @@ def run_campaign(
         chunk = run_chunk(
             ledger,
             planned,
-            cumulative_caps=PRIMARY_REMAINING_CAPS,
+            cumulative_caps=PRIMARY_CAPS,
             per_trial_caps=ResourceCaps(
                 1,
                 caps["input_tokens_per_call"],
