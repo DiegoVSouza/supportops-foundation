@@ -3,7 +3,7 @@
 ## Controls
 
 - `llm_mode`: fake for validation; no provider call in this phase.
-- `allowed_write_paths`: `.planning/phases/012-bounded-live-runner/**`, `scripts/run_live_campaign.py`, `supportops_foundation/llm/**` (only if required to add a no-fallback bounded adapter), `tests/test_live_campaign_preparation.py`, `tests/llm/**` (relevant runner contracts only), `evals/live-campaign.json` (schema/defaults only; all unresolved values stay PENDING), `docs/harness/decisions.md`, `docs/harness/failures.md`, `docs/harness/progress.md`, `artifacts/evidence/live-campaign-runner/**`, `docs/knowledge/live-campaign-runner.md`.
+- `allowed_write_paths`: `.planning/phases/012-bounded-live-runner/**`, `scripts/run_live_campaign.py`, `scripts/campaign_runtime.py`, `supportops_foundation/llm/**` (only if required to add a no-fallback bounded adapter), `tests/test_live_campaign_preparation.py`, `tests/llm/**` (relevant runner contracts only), `evals/live-campaign.json` (schema/defaults only; all unresolved values stay PENDING), `docs/harness/decisions.md`, `docs/harness/failures.md`, `docs/harness/progress.md`, `artifacts/evidence/live-campaign-runner/**`, `docs/knowledge/live-campaign-runner.md`.
 - `forbidden_changes`: dataset cases/manifest/rubric, review states, roots `.env`, credentials, historical evidence, sibling projects, harness-kit, provider/network access, Docker, public APIs, thresholds, budget/quota increases, publishing, push.
 - Budget: profile paid cap USD 0; finite free quota and expanded request/token/estimated-cost reservations are PENDING. This phase has zero provider calls.
 - Stop condition: any implementation path that could contact Groq during offline validation, unresolved write ownership, or pending values being treated as unlimited.
