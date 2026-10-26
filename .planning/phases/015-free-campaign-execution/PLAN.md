@@ -1,0 +1,15 @@
+# Plan
+
+- allowed_write_paths: `.planning/phases/015-free-campaign-execution/**`, `.gitignore` (private review and SQLite runtime files only), `scripts/run_live_campaign.py`, `scripts/campaign_execution.py`, `tests/llm/test_campaign_execution.py`, `tests/test_live_campaign_preparation.py` (replace obsolete PENDING-authorization expectations with authorized finite caps; preserve grader assertions), `agent/prompts/live-campaign.md`, `evals/live-campaign.json`, `evals/live-execution.json`, `artifacts/evals/live/**`, `artifacts/evidence/live-campaign-execution/**`, `.runtime/llm-review/**` (untracked owner-only review app data), `docs/harness/decisions.md`, `docs/harness/progress.md`, `docs/harness/failures.md`, `docs/knowledge/free-campaign-execution.md`, `README.md`, `README.pt-BR.md`.
+- llm_mode: fake for tests/default CLI. Live only for explicit authorized free-only batches after offline checks and candidate commit. No paid usage.
+- Shared operational ownership: use the root `.runtime/llm-live-readiness/campaign.lock` via the existing OS lease and root provider subprocess; root transport owns its account lock/reference registry and writes P00's provider-usage database only. Do not initialize sibling project logs or import sibling/root source.
+- forbidden_changes: dataset/split/holdout/rubric expectations, established graders, output caps, package behavior/version/dependencies, kit, sibling sources/stacks, credentials, public effects and real refunds/messages.
+- Validation: focused test doubles/fault/report tests, full locked offline gate, CLI help/dry-run/default-denial, private-store access checks, then at most the declared pilot trials with sanitized commands/exits/report. Record rate/quota checkpoints and exact resume command; no silent retry/fallback.
+- Stop condition: uncertain attempt, provenance mismatch, source changes, provider error, any cap/quota/timeout, review-store privacy failure or missing approval beyond the recorded free-only authorization. Model failures remain immutable outcomes, never retries.
+
+1. Add explicit opt-in and finite policy binding, frozen global campaign prompt, subprocess client, private synthetic review store and immutable provenance manifest.
+2. Bind chunk execution and sanitized trial/report generation; test resume/mismatch/operational errors and per-slice/all-three reporting without provider access.
+3. Run full regressions and commit the candidate; run the six-case pilot once within the shared free allowance, preserve results/errors and checkpoint/report readiness for human review.
+4. Update docs/knowledge and record reviewed local evidence commits. Continue development/holdout only under the frozen candidate and original protocol; no holdout-guided corrections in this phase.
+
+Plan review: accepted. The user explicitly authorized free usage and deferred human review. The private synthetic review database is application state permitted by the readiness spec; artifacts remain content-free. Existing pending-review gates remain pending. Finite limits come from the shared policy, never from key count. Independent clean-context review remains pending.
