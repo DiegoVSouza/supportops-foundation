@@ -19,10 +19,10 @@
 
 ## Tasks
 
-1. **Freeze reviewed cases and rubrics** — inspect P00 public contracts and current fixtures; author 40 unique synthetic semantic cases with the fixed 12/28 split, risk-family coverage, 60/40 English/Portuguese composition, expected decisions, forbidden behavior, rubric and finite per-case caps. Record review and public/synthetic content hashes only.
+1. **Freeze cases and rubrics for review** — inspect P00 public contracts and current fixtures; author 40 unique synthetic semantic cases with the fixed 12/28 split, risk-family coverage, 60/40 English/Portuguese composition, expected decisions, allowed tools, forbidden behavior, rubric and finite per-case caps. Record review status as `PENDING` until an independent reviewer signs off; hash only public/synthetic content.
 2. **Build guarded dry-run and reservation manifest** — add a project-local campaign config and CLI that validates --help/stage/config and reports planned cases, trials, maximum calls, reservations and unresolved fields without SDK/network/Docker access. Make actual generation fail closed on every `PENDING` ceiling or absent approval; preserve cumulative accounting design for later execution phase.
 3. **Prove preparation contracts and record evidence** — test duplicate/split/family/language validation and graders with deliberate bad outputs; prove dry-run does not instantiate provider clients and incomplete budget blocks generation. Run applicable fake checks, save sanitized outputs, review the staged diff and update project progress only with observed results.
 
 ## Plan review
 
-Pending independent clean-context review against the live-readiness spec and GSD-LITE-PLUS before implementation starts.
+Coordinator review completed against the live-readiness spec, P00 client contract, and campaign arithmetic. The phase paths are product-local and the generation path remains blocked by zero paid budget and pending free-tier/review limits. Accepted for preparation execution on 2026-10-26. A clean-context verifier is still required for the finished phase gates.

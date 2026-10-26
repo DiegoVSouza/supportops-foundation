@@ -48,3 +48,10 @@
 ## 2026-10-26 — Live Docker acceptance
 
 The foundation live smoke passed with 147 input and 94 output tokens. All 40 offline tests passed. This is client acceptance; the optional HTTP demo service E2E remains outside this run. Evidence: artifacts/evidence/live-docker/.
+
+## 2026-10-26 — Phase 011 campaign preparation
+
+- Added 40 unique synthetic cases in the fixed 12/28 development/holdout split with 24 English and 16 Portuguese cases across all seven required families. Dataset SHA-256: `b1e3f779acf7948b2da17aee937f57f6fd643c7b0b0bb78294d09d6bf0326849`.
+- Added a code-first contract grader and malformed/wrong decision probes. The dry-run ran in Python `-S` and reported pilot 6 calls, development 36 calls, and holdout 84 calls without provider access, credential reads, or Docker mutation.
+- Focused campaign tests: 20 passed. Full fake project gate: 60 tests passed; lint, formatting, compilation, deterministic fixture checks, and Compose config passed. Evidence: `artifacts/evidence/live-campaign-preparation/phase-011-preparation.md`.
+- Dataset and rubric reviewer sign-off, free-tier quota/capacity, cumulative spend/token ceilings, timing limits, and durable campaign ledger remain `PENDING`; generation is disabled and no Groq request was made. Campaign readiness is `INCOMPLETE`.

@@ -1,0 +1,20 @@
+{
+  "dataset_version": "p00-live-v1",
+  "case_path": "cases.jsonl",
+  "case_count": 40,
+  "split_counts": {"development": 12, "holdout": 28},
+  "language_counts": {"en": 24, "pt-BR": 16},
+  "minimum_cases_per_family": 3,
+  "families": [
+    "model_usage_identity",
+    "structured_output_valid",
+    "structured_output_invalid",
+    "read_only_tool_selection",
+    "ambiguous_input",
+    "unsupported_request",
+    "provider_failure_boundaries"
+  ],
+  "review_status": "PENDING",
+  "review_provenance": "PENDING: independent reviewer has not approved expected outcomes or rubric",
+  "content_sha256": "b1e3f779acf7948b2da17aee937f57f6fd643c7b0b0bb78294d09d6bf0326849"
+}

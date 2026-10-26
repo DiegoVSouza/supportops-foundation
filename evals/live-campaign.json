@@ -1,0 +1,59 @@
+{
+  "campaign_spec": "llm-live-readiness-v1",
+  "project": "p00",
+  "dataset_version": "p00-live-v1",
+  "dataset_manifest": "evals/datasets/live-v1/manifest.json",
+  "cases_path": "evals/datasets/live-v1/cases.jsonl",
+  "rubric_path": "evals/rubrics/live-v1/rubric.md",
+  "model": "openai/gpt-oss-20b",
+  "provider": "groq",
+  "trials": 3,
+  "pilot_trials": 1,
+  "pilot_case_ids": [
+    "p00-live-001",
+    "p00-live-006",
+    "p00-live-012",
+    "p00-live-017",
+    "p00-live-025",
+    "p00-live-032"
+  ],
+  "max_calls_per_case_trial": 1,
+  "per_case_caps": {
+    "max_provider_calls": 1,
+    "max_input_tokens": 2048,
+    "max_output_tokens": 256
+  },
+  "cumulative_caps": {
+    "max_requests": "PENDING",
+    "max_input_tokens": "PENDING",
+    "max_output_tokens": "PENDING",
+    "max_estimated_spend_usd": "PENDING",
+    "authorized_paid_spend_usd": "0.00",
+    "authorized_free_quota_calls": "PENDING"
+  },
+  "execution": {
+    "task_timeout_seconds": "PENDING",
+    "max_wall_clock_seconds": "PENDING",
+    "chunk_size": 10,
+    "requests_per_minute": "PENDING",
+    "transport_retries_per_call": 0,
+    "semantic_retries": 0,
+    "resume_ledger": "PENDING"
+  },
+  "confirmation_reserve": {
+    "fresh_cases": 20,
+    "trials_per_case": 3,
+    "max_calls_per_case_trial": 1,
+    "reserved_calls": "PENDING",
+    "reserved_spend_usd": "PENDING"
+  },
+  "authorization": {
+    "expanded_campaign_approval": "PENDING",
+    "free_tier_quota_evidence": "PENDING",
+    "model_catalog_preflight": "REQUIRED_BEFORE_GENERATION",
+    "dataset_review": "PENDING",
+    "rubric_review": "PENDING",
+    "approval_reference": "PENDING"
+  },
+  "generation_enabled": false
+}
