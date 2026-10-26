@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision", "tool"],
+  "properties": {
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "action", "escalate", "rationale"],
+      "properties": {
+        "category": {"type": "string", "enum": ["billing", "account_access", "technical", "shipping", "other"]},
+        "action": {"type": "string", "enum": ["answer", "request_info", "escalate", "refund"]},
+        "escalate": {"type": "boolean"},
+        "rationale": {"type": "string"}
+      }
+    },
+    "tool": {
+      "anyOf": [
+        {"type": "string", "enum": ["lookup_invoice", "lookup_kb", "lookup_order"]},
+        {"type": "null"}
+      ]
+    }
+  }
+}

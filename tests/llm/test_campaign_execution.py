@@ -52,6 +52,7 @@ def campaign(tmp_path, monkeypatch):
         *PROJECT.glob("scripts/*.py"),
         *PROJECT.glob("supportops_foundation/**/*.py"),
         PROJECT / "agent/prompts/live-campaign.md",
+        PROJECT / "agent/schemas/live-decision.json",
         PROJECT / "evals/live-campaign.json",
         PROJECT / "evals/live-execution.json",
         PROJECT / "evals/datasets/live-v1/cases.jsonl",
@@ -192,6 +193,63 @@ def test_malformed_nested_schema_is_terminal_not_an_uncertain_retry(campaign):
     assert report["errors"] == {"output_schema": 1}
     run(campaign)
     assert len(FixtureClient.calls) == 1
+
+
+def test_strict_payload_is_deterministic_and_fits_full_serialized_bound(campaign):
+    project, *_ = campaign
+    config = {"model": "openai/gpt-oss-20b"}
+    prompt = (project / "agent/prompts/live-campaign.md").read_text(encoding="utf-8")
+    first = execution.build_payload(project, prompt, "My concrete order has not arrived.", config)
+    second = execution.build_payload(project, prompt, "My concrete order has not arrived.", config)
+    assert first == second
+    assert first["response_format"]["type"] == "json_schema"
+    strict = first["response_format"]["json_schema"]
+    assert strict["strict"] is True
+    assert strict["schema"]["additionalProperties"] is False
+    assert strict["schema"]["properties"]["decision"]["additionalProperties"] is False
+    assert len(json.dumps(first, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) <= 2048
+
+
+def test_payload_full_bound_rejects_oversized_serialized_messages(campaign):
+    project, *_ = campaign
+    with pytest.raises(execution.ExecutionBlocked, match="serialized_input_exceeds_reserved_bound"):
+        execution.build_payload(
+            project,
+            (project / "agent/prompts/live-campaign.md").read_text(encoding="utf-8"),
+            "x" * 3000,
+            {"model": "openai/gpt-oss-20b"},
+        )
+
+
+def test_schema_change_is_part_of_frozen_fingerprint(campaign):
+    project, *_ = campaign
+    policy = project.parents[1] / "shared/policies/groq-free-campaign.json"
+    before = execution.fingerprint(project, policy)
+    schema_path = project / "agent/schemas/live-decision.json"
+    schema_path.write_text(schema_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    after = execution.fingerprint(project, policy)
+    schema_key = "projects/p00/agent/schemas/live-decision.json"
+    assert before[schema_key] != after[schema_key]
+
+
+def test_provider_diagnostics_are_typed_and_sanitized():
+    result = execution.sanitized_diagnostic(
+        {
+            "http_status": 400,
+            "provider_error_code": "invalid_request_error",
+            "reason": "request_schema",
+            "error_message": "secret raw provider content",
+            "headers": {"authorization": "never-log-this"},
+        },
+        evaluated=False,
+    )
+    assert result == {
+        "http_status": 400,
+        "provider_error_code": "invalid_request_error",
+        "diagnostic_class": "request_schema",
+    }
+    assert "secret" not in json.dumps(result)
+    assert "authorization" not in json.dumps(result)
 
 
 def test_tampering_result_to_pass_cannot_override_immutable_ledger(campaign):

@@ -1,0 +1,14 @@
+{
+  "cases": 12,
+  "languages": {
+    "en": 8,
+    "pt-BR": 4
+  },
+  "serialized_payload_bytes_min": 1512,
+  "serialized_payload_bytes_max": 1611,
+  "limit_bytes": 2048,
+  "within_limit": true,
+  "schema_sha256": "e2fdc1f0a0c8a0cda002d6ac24b0bee46ecaf255ecacab6947df60111f24a829",
+  "provider_accessed": false,
+  "credentials_read": false
+}

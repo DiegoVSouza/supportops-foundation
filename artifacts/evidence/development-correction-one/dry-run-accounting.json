@@ -1,0 +1,44 @@
+{
+  "provider_accessed": false,
+  "credentials_read": false,
+  "dataset_cases": 12,
+  "trials_per_case": 3,
+  "max_new_attempts": 36,
+  "chunks": [
+    10,
+    10,
+    10,
+    6
+  ],
+  "primary_ceiling": {
+    "calls": 126,
+    "input_tokens": 258048,
+    "output_tokens": 32256
+  },
+  "consumed_before": {
+    "calls": 4,
+    "input_tokens": 2319,
+    "output_tokens": 504,
+    "economic_estimate_usd": "0.000325125",
+    "unknown_usage_attempts": 1
+  },
+  "after_development": {
+    "primary_calls_remaining": 86,
+    "primary_input_remaining": 182001,
+    "primary_output_remaining": 22536,
+    "holdout_calls_reserved": 84,
+    "unspent_pilot_calls": 2
+  },
+  "protected_confirmation": {
+    "calls": 60,
+    "input_tokens": 122880,
+    "output_tokens": 15360,
+    "economic_estimate_usd": "0.013824"
+  },
+  "reviews": {
+    "dataset": "PENDING",
+    "rubric": "PENDING",
+    "human": "PENDING"
+  },
+  "paid_usd_authorized": "0.00"
+}

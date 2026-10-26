@@ -30,6 +30,15 @@ class ExecutionBlocked(RuntimeError):
     """A sanitized prerequisite or operational stop."""
 
 
+# Phase 016 primary envelope after the immutable four-attempt pilot baseline.
+PRIMARY_REMAINING_CAPS = ResourceCaps(
+    126 - 4,
+    258048 - 2319,
+    32256 - 504,
+    Decimal("0.0290304") - Decimal("0.000325125"),
+)
+
+
 def atomic_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -247,6 +256,7 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         *sorted((project / "scripts").glob("*.py")),
         *sorted((project / "supportops_foundation").rglob("*.py")),
         project / "agent/prompts/live-campaign.md",
+        project / "agent/schemas/live-decision.json",
         project / "evals/live-campaign.json",
         project / "evals/live-execution.json",
         project / "evals/datasets/live-v1/cases.jsonl",
@@ -264,6 +274,72 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
     return {
         str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in files
+    }
+
+
+def build_payload(project: Path, prompt: str, user_input: str, config: dict) -> dict[str, Any]:
+    """Build the complete provider payload deterministically and enforce a conservative byte bound."""
+    schema = json.loads((project / "agent/schemas/live-decision.json").read_text(encoding="utf-8"))
+    payload = {
+        "model": config["model"],
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": user_input},
+        ],
+        "max_completion_tokens": 256,
+        "temperature": 0,
+        "reasoning_effort": "low",
+        "include_reasoning": False,
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {"name": "live_decision", "strict": True, "schema": schema},
+        },
+    }
+    # UTF-8 bytes upper-bound tokenizer input because every token occupies at least one byte.
+    # Count all serialized fields, including schema and provider framing fields.
+    serialized = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    if len(serialized) > 2048:
+        raise ExecutionBlocked("serialized_input_exceeds_reserved_bound")
+    return payload
+
+
+def sanitized_diagnostic(result: dict[str, Any], *, evaluated: bool) -> dict[str, Any]:
+    """Keep only typed, categorical provider metadata; never copy provider text or headers."""
+    codes = {
+        "json_validate_failed",
+        "tool_use_failed",
+        "context_length_exceeded",
+        "invalid_request_error",
+        "invalid_api_key",
+        "authentication_error",
+        "model_not_found",
+        "model_permission_blocked",
+        "rate_limit_exceeded",
+        "insufficient_quota",
+        "billing_hard_limit_reached",
+        "blocked_api_access",
+        "OTHER",
+    }
+    reasons = {
+        "quota",
+        "transport",
+        "credential",
+        "rate_limit",
+        "model_access",
+        "accounting",
+        "output_schema",
+        "tool_selection",
+        "request_schema",
+    }
+    status = result.get("http_status")
+    return {
+        "http_status": status if type(status) is int and 100 <= status <= 599 else None,
+        "provider_error_code": result.get("provider_error_code")
+        if result.get("provider_error_code") in codes
+        else ("OTHER" if not evaluated else None),
+        "diagnostic_class": result.get("reason")
+        if result.get("reason") in reasons
+        else ("configuration" if not evaluated else None),
     }
 
 
@@ -456,6 +532,12 @@ def run_campaign(
         else [case for case in cases if case["split"] == stage]
     )
     trial_count = config["pilot_trials"] if stage == "pilot" else config["trials"]
+    if (
+        stage == "development"
+        and campaign == "free-dev-c1"
+        and (len(selected) != 12 or trial_count != 3)
+    ):
+        raise ExecutionBlocked("development_scope_mismatch")
     directory = project / "artifacts/evals/live" / campaign
     manifest_path = directory / "manifest.json"
     frozen = {
@@ -463,6 +545,7 @@ def run_campaign(
         "stage": stage,
         "model": config["model"],
         "files_sha256": source_files,
+        "request_schema_sha256": source_files["projects/p00/agent/schemas/live-decision.json"],
         "sampling_order": [case["case_id"] for case in selected],
         "trials_per_case": trial_count,
         "parameters": {"temperature": 0, "reasoning_effort": "low", "max_completion_tokens": 256},
@@ -541,18 +624,7 @@ def run_campaign(
             "trial": item.trial,
             "call_index": 1,
             "timeout_seconds": min(15, remaining),
-            "payload": {
-                "model": config["model"],
-                "messages": [
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": by_id[item.case_id]["input"]},
-                ],
-                "max_completion_tokens": item.output_tokens,
-                "temperature": 0,
-                "reasoning_effort": "low",
-                "include_reasoning": False,
-                "response_format": {"type": "json_object"},
-            },
+            "payload": build_payload(project, prompt, by_id[item.case_id]["input"], config),
         }
 
     def guard(item):
@@ -614,6 +686,8 @@ def run_campaign(
                     "model_access",
                     "accounting",
                     "output_schema",
+                    "request_schema",
+                    "tool_selection",
                 }
                 else "configuration"
             ]
@@ -635,6 +709,7 @@ def run_campaign(
             "provider_attempt_id": result.get("attempt_id"),
             "usage": result.get("usage"),
             "latency_ms": result.get("latency_ms"),
+            **sanitized_diagnostic(result, evaluated=evaluated),
             "review_reference": {
                 "campaign_id": campaign,
                 "case_id": item.case_id,
@@ -659,12 +734,7 @@ def run_campaign(
         chunk = run_chunk(
             ledger,
             planned,
-            cumulative_caps=ResourceCaps(
-                caps["requests"],
-                caps["input_tokens"],
-                caps["output_tokens"],
-                Decimal(caps["estimated_cost_usd"]),
-            ),
+            cumulative_caps=PRIMARY_REMAINING_CAPS,
             per_trial_caps=ResourceCaps(
                 1,
                 caps["input_tokens_per_call"],
