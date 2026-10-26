@@ -62,3 +62,8 @@ The foundation live smoke passed with 147 input and 94 output tokens. All 40 off
 - Added a cross-process OS lease primitive with secret-free metadata. Tests prove lease contention, append-only protections, crash-surviving reservations, immutable trials, and concurrent cap enforcement.
 - Focused campaign checks passed (29 tests); P00 full offline gate passed (69 tests), including lint, format, compile, dataset contract and Compose config. Python `-S` pilot dry-run exited 0; execution exited 2 while prerequisites remain pending. No Groq credentials were passed to checks and no provider request occurred.
 - This is a partial runner foundation, not an executable campaign: Groq preflight/dispatch, all-project lease and ledger integration, interrupted dispatch recovery, reviewed dataset/rubric, quota and cumulative authorizations remain pending. Phase status: `INCOMPLETE`. Evidence: `artifacts/evidence/live-campaign-runner/`.
+## 2026-10-26 — Phase 013 confirmation token ceilings
+
+- The offline dry-run now reports fresh-confirmation input/output maxima: 122,880 / 15,360 tokens from 20 cases, 3 trials, and unchanged 2,048 / 256 per-case caps.
+- Focused preparation checks and fast/full fake gates passed; all three `-S` dry-runs exited 0. Paid ceiling remains USD 0; account quota and review approvals are `PENDING`, so campaign remains blocked.
+- Evidence: `artifacts/evidence/live-token-reservations/`.

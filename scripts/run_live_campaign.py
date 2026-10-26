@@ -314,6 +314,16 @@ def summarize(
             "confirmation_max_calls": (
                 confirmation_cases * confirmation_trials * confirmation["max_calls_per_case_trial"]
             ),
+            "confirmation_max_input_tokens": (
+                confirmation_cases
+                * confirmation_trials
+                * config["per_case_caps"]["max_input_tokens"]
+            ),
+            "confirmation_max_output_tokens": (
+                confirmation_cases
+                * confirmation_trials
+                * config["per_case_caps"]["max_output_tokens"]
+            ),
             "confirmation_spend_usd": confirmation["reserved_spend_usd"],
             "all_stages_max_calls_if_additive": (
                 all_case_calls * campaign_trials

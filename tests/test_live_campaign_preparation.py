@@ -120,6 +120,9 @@ def test_dry_run_reports_stage_reservations(stage, case_count, trial_count, call
     assert report["trials_per_case"] == trial_count
     assert report["max_provider_calls"] == calls
     assert report["generation_authorized"] is False
+    plan = report["planned_reservations"]
+    assert plan["confirmation_max_input_tokens"] == 20 * 3 * 2048
+    assert plan["confirmation_max_output_tokens"] == 20 * 3 * 256
 
 
 def test_generation_is_incomplete_without_creating_a_provider_client(capsys) -> None:
