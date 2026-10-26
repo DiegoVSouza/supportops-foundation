@@ -1,6 +1,6 @@
 # Live Groq and Docker acceptance
 
-Status: planned.
+Status: verified for the bounded acceptance case.
 
 Run the budgeted foundation client against Groq and validate the offline product gate while Docker services are available.
 

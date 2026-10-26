@@ -6,6 +6,7 @@
 4. Review staged paths and sanitized evidence, update VERIFY and progress, and commit locally with a component scope. Leave existing stacks untouched and record newly started services.
 
 allowed_write_paths:
+- docs/knowledge/live-docker.md
 - docs/harness/phases/006-live-docker-acceptance/**
 - scripts/smoke_groq.py
 - tests/test_smoke_groq.py

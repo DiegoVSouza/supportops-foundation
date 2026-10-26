@@ -44,3 +44,7 @@
 - Removed the silent OpenRouter fallback from the P00 evaluation and added an optional pinned official Groq SDK adapter to the existing budgeted LiveClient. Only `GROQ_API_KEY_1..4` are selected; fake/replay remain SDK-independent.
 - The first attempt failed in urllib model preflight. SDK-backed attempts exposed invalid JSON at 128 tokens and nullable `tool_calls`; the transport now uses a 256-token cap and normalizes null tool calls before the existing parser.
 - Final real run passed: GPT-OSS 20B, 147 input / 177 output tokens, USD 0.000064125 estimated cost, 844 ms, one attempt. The full P00 gate passed with 40 tests. Prior failure artifacts are retained; the OpenRouter run above remains historical and is not Groq evidence.
+
+## 2026-10-26 — Live Docker acceptance
+
+The foundation live smoke passed with 147 input and 94 output tokens. All 40 offline tests passed. This is client acceptance; the optional HTTP demo service E2E remains outside this run. Evidence: artifacts/evidence/live-docker/.
