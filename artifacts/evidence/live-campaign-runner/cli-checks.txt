@@ -1,0 +1,4 @@
+No Groq credential variables were passed; no .env was read.
+help: exit 0
+dry-run: exit 0
+execution-blocked: exit 2

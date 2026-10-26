@@ -55,3 +55,10 @@ The foundation live smoke passed with 147 input and 94 output tokens. All 40 off
 - Added a code-first contract grader and malformed/wrong decision probes. The dry-run ran in Python `-S` and reported pilot 6 calls, development 36 calls, and holdout 84 calls without provider access, credential reads, or Docker mutation.
 - Focused campaign tests: 20 passed. Full fake project gate: 60 tests passed; lint, formatting, compilation, deterministic fixture checks, and Compose config passed. Evidence: `artifacts/evidence/live-campaign-preparation/phase-011-preparation.md`.
 - Dataset and rubric reviewer sign-off, free-tier quota/capacity, cumulative spend/token ceilings, timing limits, and durable campaign ledger remain `PENDING`; generation is disabled and no Groq request was made. Campaign readiness is `INCOMPLETE`.
+
+## 2026-10-26 — Phase 012 bounded runner foundation
+
+- Added a durable append-only ledger with reservation-before-result events, unknown-usage retention, immutable completed failures, cumulative request/token/estimated-cost checks, and a read-only resume inspection command.
+- Added a cross-process OS lease primitive with secret-free metadata. Tests prove lease contention, append-only protections, crash-surviving reservations, immutable trials, and concurrent cap enforcement.
+- Focused campaign checks passed (29 tests); P00 full offline gate passed (69 tests), including lint, format, compile, dataset contract and Compose config. Python `-S` pilot dry-run exited 0; execution exited 2 while prerequisites remain pending. No Groq credentials were passed to checks and no provider request occurred.
+- This is a partial runner foundation, not an executable campaign: Groq preflight/dispatch, all-project lease and ledger integration, interrupted dispatch recovery, reviewed dataset/rubric, quota and cumulative authorizations remain pending. Phase status: `INCOMPLETE`. Evidence: `artifacts/evidence/live-campaign-runner/`.

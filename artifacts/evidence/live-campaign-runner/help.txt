@@ -1,0 +1,16 @@
+Command: uv run --locked python scripts/run_live_campaign.py --help
+Expected exit: 0
+Actual exit: 0
+usage: run_live_campaign.py [-h] [--config CONFIG]
+                            (--stage {pilot,development,holdout} |
+                            --resume CAMPAIGN_ID) [--dry-run]
+
+Validate and dry-run the P00 live campaign without loading provider code.
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --stage {pilot,development,holdout}
+  --resume CAMPAIGN_ID
+  --dry-run             validate and report reservations without provider
+                        access

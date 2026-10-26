@@ -19,3 +19,7 @@ Use opt-in Groq live mode with numbered credentials and authenticated model pref
 ## 2026-10-26 — Broad live campaign preparation
 
 Phase 011 freezes a 40-case synthetic dataset (12 development / 28 holdout; 24 English / 16 Portuguese) and a no-provider dry-run contract. The P00 profile continues to authorize USD 0 per task; the prior single-case free-tier exception does not authorize the broad campaign or its 20-case confirmation reserve. All new quota, request, token, latency, and spend ceilings remain `PENDING`. Dataset/rubric review is `PENDING`; generation is disabled. No provider call was made.
+
+## 2026-10-26 — Phase 012 bounded runner foundation
+
+Added an append-only SQLite reservation ledger, conservative accounting for unknown usage, immutable trial events, cross-process OS lease primitive, and read-only resume inspection. Offline dry-run stays standard-library-only. The P00 profile remains USD 0 paid spend; free quota, cumulative caps and reviewer approval remain pending. The provider dispatcher, shared six-project ledger/lease integration and campaign execution are not implemented, so generation remains blocked and this phase is incomplete. No provider call was made.

@@ -128,4 +128,42 @@ def test_generation_is_incomplete_without_creating_a_provider_client(capsys) -> 
     assert main(["--stage", "pilot"]) == 2
     report = json.loads(capsys.readouterr().out)
     assert report["status"] == "INCOMPLETE"
-    assert report["reason"] == "campaign generation is not implemented in preparation phase"
+    assert "blocked until every approval and limit is resolved" in report["reason"]
+
+
+def test_resume_dry_run_reports_uncertain_attempt_without_provider_access(
+    tmp_path, monkeypatch, capsys
+):
+    from decimal import Decimal
+
+    from scripts import run_live_campaign
+    from scripts.campaign_runtime import CampaignLedger
+
+    campaign_id = "resume-test"
+    monkeypatch.setattr(run_live_campaign, "ROOT", tmp_path)
+    ledger = CampaignLedger(
+        tmp_path / "artifacts/evals/live/ledger.sqlite",
+        project="p00",
+        campaign_id=campaign_id,
+    )
+    ledger.reserve(
+        case_id="synthetic-1",
+        trial=1,
+        input_tokens=10,
+        output_tokens=20,
+        estimated_cost_usd=Decimal("0.001"),
+        caps={
+            "requests": 1,
+            "input_tokens": 10,
+            "output_tokens": 20,
+            "estimated_cost_usd": Decimal("0.001"),
+        },
+    )
+    last_modified = ledger.path.stat().st_mtime_ns
+
+    assert run_live_campaign.main(["--resume", campaign_id, "--dry-run"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["trials"][0]["event"] == "reserved"
+    assert report["provider_accessed"] is False
+    assert report["credentials_read"] is False
+    assert ledger.path.stat().st_mtime_ns == last_modified
