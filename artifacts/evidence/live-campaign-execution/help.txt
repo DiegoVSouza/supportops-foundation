@@ -1,0 +1,22 @@
+usage: run_live_campaign.py [-h] [--config CONFIG]
+                            (--stage {pilot,development,holdout} |
+                            --resume CAMPAIGN_ID) [--dry-run] [--execute-free]
+                            [--campaign-id CAMPAIGN_ID]
+                            [--max-trials MAX_TRIALS]
+
+Validate and dry-run the P00 live campaign without loading provider code.
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --stage {pilot,development,holdout}
+  --resume CAMPAIGN_ID
+  --dry-run             validate and report reservations without provider
+                        access
+  --execute-free        explicitly run an authorized free-only chunk; requires
+                        LLM_MODE=live
+  --campaign-id CAMPAIGN_ID
+                        immutable campaign ID for a new stage
+  --max-trials MAX_TRIALS
+                        new trials in this chunk, at most ten
+command=python -S scripts/run_live_campaign.py --help; exit_code=0

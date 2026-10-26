@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import Counter
@@ -363,8 +364,69 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="validate and report reservations without provider access",
     )
+    parser.add_argument(
+        "--execute-free",
+        action="store_true",
+        help="explicitly run an authorized free-only chunk; requires LLM_MODE=live",
+    )
+    parser.add_argument("--campaign-id", help="immutable campaign ID for a new stage")
+    parser.add_argument(
+        "--max-trials", type=int, default=10, help="new trials in this chunk, at most ten"
+    )
     args = parser.parse_args(argv)
     try:
+        if args.execute_free:
+            if (
+                args.dry_run
+                or os.getenv("LLM_MODE", "fake") != "live"
+                or not 1 <= args.max_trials <= 10
+            ):
+                raise CampaignError(
+                    "explicit live mode and one to ten trials required; dry-run cannot dispatch"
+                )
+            if args.config.resolve() != (ROOT / "evals/live-campaign.json").resolve():
+                raise CampaignError("custom live config is not authorized")
+            campaign = args.resume or args.campaign_id
+            if not isinstance(campaign, str) or not re.fullmatch(
+                r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}", campaign
+            ):
+                raise CampaignError("valid campaign ID required")
+            selected_stage = args.stage
+            if args.resume:
+                selected_stage = load_json(
+                    ROOT / "artifacts/evals/live" / campaign / "manifest.json"
+                )["stage"]
+            if selected_stage not in {"pilot", "development", "holdout"}:
+                raise CampaignError("invalid frozen stage")
+            config = load_json(ROOT / "evals/live-campaign.json")
+            manifest = load_json(ROOT / config["dataset_manifest"])
+            cases = load_cases(ROOT / config["cases_path"], manifest)
+            validate_config(config, cases)
+            if not config["generation_enabled"]:
+                raise CampaignError("generation remains disabled")
+            sys.path.insert(0, str(ROOT))
+            from scripts.campaign_execution import ExecutionBlocked, run_campaign
+            from scripts.campaign_runtime import CampaignBlocked
+
+            try:
+                report, exit_code = run_campaign(
+                    ROOT, config, cases, selected_stage, campaign, max_trials=args.max_trials
+                )
+            except (ExecutionBlocked, CampaignBlocked) as exc:
+                print(json.dumps({"status": "INCOMPLETE", "reason": str(exc)}))
+                return 2
+            except Exception:  # noqa: BLE001 - Never print raw synthetic output or process exceptions.
+                print(
+                    json.dumps(
+                        {
+                            "status": "INCOMPLETE",
+                            "reason": "campaign_execution_interrupted; inspect durable checkpoint",
+                        }
+                    )
+                )
+                return 2
+            print(json.dumps(report, sort_keys=True, indent=2))
+            return exit_code
         if args.resume is not None:
             if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}", args.resume):
                 raise CampaignError("invalid campaign ID")
@@ -414,7 +476,7 @@ def main(argv: list[str] | None = None) -> int:
             {
                 **summary,
                 "status": "INCOMPLETE",
-                "reason": "campaign execution remains blocked until every approval and limit is resolved",
+                "reason": "campaign execution requires --execute-free and LLM_MODE=live; human review remains pending",
             },
             ensure_ascii=False,
             sort_keys=True,

@@ -1,0 +1,658 @@
+"""P00 free-only batch binding, sanitized reporting and private synthetic review state."""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import json
+import math
+import os
+import re
+import sqlite3
+import subprocess
+import sys
+import time
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
+from contextlib import closing, suppress
+from datetime import UTC, datetime
+from decimal import Decimal
+from pathlib import Path
+from typing import Any
+
+from scripts.campaign_batch import ResourceCaps, TrialOutcome, TrialReservation, run_chunk
+from scripts.campaign_runtime import CampaignLedger
+
+
+class ExecutionBlocked(RuntimeError):
+    """A sanitized prerequisite or operational stop."""
+
+
+def atomic_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    with temporary.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(text)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+
+def private_directory(path: Path, project: Path) -> None:
+    if not path.resolve().is_relative_to(project.resolve()):
+        raise ExecutionBlocked("review_path_outside_project")
+    path.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if os.name == "nt":
+        identity = subprocess.run(
+            ["whoami", "/user", "/fo", "csv", "/nh"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=10,
+        )
+        try:
+            sid = next(csv.reader(identity.stdout.splitlines()))[1]
+        except (IndexError, StopIteration):
+            raise ExecutionBlocked("private_review_identity_unavailable") from None
+        if identity.returncode or not re.fullmatch(r"S-1-[0-9-]+", sid):
+            raise ExecutionBlocked("private_review_identity_unavailable")
+        for options in (["/grant:r", f"*{sid}:(OI)(CI)F"], ["/inheritance:r"]):
+            result = subprocess.run(
+                ["icacls", str(path), *options], capture_output=True, check=False, timeout=10
+            )
+            if result.returncode:
+                raise ExecutionBlocked("private_review_acl_unavailable")
+    else:
+        path.chmod(0o700)
+
+
+class ReviewStore:
+    def __init__(self, project: Path):
+        directory = project / ".runtime/llm-review"
+        private_directory(directory, project)
+        self.path = directory / "answers.sqlite"
+        with closing(sqlite3.connect(self.path)) as db:
+            db.execute("PRAGMA synchronous=FULL")
+            db.executescript("""
+                CREATE TABLE IF NOT EXISTS answers(campaign_id TEXT, case_id TEXT, trial INTEGER,
+                  assistant_content TEXT NOT NULL, provider_attempt_id TEXT,
+                  PRIMARY KEY(campaign_id,case_id,trial));
+                CREATE TRIGGER IF NOT EXISTS no_answer_update BEFORE UPDATE ON answers
+                  BEGIN SELECT RAISE(ABORT,'immutable review answer'); END;
+                CREATE TRIGGER IF NOT EXISTS no_answer_delete BEFORE DELETE ON answers
+                  BEGIN SELECT RAISE(ABORT,'immutable review answer'); END;
+            """)
+            db.commit()
+        if os.name != "nt":
+            self.path.chmod(0o600)
+
+    def put(
+        self, campaign: str, case_id: str, trial: int, content: str, attempt: str | None
+    ) -> None:
+        if not isinstance(content, str) or len(content.encode("utf-8")) > 32768:
+            raise ExecutionBlocked("invalid_synthetic_review_content")
+        with closing(sqlite3.connect(self.path)) as db:
+            db.execute("PRAGMA synchronous=FULL")
+            db.execute(
+                "INSERT INTO answers VALUES(?,?,?,?,?)",
+                (campaign, case_id, trial, content, attempt),
+            )
+            db.commit()
+
+
+class ProviderClient:
+    provenance = "live"
+
+    def __init__(self, project: Path):
+        lab = project.parents[1]
+        env = {
+            name: value for name, value in os.environ.items() if not name.startswith("GROQ_API_KEY")
+        }
+        env["LLM_MODE"] = "live"
+        env["PYTHONIOENCODING"] = "utf-8"
+        env["PYTHONUTF8"] = "1"
+        self.process = subprocess.Popen(
+            [
+                sys.executable,
+                "-S",
+                str(lab / "scripts/harness/live_provider_transport.py"),
+                "--project",
+                "p00",
+            ],
+            cwd=lab,
+            env=env,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            encoding="utf-8",
+        )
+        self.reader = ThreadPoolExecutor(max_workers=1)
+        self.last_stop = None
+        try:
+            self.ready = self.receive(80)
+            if self.ready.get("status") != "ready" or self.ready.get("protocol_version") != 1:
+                raise ExecutionBlocked(self.ready.get("reason", "provider_session_unavailable"))
+        except BaseException:
+            self.close()
+            raise
+
+    def receive(self, seconds: float) -> dict[str, Any]:
+        assert self.process.stdout is not None
+        future = self.reader.submit(self.process.stdout.readline, 2_000_000)
+        try:
+            line = future.result(timeout=seconds)
+            result = json.loads(line)
+        except (FutureTimeout, ValueError, OSError):
+            self.process.kill()
+            self.process.wait(timeout=5)
+            raise ExecutionBlocked("provider_process_timeout_or_invalid_protocol") from None
+        if not isinstance(result, dict):
+            raise ExecutionBlocked("invalid_provider_protocol")
+        return result
+
+    def request(self, envelope: dict[str, Any], operation: str) -> dict[str, Any]:
+        assert self.process.stdin is not None
+        self.process.stdin.write(
+            json.dumps({**envelope, "operation": operation}, ensure_ascii=False) + "\n"
+        )
+        self.process.stdin.flush()
+        result = self.receive(min(20, envelope.get("timeout_seconds", 15) + 2))
+        self.last_stop = result.get("reason")
+        return result
+
+    def close(self) -> None:
+        if self.process.stdin:
+            with suppress(OSError):
+                self.process.stdin.close()
+        try:
+            self.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
+            self.process.wait(timeout=5)
+        self.reader.shutdown(wait=True, cancel_futures=True)
+        if self.process.stdout:
+            self.process.stdout.close()
+
+
+def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
+    files = [
+        *sorted((project / "scripts").glob("*.py")),
+        *sorted((project / "supportops_foundation").rglob("*.py")),
+        project / "agent/prompts/live-campaign.md",
+        project / "evals/live-campaign.json",
+        project / "evals/live-execution.json",
+        project / "evals/datasets/live-v1/cases.jsonl",
+        project / "evals/datasets/live-v1/manifest.json",
+        project / "evals/rubrics/live-v1/rubric.md",
+        project / "uv.lock",
+        project / "pyproject.toml",
+    ]
+    lab = project.parents[1]
+    files += [
+        policy_path,
+        lab / "scripts/harness/live_free_account.py",
+        lab / "scripts/harness/live_provider_transport.py",
+    ]
+    return {
+        str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in files
+    }
+
+
+def wilson(successes: int, total: int) -> list[float] | None:
+    if not total:
+        return None
+    z = 1.959963984540054
+    rate, scale = successes / total, 1 + z * z / total
+    middle = (rate + z * z / (2 * total)) / scale
+    radius = z * math.sqrt(rate * (1 - rate) / total + z * z / (4 * total * total)) / scale
+    return [max(0.0, middle - radius), min(1.0, middle + radius)]
+
+
+def verify_provider_usage(project: Path, campaign: str, rows: list[dict[str, Any]]) -> None:
+    live = [row for row in rows if row["provenance"] == "live"]
+    if not live:
+        return
+    path = project / "artifacts/evals/live/provider-usage.sqlite"
+    try:
+        with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)) as db:
+            db.row_factory = sqlite3.Row
+            for row in live:
+                receipt = db.execute(
+                    "SELECT * FROM usage_events WHERE attempt_id=? AND event='completed'",
+                    (row["provider_attempt_id"],),
+                ).fetchone()
+                if receipt is None or (
+                    receipt["campaign"],
+                    receipt["case_id"],
+                    receipt["trial"],
+                    receipt["call_index"],
+                ) != (campaign, row["case_id"], row["trial"], 1):
+                    raise ExecutionBlocked("missing_or_mismatched_provider_usage_receipt")
+                if row["model_evaluated"] and (
+                    receipt["status"] != "ok"
+                    or row["usage"]
+                    != {
+                        "input_tokens": receipt["actual_input"],
+                        "output_tokens": receipt["actual_output"],
+                    }
+                ):
+                    raise ExecutionBlocked("model_trial_without_verified_provider_usage")
+    except sqlite3.Error:
+        raise ExecutionBlocked("provider_usage_proof_unavailable") from None
+
+
+def discrete_prediction(prediction: Any) -> dict[str, Any] | None:
+    if not isinstance(prediction, dict) or not isinstance(prediction.get("decision"), dict):
+        return None
+    decision = prediction["decision"]
+
+    def enum(value, allowed):
+        return value if isinstance(value, str) and value in allowed else "INVALID"
+
+    tool = prediction.get("tool")
+    return {
+        "category": enum(
+            decision.get("category"),
+            {"billing", "account_access", "technical", "shipping", "other"},
+        ),
+        "action": enum(decision.get("action"), {"answer", "request_info", "escalate", "refund"}),
+        "escalate": decision.get("escalate") if type(decision.get("escalate")) is bool else None,
+        "tool": None
+        if tool is None
+        else enum(tool, {"lookup_invoice", "lookup_kb", "lookup_order", "issue_refund"}),
+        "rationale_present": isinstance(decision.get("rationale"), str)
+        and bool(decision["rationale"].strip()),
+    }
+
+
+def report_trials(
+    rows: list[dict[str, Any]], cases: list[dict[str, Any]], trials_per_case: int
+) -> dict[str, Any]:
+    keys = [(row["case_id"], row["trial"]) for row in rows]
+    if len(keys) != len(set(keys)):
+        raise ExecutionBlocked("duplicate_trial_artifact")
+    by_id = {case["case_id"]: case for case in cases}
+    if any(case not in by_id or not 1 <= trial <= trials_per_case for case, trial in keys):
+        raise ExecutionBlocked("trial_outside_frozen_manifest")
+    if any(
+        row[field]
+        != (
+            by_id[row["case_id"]]["expected"]["category"]
+            if field == "domain"
+            else by_id[row["case_id"]][field]
+        )
+        for row in rows
+        for field in ("domain", "family", "language")
+    ):
+        raise ExecutionBlocked("trial_slice_metadata_mismatch")
+
+    def score(selected):
+        evaluated = [row for row in selected if row["model_evaluated"]]
+        return {
+            "recorded_trials": len(selected),
+            "model_evaluated_trials": len(evaluated),
+            "passed_trials": sum(row["passed"] for row in evaluated),
+            "operational_failures": sum(not row["model_evaluated"] for row in selected),
+            "critical_failures": sum(row.get("critical_failure", False) for row in selected),
+            "errors": dict(
+                sorted(Counter(error for row in selected for error in row["error_classes"]).items())
+            ),
+        }
+
+    slices = {
+        field: {
+            value: score([row for row in rows if row[field] == value])
+            for value in sorted(
+                {
+                    case["expected"]["category"] if field == "domain" else case[field]
+                    for case in cases
+                }
+            )
+        }
+        for field in ("family", "language", "domain")
+    }
+    complete_cases = []
+    for case in cases:
+        observations = [
+            row for row in rows if row["case_id"] == case["case_id"] and row["model_evaluated"]
+        ]
+        if len(observations) == 3 and trials_per_case == 3:
+            complete_cases.append(all(row["passed"] for row in observations))
+    all_pass = sum(complete_cases)
+    return {
+        **score(rows),
+        "planned_unique_cases": len(cases),
+        "planned_trials": len(cases) * trials_per_case,
+        "real_model_trials": sum(
+            row["model_evaluated"] and row["provenance"] == "live" for row in rows
+        ),
+        "slices": slices,
+        "unique_cases_with_three_model_results": len(complete_cases),
+        "unique_cases_all_three_pass": all_pass,
+        "all_three_wilson95": wilson(all_pass, len(complete_cases)),
+        "human_review_status": "PENDING",
+        "grounding_review_status": "PENDING",
+        "promotion_status": "INCOMPLETE",
+    }
+
+
+def run_campaign(
+    project: Path,
+    config: dict,
+    cases: list[dict],
+    stage: str,
+    campaign: str,
+    *,
+    max_trials: int = 10,
+    client_factory=ProviderClient,
+    revision: str | None = None,
+) -> tuple[dict, int]:
+    from scripts.run_live_campaign import validate_prediction
+
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}", campaign):
+        raise ExecutionBlocked("invalid_campaign_id")
+    started = time.monotonic()
+    deadline = started + config["execution"]["max_wall_clock_seconds"]
+    lab = project.parents[1]
+    policy_path = lab / "shared/policies/groq-free-campaign.json"
+    policy = json.loads(policy_path.read_text())
+    caps = policy["projects"]["p00"]
+    source_files = fingerprint(project, policy_path)
+    if revision is None:
+        check = subprocess.run(
+            [
+                "git",
+                "diff",
+                "--quiet",
+                "HEAD",
+                "--",
+                "scripts",
+                "supportops_foundation",
+                "agent/prompts",
+                "evals",
+                "pyproject.toml",
+                "uv.lock",
+            ],
+            cwd=project,
+            check=False,
+        )
+        if check.returncode:
+            raise ExecutionBlocked("candidate_has_uncommitted_source_changes")
+        revision = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=project, text=True, capture_output=True, check=True
+        ).stdout.strip()
+    selected = (
+        [case for case in cases if case["case_id"] in config["pilot_case_ids"]]
+        if stage == "pilot"
+        else [case for case in cases if case["split"] == stage]
+    )
+    trial_count = config["pilot_trials"] if stage == "pilot" else config["trials"]
+    directory = project / "artifacts/evals/live" / campaign
+    manifest_path = directory / "manifest.json"
+    frozen = {
+        "campaign_id": campaign,
+        "stage": stage,
+        "model": config["model"],
+        "files_sha256": source_files,
+        "sampling_order": [case["case_id"] for case in selected],
+        "trials_per_case": trial_count,
+        "parameters": {"temperature": 0, "reasoning_effort": "low", "max_completion_tokens": 256},
+    }
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text())
+        if any(manifest.get(key) != value for key, value in frozen.items()):
+            raise ExecutionBlocked("immutable_campaign_provenance_mismatch")
+    else:
+        manifest = {
+            **frozen,
+            "candidate_commit": revision,
+            "created_at_utc": datetime.now(UTC).isoformat(),
+            "human_review_status": "PENDING",
+        }
+        atomic_text(manifest_path, json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    trial_path = directory / "trials.jsonl"
+    rows = (
+        [json.loads(line) for line in trial_path.read_text().splitlines()]
+        if trial_path.exists()
+        else []
+    )
+    report_trials(rows, selected, trial_count)
+    verify_provider_usage(project, campaign, rows)
+    ledger = CampaignLedger(
+        project / "artifacts/evals/live/ledger.sqlite", project="p00", campaign_id=campaign
+    )
+    recorded = {(row["case_id"], row["trial"]): row for row in ledger.reserved_trials()}
+    if any((row["case_id"], row["trial"]) not in recorded for row in rows):
+        raise ExecutionBlocked("trial_artifact_without_ledger")
+    if any(
+        row["passed"] != (row["outcome"] == "passed")
+        or (
+            recorded[(row["case_id"], row["trial"])]["event"] == "completed"
+            and recorded[(row["case_id"], row["trial"])]["outcome"] != row["outcome"]
+        )
+        for row in rows
+    ):
+        raise ExecutionBlocked("trial_ledger_outcome_mismatch")
+    if any(
+        row["event"] == "completed"
+        and (key not in {(item["case_id"], item["trial"]) for item in rows})
+        for key, row in recorded.items()
+    ):
+        raise ExecutionBlocked("completed_ledger_without_trial_artifact")
+    review = ReviewStore(project)
+    prompt = (project / "agent/prompts/live-campaign.md").read_text().strip()
+    price = policy["pricing_per_million"]
+
+    def cost(inp, out):
+        return (
+            Decimal(inp) * Decimal(price["input_usd"]) + Decimal(out) * Decimal(price["output_usd"])
+        ) / 1000000
+
+    planned = [
+        TrialReservation(
+            case["case_id"],
+            trial,
+            case["max_input_tokens"],
+            case["max_output_tokens"],
+            cost(case["max_input_tokens"], case["max_output_tokens"]),
+        )
+        for case in selected
+        for trial in range(1, trial_count + 1)
+    ]
+    by_id = {case["case_id"]: case for case in selected}
+    client = client_factory(project)
+
+    def envelope(item):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise ExecutionBlocked("wall_clock_checkpoint")
+        return {
+            "campaign_id": campaign,
+            "case_id": item.case_id,
+            "trial": item.trial,
+            "call_index": 1,
+            "timeout_seconds": min(15, remaining),
+            "payload": {
+                "model": config["model"],
+                "messages": [
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": by_id[item.case_id]["input"]},
+                ],
+                "max_completion_tokens": item.output_tokens,
+                "temperature": 0,
+                "reasoning_effort": "low",
+                "include_reasoning": False,
+                "response_format": {"type": "json_object"},
+            },
+        }
+
+    def guard(item):
+        return client.request(envelope(item), "preview").get("status") == "approved"
+
+    def execute(item):
+        result = client.request(envelope(item), "complete")
+        if not isinstance(result.get("attempt_id"), str) or not re.fullmatch(
+            r"[a-f0-9]{32}", result["attempt_id"]
+        ):
+            raise ExecutionBlocked("provider_outcome_without_durable_attempt")
+        case = by_id[item.case_id]
+        evaluated = result.get("status") == "ok"
+        errors, prediction, issues = [], None, []
+        if evaluated:
+            try:
+                prediction = json.loads(result["content"])
+            except (ValueError, KeyError, TypeError):
+                errors = ["output_schema"]
+            if not errors:
+                decision = prediction.get("decision") if isinstance(prediction, dict) else None
+                if isinstance(decision, dict) and any(
+                    not isinstance(decision.get(field), str) for field in ("category", "action")
+                ):
+                    issues = ["decision schema is invalid"]
+                else:
+                    issues = validate_prediction(case, prediction)
+                errors = sorted(
+                    {
+                        "tool_selection"
+                        if "tool" in issue
+                        else "classification"
+                        if "category" in issue
+                        else "routing"
+                        if "action" in issue or "escalat" in issue
+                        else "output_schema"
+                        for issue in issues
+                    }
+                )
+            if result.get("finish_reason") == "length":
+                errors.append("output_truncated")
+            review.put(
+                campaign,
+                item.case_id,
+                item.trial,
+                result.get("content", ""),
+                result.get("attempt_id"),
+            )
+        else:
+            reason = result.get("reason", "configuration")
+            errors = [
+                reason
+                if reason
+                in {
+                    "quota",
+                    "transport",
+                    "credential",
+                    "rate_limit",
+                    "model_access",
+                    "accounting",
+                    "output_schema",
+                }
+                else "configuration"
+            ]
+        passed = evaluated and not errors
+        outcome = "passed" if passed else "failed" if evaluated else "provider_error"
+        row = {
+            "case_id": item.case_id,
+            "trial": item.trial,
+            "family": case["family"],
+            "language": case["language"],
+            "domain": case["expected"]["category"],
+            "provenance": client.provenance,
+            "model_evaluated": evaluated,
+            "passed": passed,
+            "outcome": outcome,
+            "error_classes": sorted(set(errors)),
+            "prediction": discrete_prediction(prediction),
+            "critical_failure": "forbidden side-effect tool" in issues,
+            "provider_attempt_id": result.get("attempt_id"),
+            "usage": result.get("usage"),
+            "latency_ms": result.get("latency_ms"),
+            "review_reference": {
+                "campaign_id": campaign,
+                "case_id": item.case_id,
+                "trial": item.trial,
+            }
+            if evaluated
+            else None,
+        }
+        rows.append(row)
+        atomic_text(trial_path, "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows))
+        usage = result.get("usage") or {}
+        inp, out = usage.get("input_tokens"), usage.get("output_tokens")
+        return TrialOutcome(
+            outcome,
+            inp,
+            out,
+            cost(inp, out) if inp is not None and out is not None else None,
+            errors[0] if errors else None,
+        )
+
+    try:
+        chunk = run_chunk(
+            ledger,
+            planned,
+            cumulative_caps=ResourceCaps(
+                caps["requests"],
+                caps["input_tokens"],
+                caps["output_tokens"],
+                Decimal(caps["estimated_cost_usd"]),
+            ),
+            per_trial_caps=ResourceCaps(
+                1,
+                caps["input_tokens_per_call"],
+                caps["output_tokens_per_call"],
+                cost(caps["input_tokens_per_call"], caps["output_tokens_per_call"]),
+            ),
+            account_guard=guard,
+            execute=execute,
+            lease_path=lab / ".runtime/llm-live-readiness/campaign.lock",
+            checkpoint_path=directory / "ledger.jsonl",
+            wall_clock_seconds=max(0.001, deadline - time.monotonic()),
+            min_interval_seconds=2.1,
+            max_trials=max_trials,
+        )
+    finally:
+        client.close()
+    verify_provider_usage(project, campaign, rows)
+    finalized = {
+        (row["case_id"], row["trial"])
+        for row in ledger.reserved_trials()
+        if row["event"] == "completed"
+    }
+    report = report_trials(
+        [row for row in rows if (row["case_id"], row["trial"]) in finalized], selected, trial_count
+    )
+    report.update(
+        campaign_id=campaign,
+        stage=stage,
+        candidate_commit=manifest["candidate_commit"],
+        chunk=chunk,
+        provider_stop=client.last_stop,
+        provider_preflight=getattr(client, "ready", {}).get("preflight"),
+        provider_usage_ledger="../provider-usage.sqlite",
+        elapsed_seconds=round(time.monotonic() - started, 3),
+        unfinalized_trial_artifacts=len(rows) - len(finalized),
+        resume_command=f'$env:LLM_MODE="live"; uv run --locked python scripts/run_live_campaign.py --resume {campaign} --execute-free',
+    )
+    complete = (
+        chunk["remaining"] == 0
+        and len(rows) == report["planned_trials"]
+        and all(row["model_evaluated"] and row["provenance"] == "live" for row in rows)
+    )
+    report["status"] = (
+        "PASS_PROVISIONAL"
+        if complete and all(row["passed"] for row in rows)
+        else "FAIL_PROVISIONAL"
+        if complete
+        else "INCOMPLETE"
+    )
+    atomic_text(directory / "report.json", json.dumps(report, indent=2, sort_keys=True) + "\n")
+    atomic_text(
+        directory / "report.md",
+        f"# P00 {stage} campaign\n\nStatus: `{report['status']}`. Human review: `PENDING`. Promotion: `INCOMPLETE`.\n\nRecorded trials: {len(rows)}/{report['planned_trials']}; real model trials: {report['real_model_trials']}; passed: {report['passed_trials']}.\n\nStop: `{report['provider_stop'] or chunk['reason']}`.\n\nResume (no completed/uncertain replay):\n\n```powershell\n{report['resume_command']}\n```\n\nPer-domain/family/language/errors and unique-case all-three Wilson intervals: see `report.json`. Raw synthetic answers are only in the private local review database. Provider accounting is authoritative in `../provider-usage.sqlite`; the logical trial ledger is not summed again.\n",
+    )
+    return report, 0 if report["status"] == "PASS_PROVISIONAL" else 1 if report[
+        "status"
+    ] == "FAIL_PROVISIONAL" else 2

@@ -1,0 +1,22 @@
+{
+  "approved_free_upper_limits": {
+    "requests_per_day": 1000,
+    "requests_per_minute": 30,
+    "tokens_per_day": 200000,
+    "tokens_per_minute": 8000
+  },
+  "cases_checked": 40,
+  "credentials_read": false,
+  "human_review": "PENDING",
+  "maximum_rendered_input_bound": 1555,
+  "paid_authorization_usd": "0.00",
+  "pilot_cases": 6,
+  "pilot_gross_input_reservation": 12288,
+  "pilot_gross_output_reservation": 1536,
+  "pilot_maximum_calls": 6,
+  "provider_accessed": false,
+  "remaining_daily_tokens": "PENDING",
+  "unchanged_input_cap": 2048,
+  "unchanged_output_cap": 256
+}
+command=python -S artifacts/evidence/live-campaign-execution/rendered_bounds.py; exit_code=0

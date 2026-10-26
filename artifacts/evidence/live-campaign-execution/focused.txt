@@ -1,0 +1,3 @@
+.................................                                        [100%]
+33 passed in 2.69s
+command=uv run --locked python -m pytest tests/llm/test_campaign_execution.py tests/test_live_campaign_preparation.py -q --basetemp=artifacts/tmp/campaign-execution-015; exit_code=0

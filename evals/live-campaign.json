@@ -24,36 +24,36 @@
     "max_output_tokens": 256
   },
   "cumulative_caps": {
-    "max_requests": "PENDING",
-    "max_input_tokens": "PENDING",
-    "max_output_tokens": "PENDING",
-    "max_estimated_spend_usd": "PENDING",
+    "max_requests": 186,
+    "max_input_tokens": 380928,
+    "max_output_tokens": 47616,
+    "max_estimated_spend_usd": "0.0428544",
     "authorized_paid_spend_usd": "0.00",
-    "authorized_free_quota_calls": "PENDING"
+    "authorized_free_quota_calls": 186
   },
   "execution": {
-    "task_timeout_seconds": "PENDING",
-    "max_wall_clock_seconds": "PENDING",
+    "task_timeout_seconds": 15,
+    "max_wall_clock_seconds": 120,
     "chunk_size": 10,
-    "requests_per_minute": "PENDING",
+    "requests_per_minute": 30,
     "transport_retries_per_call": 0,
     "semantic_retries": 0,
-    "resume_ledger": "PENDING"
+    "resume_ledger": "artifacts/evals/live/ledger.sqlite"
   },
   "confirmation_reserve": {
     "fresh_cases": 20,
     "trials_per_case": 3,
     "max_calls_per_case_trial": 1,
-    "reserved_calls": "PENDING",
-    "reserved_spend_usd": "PENDING"
+    "reserved_calls": 60,
+    "reserved_spend_usd": "0.013824"
   },
   "authorization": {
-    "expanded_campaign_approval": "PENDING",
-    "free_tier_quota_evidence": "PENDING",
+    "expanded_campaign_approval": "../../.planning/llm-live-readiness/AUTHORIZATION.md",
+    "free_tier_quota_evidence": "../../shared/policies/groq-free-campaign.json",
     "model_catalog_preflight": "REQUIRED_BEFORE_GENERATION",
     "dataset_review": "PENDING",
     "rubric_review": "PENDING",
-    "approval_reference": "PENDING"
+    "approval_reference": "user-free-only-2026-10-26; human review deferred"
   },
-  "generation_enabled": false
+  "generation_enabled": true
 }

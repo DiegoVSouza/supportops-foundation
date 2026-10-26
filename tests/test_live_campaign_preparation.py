@@ -100,11 +100,13 @@ def test_dry_run_works_without_site_packages_or_provider_imports() -> None:
     assert report["generation_authorized"] is False
     assert report["provider_accessed"] is False
     assert report["credentials_read"] is False
-    assert "authorization.expanded_campaign_approval" in report["blockers"]
+    assert "authorization.dataset_review" in report["blockers"]
     assert report["planned_reservations"]["primary_campaign_max_calls"] == 120
     assert report["planned_reservations"]["confirmation_max_calls"] == 60
     assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 186
-    assert report["limits"]["cumulative"]["max_requests"] == "PENDING"
+    assert report["limits"]["cumulative"]["max_requests"] == 186
+    assert report["limits"]["cumulative"]["max_input_tokens"] == 380928
+    assert report["limits"]["cumulative"]["max_output_tokens"] == 47616
     assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
 
 
@@ -131,7 +133,7 @@ def test_generation_is_incomplete_without_creating_a_provider_client(capsys) -> 
     assert main(["--stage", "pilot"]) == 2
     report = json.loads(capsys.readouterr().out)
     assert report["status"] == "INCOMPLETE"
-    assert "blocked until every approval and limit is resolved" in report["reason"]
+    assert "requires --execute-free and LLM_MODE=live" in report["reason"]
 
 
 def test_resume_dry_run_reports_uncertain_attempt_without_provider_access(

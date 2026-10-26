@@ -12,4 +12,6 @@ artifacts/tmp/
 .ruff_cache/
 build/
 dist/
+/.runtime/llm-review/
+/artifacts/evals/live/*.sqlite*
 *.egg-info/

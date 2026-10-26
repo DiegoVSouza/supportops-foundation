@@ -60,7 +60,7 @@ Do not change golden-set expectations to make tests pass. Update the dataset see
 
 ## Results
 
-The deterministic full gate passed with 32 tests. Model quality, provider cost, and live latency are **PENDING** because no authorized provider run has been recorded.
+Current offline gate evidence is in `artifacts/evidence/live-campaign-execution/check-full.txt`. Broad model quality and human review remain **INCOMPLETE**; historical small provider smoke tests do not establish broad readiness.
 
 ## Design decisions
 
@@ -69,3 +69,16 @@ Unknown fields fail validation, fixtures use a stable seed and digest, and local
 ## Limitations
 
 The library provides contracts and test fixtures. It does not claim provider quality, production latency, or live cost measurements.
+
+## Free-only campaign CLI
+
+The local synthetic campaign uses the lab's shared Groq free-account guard, finite request/token ceilings and USD 0 paid authorization. Start with the credential-free inventory:
+
+```powershell
+python -S scripts/run_live_campaign.py --stage pilot --dry-run
+$env:LLM_MODE="live"
+uv run --locked python scripts/run_live_campaign.py --stage pilot --campaign-id free-pilot-v1 --execute-free --max-trials 6
+uv run --locked python scripts/run_live_campaign.py --resume free-pilot-v1 --execute-free
+```
+
+Chunks contain at most ten new trials. Completed failures never replay; uncertain work requires reconciliation. Reports and immutable manifests live under `artifacts/evals/live/<campaign-id>/`. Sanitized artifacts reference provider usage receipts and private synthetic review-application state outside Git/artifacts. Exit 0/1 describes provisional engineering pass/fail; exit 2 means missing prerequisites, interrupted work or resource checkpoint. Human review and promotion remain separate pending gates; fake stays default.

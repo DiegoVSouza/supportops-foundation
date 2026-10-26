@@ -42,3 +42,15 @@ uv run --locked python scripts/doctor.py
 ```
 
 Não altere expectativas do conjunto dourado para fazer testes passarem. Revise em conjunto seed, comportamento esperado e digest. Qualidade do modelo, custo de provedor e latência live ficam **PENDING** até execuções reais autorizadas.
+
+## Campanha gratuita local
+
+O dry-run não acessa credenciais: `python -S scripts/run_live_campaign.py --stage pilot --dry-run`. A avaliação autorizada exige `LLM_MODE=live` e `--execute-free`, usa os tetos compartilhados gratuitos da conta e mantém gasto pago zero.
+
+```powershell
+$env:LLM_MODE="live"
+uv run --locked python scripts/run_live_campaign.py --stage pilot --campaign-id free-pilot-v1 --execute-free --max-trials 6
+uv run --locked python scripts/run_live_campaign.py --resume free-pilot-v1 --execute-free
+```
+
+Cada lote tem até dez novas tentativas. Falhas concluídas não são repetidas; tentativas incertas exigem reconciliação. Resultados sanitizados e comandos de retomada ficam em `artifacts/evals/live/<campaign-id>/`. Respostas sintéticas para revisão posterior ficam somente no banco privado da aplicação, fora do Git/artifacts. Exit 0/1 indica aprovação/falha provisória de engenharia; exit 2 indica bloqueio, interrupção ou checkpoint de consumo. Revisão humana e promoção continuam pendentes.

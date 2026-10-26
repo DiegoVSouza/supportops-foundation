@@ -1,0 +1,21 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+RUF012 Mutable default value for class attribute
+  --> tests\llm\test_campaign_execution.py:25:13
+   |
+23 | class FixtureClient:
+24 |     provenance = "fixture"
+25 |     calls = []
+   |             ^^
+26 |     response = None
+27 |     deny = False
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+Found 1 error.
+EXIT_CODE=1
+command=uv run --locked python scripts/check_full.py; exit_code=1

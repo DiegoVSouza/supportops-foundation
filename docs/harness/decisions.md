@@ -23,3 +23,11 @@ Phase 011 freezes a 40-case synthetic dataset (12 development / 28 holdout; 24 E
 ## 2026-10-26 — Phase 012 bounded runner foundation
 
 Added an append-only SQLite reservation ledger, conservative accounting for unknown usage, immutable trial events, cross-process OS lease primitive, and read-only resume inspection. Offline dry-run stays standard-library-only. The P00 profile remains USD 0 paid spend; free quota, cumulative caps and reviewer approval remain pending. The provider dispatcher, shared six-project ledger/lease integration and campaign execution are not implemented, so generation remains blocked and this phase is incomplete. No provider call was made.
+
+## 2026-10-26 — Free-only campaign authorization and deferred review
+
+The user now authorizes remaining synthetic evaluation within Groq's free plan and will review results after technical preparation. Bind P00 to the sourced shared policy and finite existing additive reservations, retaining USD 0 paid authorization and original 2,048/256 input/output caps. Explicit live mode plus `--execute-free` are required; fake/replay defaults and the established grader remain unchanged. Pending dataset/rubric/human review now blocks promotion/generalization rather than provisional engineering collection under this specific authorization.
+
+Provider attempts and account limits are authoritative in `provider-usage.sqlite`; logical trial outcomes remain in `ledger.sqlite` and are not summed again as provider usage. Every model trial must reference a matching completed provider receipt. Candidate hashes cover only public sources/configuration/data, never credentials. Windows subprocess streams explicitly use UTF-8.
+
+For the requested deferred review, store authorized synthetic assistant answers in an owner-only local review-application database outside artifacts/Git. Do not retain reasoning fields, secret-bearing logs or raw live cassettes. Human review and rollout/canary/rollback approval remain pending. The root authorization is `.planning/llm-live-readiness/AUTHORIZATION.md`; the policy is `shared/policies/groq-free-campaign.json` in the lab repository.

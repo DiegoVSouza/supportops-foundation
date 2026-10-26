@@ -1,0 +1,9 @@
+{
+  "account_policy": "groq-free-live-readiness-v1",
+  "authorization_reference": "../../.planning/llm-live-readiness/AUTHORIZATION.md",
+  "execution_enabled": true,
+  "human_review_status": "PENDING",
+  "project": "p00",
+  "provider_timeout_seconds": 15,
+  "synthetic_only": true
+}
