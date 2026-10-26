@@ -1,0 +1,26 @@
+{
+  "campaign": "free-dev-c1",
+  "completed_attempts": 12,
+  "model_successes": 12,
+  "provider_errors": 0,
+  "charged_input_tokens": 4392,
+  "charged_output_tokens": 1402,
+  "estimated_cost_usd": "0.000750000",
+  "pilot_and_development_total": {
+    "calls": 16,
+    "charged_input_tokens": 6711,
+    "charged_output_tokens": 1906,
+    "estimated_cost_usd": "0.001075125",
+    "unknown_usage_attempts": 1
+  },
+  "last_sanitized_rate_feedback": {
+    "request_limit": 1000,
+    "remaining_requests": 988,
+    "token_limit": 8000,
+    "remaining_tokens": 7213,
+    "request_reset_seconds": 1036.8,
+    "token_reset_seconds": 5.902
+  },
+  "billing_tier_verified": false,
+  "daily_token_remaining": "PENDING"
+}
