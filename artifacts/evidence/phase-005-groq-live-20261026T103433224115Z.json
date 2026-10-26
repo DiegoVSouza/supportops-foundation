@@ -1,0 +1,36 @@
+{
+  "actual_model": "openai/gpt-oss-20b",
+  "assertions": {
+    "decision": true,
+    "escalate": true,
+    "tool": true
+  },
+  "attempts": 1,
+  "budget_cap_usd": "0.05",
+  "credential_count": 5,
+  "estimated_cost_usd": "0.000061425",
+  "exit_code": 0,
+  "expected": {
+    "decision": "answer",
+    "escalate": false,
+    "tool": "search_kb"
+  },
+  "failure_category": null,
+  "finished_at_utc": "2026-10-26T10:34:33.223758+00:00",
+  "latency_ms": 1123,
+  "model": "openai/gpt-oss-20b",
+  "model_available": true,
+  "prediction": {
+    "decision": "answer",
+    "escalate": false,
+    "tool": "search_kb"
+  },
+  "provider": "groq",
+  "started_at_utc": "2026-10-26T10:34:29.289362+00:00",
+  "status": "PASS",
+  "usage": {
+    "input_tokens": 147,
+    "output_tokens": 168
+  },
+  "valid_credential_count": 5
+}

@@ -38,3 +38,9 @@
 - Official Groq docs list `openai/gpt-oss-20b` as active at $0.075/M input and $0.30/M output. All five configured Groq credentials were rejected at model listing (HTTP 401/403), so no paid Groq inference occurred.
 - One real OpenRouter free-router smoke completed successfully through `cohere/north-mini-code:free`: 11 input tokens, 56 output tokens, 3,737 ms, reported cost $0. Evidence is in `artifacts/evidence/groq-live-smoke.json` and `.txt`.
 - This smoke confirms a real provider path but does not measure GPT-OSS 20B quality. Quality, cost, and latency for Groq remain PENDING until valid Groq credentials are supplied.
+
+## 2026-10-26 — Phase 005 Groq domain evaluation
+
+- Removed the silent OpenRouter fallback from the P00 evaluation and added an optional pinned official Groq SDK adapter to the existing budgeted LiveClient. Only `GROQ_API_KEY_1..4` are selected; fake/replay remain SDK-independent.
+- The first attempt failed in urllib model preflight. SDK-backed attempts exposed invalid JSON at 128 tokens and nullable `tool_calls`; the transport now uses a 256-token cap and normalizes null tool calls before the existing parser.
+- Final real run passed: GPT-OSS 20B, 147 input / 177 output tokens, USD 0.000064125 estimated cost, 844 ms, one attempt. The full P00 gate passed with 40 tests. Prior failure artifacts are retained; the OpenRouter run above remains historical and is not Groq evidence.

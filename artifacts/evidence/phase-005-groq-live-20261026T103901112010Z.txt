@@ -1,0 +1,9 @@
+Command: LLM_MODE=live uv run --extra live python scripts/smoke_groq.py
+Exit code: 0
+Status: PASS
+Model: openai/gpt-oss-20b
+Credential count (values withheld): 4
+Usage: {'input_tokens': 147, 'output_tokens': 177}
+Estimated cost USD: 0.000064125
+Latency ms: 844
+Error class/status: none

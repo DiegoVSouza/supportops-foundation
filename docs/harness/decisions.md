@@ -10,3 +10,4 @@
 - Budget: fake/replay only in tests and CI; live budget is `0` unless explicitly supplied by the caller.
 - Contract: public package `supportops_foundation` began at `0.1.0`; its first consumer-facing release was `1.0.0`. Audit follow-up ADR-003 releases compatible live-budget accounting as `1.0.1`. Incompatible changes require an ADR, semver bump, and consumer updates.
 - Integration: P01–P04 may use local doubles during parallel implementation. P05 must consume approved, versioned local package artifacts; no sibling source imports or external publishing.
+- Phase 005 decision (2026-10-26): evaluate one synthetic SupportOps ticket with Groq GPT-OSS 20B through the existing live client, under LAB_MAX_USD=0.05. Remove the prior OpenRouter fallback from this evaluation; the historical fallback run is not Groq evidence. Fake/replay remain default and offline.

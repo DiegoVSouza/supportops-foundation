@@ -282,22 +282,63 @@ def test_groq_rotation_retries_timeout_with_next_key_and_bounds_attempts(monkeyp
     assert result.estimated_cost_usd > Decimal(0)
 
 
-def test_groq_rotation_does_not_retry_rate_limit() -> None:
+def test_groq_rotation_retries_rate_limit_with_bounded_retry_after(monkeypatch) -> None:
+    delays = []
+    monkeypatch.setattr("supportops_foundation.llm.live.time.sleep", delays.append)
+
     class RateLimited:
         def __init__(self):
             self.calls = 0
 
         def post(self, url, headers, body, timeout):
             self.calls += 1
-            raise HTTPError(url, 429, "rate limited", {}, None)
+            from email.message import Message as Headers
+
+            headers = Headers()
+            headers["Retry-After"] = "1"
+            raise HTTPError(url, 429, "rate limited", headers, None)
 
     transport = RateLimited()
-    rotating = GroqKeyRotationTransport(
-        ["key-a", "key-b"], max_attempts=3, backoff_seconds=0, transport=transport
+
+    class SucceedsOnSecond:
+        def __init__(self):
+            self.calls = 0
+
+        def post(self, url, headers, body, timeout):
+            self.calls += 1
+            if self.calls == 1:
+                return transport.post(url, headers, body, timeout)
+            return b"ok"
+
+    retrying = GroqKeyRotationTransport(
+        ["key-a", "key-b"],
+        max_attempts=3,
+        backoff_seconds=0,
+        transport=SucceedsOnSecond(),
     )
-    with pytest.raises(HTTPError) as error:
+    assert retrying.post("https://api.groq.com", {}, b"{}", 1) == b"ok"
+    assert retrying.last_attempt_count == 2
+    assert delays == [1.0]
+
+
+def test_groq_rotation_does_not_retry_overlong_retry_after(monkeypatch) -> None:
+    monkeypatch.setattr("supportops_foundation.llm.live.time.sleep", lambda _: pytest.fail("slept"))
+
+    class RateLimited:
+        calls = 0
+
+        def post(self, url, headers, body, timeout):
+            self.calls += 1
+            from email.message import Message as Headers
+
+            headers = Headers()
+            headers["Retry-After"] = "30"
+            raise HTTPError(url, 429, "rate limited", headers, None)
+
+    transport = RateLimited()
+    rotating = GroqKeyRotationTransport(["key-a", "key-b"], max_attempts=2, transport=transport)
+    with pytest.raises(HTTPError):
         rotating.post("https://api.groq.com", {}, b"{}", 1)
-    assert error.value.code == 429
     assert transport.calls == 1
     assert rotating.last_attempt_count == 1
 

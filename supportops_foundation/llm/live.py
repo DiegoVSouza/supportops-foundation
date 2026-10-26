@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import threading
 import time
 from decimal import Decimal
@@ -90,8 +91,9 @@ class UrllibTransport:
 class GroqKeyRotationTransport:
     """Retry transient transport failures with a bounded rotation of Groq keys.
 
-    Rate-limit responses are returned as errors immediately. Key rotation is not
-    used to work around provider quotas.
+    Transient failures rotate through each configured key at most once. A 429 is
+    retried only after its bounded Retry-After delay; rotation never bypasses the
+    organization-level quota.
     """
 
     def __init__(
@@ -108,10 +110,24 @@ class GroqKeyRotationTransport:
         if max_attempts < 1 or backoff_seconds < 0:
             raise ValueError("max_attempts must be positive and backoff_seconds non-negative")
         self.api_keys = keys
-        self.max_attempts = max_attempts
+        self.max_attempts = min(max_attempts, len(keys))
         self.backoff_seconds = backoff_seconds
         self.transport = transport or UrllibTransport()
         self.last_attempt_count = 0
+        self.max_retry_after_seconds = 2.0
+
+    def _retry_delay(self, attempt: int, headers: object = None) -> float | None:
+        retry_after = None
+        if headers is not None:
+            try:
+                raw = headers.get("Retry-After") or headers.get("retry-after")
+                if raw is not None:
+                    retry_after = float(raw)
+            except (AttributeError, TypeError, ValueError):
+                retry_after = None
+        if retry_after is not None and retry_after >= 0:
+            return retry_after if retry_after <= self.max_retry_after_seconds else None
+        return min(self.backoff_seconds * (2**attempt) + random.random() * 0.1, 2.0)
 
     def post(self, url: str, headers: dict[str, str], body: bytes, timeout: float) -> bytes:
         self.last_attempt_count = 0
@@ -124,13 +140,17 @@ class GroqKeyRotationTransport:
             try:
                 return self.transport.post(url, request_headers, body, timeout)
             except HTTPError as exc:
-                # 429 must remain visible to the caller; rotating here could bypass quotas.
-                if exc.code == 429 or exc.code < 500 or attempt + 1 >= self.max_attempts:
+                retryable = exc.code == 429 or exc.code in {408, 409, 500, 502, 503, 504}
+                if not retryable or attempt + 1 >= self.max_attempts:
                     raise
+                delay = self._retry_delay(attempt, exc.headers)
+                if delay is None:
+                    raise
+                time.sleep(delay)
             except (URLError, TimeoutError, OSError):
                 if attempt + 1 >= self.max_attempts:
                     raise
-            time.sleep(min(self.backoff_seconds * (2**attempt), 2.0))
+                time.sleep(self._retry_delay(attempt) or 0.0)
         raise AssertionError("unreachable retry state")
 
 

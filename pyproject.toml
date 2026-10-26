@@ -9,6 +9,11 @@ description = "Versioned SupportOps domain, deterministic testkit, and LLM mode 
 requires-python = ">=3.13,<3.14"
 dependencies = ["pydantic==2.14.1"]
 
+[project.optional-dependencies]
+live = [
+    "groq==1.7.0",
+]
+
 [dependency-groups]
 dev = [
     "pytest==9.1.1",

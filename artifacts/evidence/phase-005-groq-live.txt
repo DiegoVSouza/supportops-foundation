@@ -1,0 +1,9 @@
+Command: LLM_MODE=live python scripts/smoke_groq.py
+Exit code: 1
+Status: INCOMPLETE
+Model: PENDING
+Credential count (values withheld): 5
+Usage: PENDING
+Estimated cost USD: PENDING
+Latency ms: PENDING
+Error class/status: {'class': 'RuntimeError', 'status': None}

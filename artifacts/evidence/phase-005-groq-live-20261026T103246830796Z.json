@@ -1,0 +1,16 @@
+{
+  "budget_cap_usd": "0.05",
+  "credential_count": 5,
+  "error": {
+    "class": "LiveError",
+    "status": null
+  },
+  "exit_code": 1,
+  "finished_at_utc": "2026-10-26T10:32:46.830504+00:00",
+  "model": "openai/gpt-oss-20b",
+  "model_available": true,
+  "provider": "groq",
+  "started_at_utc": "2026-10-26T10:32:42.800988+00:00",
+  "status": "INCOMPLETE",
+  "valid_credential_count": 5
+}

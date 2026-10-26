@@ -7,8 +7,10 @@ import os
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Literal
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+
+from pydantic import BaseModel
 
 from supportops_foundation.llm import (
     Budget,
@@ -19,11 +21,54 @@ from supportops_foundation.llm import (
 
 ROOT = Path(__file__).resolve().parents[3]
 PROJECT = Path(__file__).resolve().parents[1]
-MODEL_ENDPOINT = "https://api.groq.com/openai/v1/models"
 CHAT_ENDPOINT = "https://api.groq.com/openai/v1"
 MAX_BUDGET_USD = Decimal("0.05")
-OPENROUTER_MODELS_ENDPOINT = "https://openrouter.ai/api/v1/models"
-OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1"
+DEFAULT_MODEL = "openai/gpt-oss-20b"
+
+
+class Assessment(BaseModel):
+    decision: Literal["answer", "escalate"]
+    tool: Literal["lookup_invoice", "issue_refund", "search_kb"]
+    escalate: bool
+
+
+class GroqSDKTransport:
+    """Adapt the official SDK to P00's budgeted OpenAI-compatible transport."""
+
+    def __init__(self) -> None:
+        self.last_content_metadata: dict[str, object] = {}
+
+    def post(self, url: str, headers: dict[str, str], body: bytes, timeout: float) -> bytes:
+        from groq import Groq, GroqError
+
+        api_key = headers.get("Authorization", "").removeprefix("Bearer ").strip()
+        try:
+            completion = Groq(
+                api_key=api_key, max_retries=0, timeout=timeout
+            ).chat.completions.create(**json.loads(body))
+            content = completion.choices[0].message.content or ""
+            self.last_content_metadata = {
+                "content_length": len(content),
+                "starts_with_json_object": content.lstrip().startswith("{"),
+                "ends_with_json_object": content.rstrip().endswith("}"),
+            }
+            payload = json.loads(completion.model_dump_json())
+            for choice in payload.get("choices", []):
+                message = choice.get("message") or {}
+                if message.get("tool_calls") is None:
+                    message["tool_calls"] = []
+            return json.dumps(payload).encode("utf-8")
+        except GroqError as exc:
+            status = getattr(exc, "status_code", None)
+            if status is not None:
+                response = getattr(exc, "response", None)
+                response_headers = getattr(response, "headers", {})
+                raise HTTPError(
+                    url, int(status), type(exc).__name__, response_headers, None
+                ) from None
+            if type(exc).__name__ in {"Timeout", "APIConnectionError"}:
+                raise URLError(type(exc).__name__) from None
+            raise
 
 
 def load_root_env() -> None:
@@ -41,91 +86,43 @@ def load_root_env() -> None:
 
 
 def collect_keys() -> list[str]:
-    names = ["GROQ_API_KEY", *(f"GROQ_API_KEY_{index}" for index in range(1, 5))]
+    names = [f"GROQ_API_KEY_{index}" for index in range(1, 5)]
     return list(
         dict.fromkeys(os.getenv(name, "").strip() for name in names if os.getenv(name, "").strip())
     )
 
 
 def list_models_for_valid_keys(keys: list[str]) -> tuple[list[str], set[str]]:
+    from groq import Groq, GroqError
+
     valid_keys: list[str] = []
     model_ids: set[str] = set()
     for key in keys:
-        headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
-        request = Request(MODEL_ENDPOINT, headers=headers)
         try:
-            with urlopen(request, timeout=15) as response:
-                models = json.loads(response.read())
-        except HTTPError as exc:
-            if exc.code in (401, 403):
+            models = Groq(api_key=key, max_retries=0, timeout=15).models.list()
+        except GroqError as exc:
+            status = getattr(exc, "status_code", None)
+            if status in (401, 403):
                 continue
-            raise RuntimeError(f"model-list request returned HTTP {exc.code}") from exc
-        except (TimeoutError, URLError, OSError) as exc:
-            raise RuntimeError(f"model-list request failed: {type(exc).__name__}") from exc
+            raise RuntimeError(
+                f"model-list request failed ({type(exc).__name__}, status={status})"
+            ) from None
         valid_keys.append(key)
-        model_ids.update(
-            item.get("id") for item in models.get("data", []) if isinstance(item, dict)
-        )
+        model_ids.update(item.id for item in models.data if getattr(item, "id", None))
     if not valid_keys:
         raise RuntimeError("all configured Groq credentials were rejected with HTTP 401/403")
     return valid_keys, model_ids
 
 
-def run_openrouter_free(result: dict[str, object]) -> None:
-    key = os.getenv("OPENROUTER_API_KEY", "").strip()
-    if not key:
-        raise RuntimeError("Groq credentials/model unavailable and OPENROUTER_API_KEY is missing")
-    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
-    try:
-        with urlopen(Request(OPENROUTER_MODELS_ENDPOINT, headers=headers), timeout=15) as response:
-            models = json.loads(response.read())
-    except HTTPError as exc:
-        raise RuntimeError(f"OpenRouter model-list request returned HTTP {exc.code}") from exc
-    except (TimeoutError, URLError, OSError) as exc:
-        raise RuntimeError(f"OpenRouter model-list request failed: {type(exc).__name__}") from exc
-    model_ids = {item.get("id") for item in models.get("data", []) if isinstance(item, dict)}
-    if "openrouter/free" not in model_ids:
-        raise RuntimeError("OpenRouter free-model router is not available to this account")
-
-    os.environ["LLM_MAX_COMPLETION_TOKENS"] = "128"
-    client = LiveClient(
-        endpoint=OPENROUTER_ENDPOINT,
-        api_key=key,
-        budget=Budget(MAX_BUDGET_USD),
-        input_usd_per_million=Decimal(0),
-        output_usd_per_million=Decimal(0),
-        timeout_seconds=20,
-    )
-    response = client.complete(
-        [Message("user", "Reply with exactly: Free model live smoke check passed.")],
-        model="openrouter/free",
-    )
-    result.update(
-        provider="openrouter-free",
-        model="openrouter/free",
-        routed_model=response.model,
-        model_available=True,
-        status="PASS",
-        exit_code=0,
-        usage={
-            "input_tokens": response.usage.input_tokens,
-            "output_tokens": response.usage.output_tokens,
-        },
-        estimated_cost_usd="0",
-        latency_ms=response.latency_ms,
-        attempts=1,
-        response_characters=len(response.text),
-    )
-
-
 def write_evidence(result: dict[str, object]) -> None:
     evidence = PROJECT / "artifacts" / "evidence"
     evidence.mkdir(parents=True, exist_ok=True)
-    (evidence / "groq-live-smoke.json").write_text(
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+    (evidence / f"phase-005-groq-live-{stamp}.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     lines = [
-        "Command: python scripts/smoke_groq.py",
+        "Command: LLM_MODE=live uv run --extra live python scripts/smoke_groq.py",
         f"Exit code: {result['exit_code']}",
         f"Status: {result['status']}",
         f"Model: {result.get('model', 'PENDING')}",
@@ -133,9 +130,11 @@ def write_evidence(result: dict[str, object]) -> None:
         f"Usage: {result.get('usage', 'PENDING')}",
         f"Estimated cost USD: {result.get('estimated_cost_usd', 'PENDING')}",
         f"Latency ms: {result.get('latency_ms', 'PENDING')}",
-        f"Error: {result.get('error', 'none')}",
+        f"Error class/status: {result.get('error', 'none')}",
     ]
-    (evidence / "groq-live-smoke.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (evidence / f"phase-005-groq-live-{stamp}.txt").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
 
 
 def main() -> int:
@@ -147,58 +146,84 @@ def main() -> int:
         "exit_code": 1,
     }
     try:
+        if os.getenv("LLM_MODE", "").strip().lower() != "live":
+            raise RuntimeError("set LLM_MODE=live explicitly to run the Groq evaluation")
         load_root_env()
         keys = collect_keys()
         result["credential_count"] = len(keys)
-        model = os.getenv("GROQ_MODEL", "").strip()
+        model = os.getenv("GROQ_MODEL", DEFAULT_MODEL).strip()
         if not keys:
             raise RuntimeError("no GROQ_API_KEY credentials are configured")
-        model = os.getenv("GROQ_MODEL", "").strip()
-        groq_ready = False
-        if keys and model:
-            try:
-                keys, model_ids = list_models_for_valid_keys(keys)
-                result["valid_credential_count"] = len(keys)
-                groq_ready = model in model_ids
-            except RuntimeError as exc:
-                if "all configured Groq credentials were rejected" not in str(exc):
-                    raise
-                result["groq_credential_status"] = "rejected"
-        if groq_ready:
-            result.update(provider="groq", model=model, model_available=True)
-            os.environ["LLM_MAX_COMPLETION_TOKENS"] = "128"
-            transport = GroqKeyRotationTransport(keys, max_attempts=3, backoff_seconds=0.25)
-            client = LiveClient(
-                endpoint=CHAT_ENDPOINT,
-                api_key=keys[0],
-                budget=Budget(MAX_BUDGET_USD),
-                input_usd_per_million=Decimal("0.075"),
-                output_usd_per_million=Decimal("0.30"),
-                transport=transport,
-                timeout_seconds=15,
-            )
-            response = client.complete(
-                [Message("user", "Reply with exactly: Groq live smoke check passed.")],
-                model=model,
-            )
-            result.update(
-                status="PASS",
-                exit_code=0,
-                usage={
-                    "input_tokens": response.usage.input_tokens,
-                    "output_tokens": response.usage.output_tokens,
-                },
-                estimated_cost_usd=str(response.estimated_cost_usd),
-                latency_ms=response.latency_ms,
-                attempts=transport.last_attempt_count,
-                response_characters=len(response.text),
-            )
-        else:
-            result["groq_model_available"] = False if model else "GROQ_MODEL missing"
-            run_openrouter_free(result)
-        return_code = 0
+        if not model:
+            raise RuntimeError("GROQ_MODEL must identify one explicit Groq model")
+        keys, model_ids = list_models_for_valid_keys(keys)
+        result["valid_credential_count"] = len(keys)
+        if model not in model_ids:
+            raise RuntimeError("requested Groq model is unavailable in the authenticated catalog")
+        result.update(provider="groq", model=model, model_available=True)
+        os.environ["LLM_MAX_COMPLETION_TOKENS"] = "256"
+        transport = GroqKeyRotationTransport(
+            keys, max_attempts=min(4, len(keys)), backoff_seconds=0.25, transport=GroqSDKTransport()
+        )
+        client = LiveClient(
+            endpoint=CHAT_ENDPOINT,
+            api_key=keys[0],
+            budget=Budget(MAX_BUDGET_USD),
+            input_usd_per_million=Decimal("0.075"),
+            output_usd_per_million=Decimal("0.30"),
+            transport=transport,
+            timeout_seconds=15,
+        )
+        prompt = (
+            "Classify this synthetic support request: a customer asks how to find the tracking link for a delayed parcel. "
+            "Return exactly one JSON object with required keys decision (answer or escalate), tool "
+            "(lookup_invoice, issue_refund, or search_kb), and escalate (boolean). No markdown or explanation. "
+            "Use support knowledge for a generic tracking question; do not claim a live carrier lookup."
+        )
+        response = client.complete(
+            [Message("user", prompt)],
+            schema=Assessment,
+            model=model,
+        )
+        expected = {"decision": "answer", "tool": "search_kb", "escalate": False}
+        prediction = response.parsed.model_dump()
+        assertions = {name: prediction.get(name) == value for name, value in expected.items()}
+        status = "PASS" if all(assertions.values()) else "FAIL"
+        result.update(
+            status=status,
+            exit_code=0 if status == "PASS" else 1,
+            actual_model=response.model,
+            expected=expected,
+            prediction=prediction,
+            assertions=assertions,
+            failure_category=next(
+                (f"{name}_mismatch" for name, ok in assertions.items() if not ok), None
+            ),
+            usage={
+                "input_tokens": response.usage.input_tokens,
+                "output_tokens": response.usage.output_tokens,
+            },
+            estimated_cost_usd=str(response.estimated_cost_usd),
+            latency_ms=response.latency_ms,
+            attempts=transport.last_attempt_count,
+        )
+        return_code = 0 if status == "PASS" else 1
     except (RuntimeError, ValueError, OSError, HTTPError, URLError, json.JSONDecodeError) as exc:
-        result["error"] = f"{type(exc).__name__}: {str(exc)[:180]}"
+        cause = exc.__cause__
+        result["error"] = {
+            "class": type(exc).__name__,
+            "cause_class": type(cause).__name__ if cause is not None else None,
+            "status": getattr(cause, "code", getattr(exc, "code", None)),
+        }
+        if "transport" in locals():
+            sdk_transport = getattr(transport, "transport", None)
+            if sdk_transport is not None:
+                result["error"].update(sdk_transport.last_content_metadata)
+        if cause is not None and hasattr(cause, "errors"):
+            result["error"]["validation_issues"] = [
+                {"path": list(item.get("loc", ())), "type": item.get("type")}
+                for item in cause.errors()
+            ]
         return_code = 1
     finally:
         result["finished_at_utc"] = datetime.now(UTC).isoformat()
