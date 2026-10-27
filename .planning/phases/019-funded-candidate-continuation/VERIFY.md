@@ -1,6 +1,6 @@
 # Verify — funded C2 continuation
 
-Offline implementation is in progress. Root phase 005 is applied and reconciled, and root phase 006 is committed. The current offline dry-run binds the fresh C2 candidate to the updated root-source fingerprint. Authenticated preflight and generation remain pending. The user's extra free budget is not review/promotion approval.
+Offline implementation is complete for the current scope. Root phase 005 is applied and reconciled, root phase 006 is committed, and the current offline dry-run binds the fresh C2 candidate to the updated root-source fingerprint. Authenticated model access passed, but no allowlisted rate-limit headers were returned and billing tier/daily balance remain unknown. With paid authorization USD 0, generation is BLOCKED. The user's extra free budget is not review/promotion approval.
 
 - [x] Root phase 005 exact migration applied with preserved UUIDs/events/receipts/unknown reservations and all six remaining project commitments funded.
 - [x] New C2 scope is exactly 12×3 development; old pilot/C1 histories and 24 unexecuted C1 trials are immutable and never transferred.
@@ -11,6 +11,9 @@ Offline implementation is in progress. Root phase 005 is applied and reconciled,
 - [x] Unknown reservations, typed allowlisted diagnostics, timeout/quota/guard/interruption/no-replay, ACL/reparse/UTF-8/privacy and fake/replay regressions remain passing.
 - [x] Focused and full locked gates saved with command/exit/output; staged diff/secrets reviewed; candidate commit recorded before provider access.
 - [x] No-provider dry-run records exact source/candidate/C2 identity, batches ≤10, historical/control/quality separation, consumed/unknown/reserved capacity, confirmation, absent extras, pending reviews and safe stop/resume.
-- [ ] Current official catalog/free ceilings and sanitized authenticated preflight verified; lower authenticated limits enforced; root numbered keys only; paid USD 0.
+- [x] Official model/free ceilings and sanitized authenticated model-access preflight verified against four unique root numbered keys; generation_calls=0 and no credentials/secret values appear in the report.
+- [ ] Authenticated rate-limit headers or equivalent verified account limits and Free billing tier. The preflight returned no allowlisted headers; billing tier is not exposed by this endpoint and remains UNKNOWN. Do not generate while paid authorization is USD 0.
 - [ ] Real C2 trials and receipts reconcile batch-by-batch with no failed/uncertain replay or manifest rewrite; at most 36; reports remain candidate-specific and provisional.
 - [ ] Raw answers stay private and review UI requires no source modification/provider call; actual human/independent/dataset/rubric approval, holdout, generalization and promotion remain PENDING/INCOMPLETE.
+
+Provider preflight evidence: `artifacts/evidence/funded-candidate-continuation/authenticated-preflight.json`. It reports model access 4/4, no rate-limit fields, `account_billing_tier_verified=false`, and `remaining_daily_tokens=PENDING`. This metadata-only request does not count as a model completion or campaign trial. No C2 campaign manifest, reservation, completion, or result exists.

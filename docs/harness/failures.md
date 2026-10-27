@@ -43,6 +43,10 @@ The full gate's fixed pytest basetemp would clear an existing `artifacts/tmp/pyt
 ## 2026-10-27 — C2 dry-run fingerprint invalidated by root guard revision
 
 Root phase 006 changed the authenticated rate-limit guard files that P00 fingerprints. The previously saved C2 fingerprint `5d32a6c04b22cbcc5c161885dfa67b928d223a5caae0cd297e292548248b2719` therefore became stale before any C2 manifest or provider call existed. Preserved that output as `pre-phase006-stale-dry-run.json`, reran the dry-run only after root guard commit `8e03565`, and recorded fingerprint `e53a13408600aa8d3faf8dfafa59192f5ede1f052866a81b22536e926e637488`. This is provenance correction, not candidate quality evidence. No historical result, ledger event, UUID or unknown reservation changed.
+
+## 2026-10-27 — Free billing tier unavailable from authenticated preflight
+
+Authenticated catalog access passed for four unique numbered credentials, but the endpoint returned no allowlisted rate-limit headers and does not attest billing tier or remaining daily tokens. Because paid authorization is USD 0, a model completion could not be proven free. No campaign manifest, reservation, completion, or holdout was created. Keep generation blocked until account billing tier is verified from an authoritative account source; never infer it from catalog access or missing headers. Evidence: `artifacts/evidence/funded-candidate-continuation/authenticated-preflight.json`.
 # 2026-10-27 — Phase 019 dry-run cap mismatch
 
 The first P00 allocation dry-run still displayed the historical config ceiling (186 calls / 380,928 input / 47,616 output) after the authorized root policy was migrated to 196 / 401,408 / 50,176. It made no provider call and did not change any ledger. The dry-run now reads the applied shared policy and both append-only ledgers under the same campaign/account leases as dispatch, removes only WAL sidecars created by its read-only inspection, and rejects dirty/uncommitted candidate sources. The stale output is retained as `artifacts/evidence/funded-candidate-continuation/pre-reconciliation-cli-dry-run.json`; it is not allocation evidence. Latest full locked gate: 144 passed.

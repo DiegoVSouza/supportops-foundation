@@ -1,6 +1,6 @@
 # Phase 019 — Funded corrected candidate continuation
 
-Status: IN PROGRESS. Offline C2 controls are implemented, root phase 005's approved allocation migration is applied, and root phase 006's authenticated-rate-limit guard is committed. The final offline dry-run now binds the C2 source fingerprint to the committed root guard. Authenticated preflight and generation remain pending; dataset/rubric/human/independent reviews and promotion remain PENDING.
+Status: INCOMPLETE. Offline C2 controls are implemented, root phase 005's approved allocation migration is applied, and root phase 006's authenticated-rate-limit guard is committed. The final offline dry-run binds the C2 source fingerprint to the committed root guard. Authenticated catalog access passed for four unique keys, but no rate-limit headers were returned; billing tier and remaining daily tokens remain UNKNOWN/PENDING. Paid authorization is USD 0, so generation is blocked until Free-tier billing is verified. Dataset/rubric/human/independent reviews and promotion remain PENDING.
 
 ## Candidate and immutable history
 
