@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "unauthenticated_status": 401,
+    "invalid_token_status": 401,
+    "login_status": 200,
+    "index_status": 200,
+    "scripts_disabled": true,
+    "item_statuses_all_200": true
+  },
+  "items": 16,
+  "response_counts": {
+    "free-dev-c1": 12,
+    "free-pilot-v1": 3
+  },
+  "records_without_response": 1,
+  "historical_and_private_answer_files_unchanged": true,
+  "provider_accessed": false,
+  "credentials_read": false,
+  "annotations_written": 0,
+  "human_review": "PENDING",
+  "independent_review": "PENDING"
+}

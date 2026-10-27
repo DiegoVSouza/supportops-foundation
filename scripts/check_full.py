@@ -30,6 +30,17 @@ def run(label: str, command: list[str], *, optional: bool = False) -> bool:
 
 def main() -> int:
     (ROOT / "artifacts/tmp").mkdir(parents=True, exist_ok=True)
+    pytest_basetemp = os.environ.get("P00_PYTEST_BASETEMP", "artifacts/tmp/pytest")
+    if "P00_PYTEST_BASETEMP" in os.environ:
+        requested = pathlib.Path(pytest_basetemp)
+        if not requested.is_absolute():
+            requested = ROOT / requested
+        requested = requested.resolve()
+        allowed = (ROOT / "artifacts/evidence/private-review-ui").resolve()
+        if requested == allowed or not requested.is_relative_to(allowed):
+            print("Invalid P00_PYTEST_BASETEMP: path must stay under private-review-ui evidence")
+            return 2
+        pytest_basetemp = requested.relative_to(ROOT).as_posix()
     if not run("fast", [sys.executable, "scripts/check_fast.py"]):
         return 1
     if not run(
@@ -75,7 +86,7 @@ def main() -> int:
         ],
     ):
         return 1
-    if not run("tests", [sys.executable, "-m", "pytest", "-q", "--basetemp=artifacts/tmp/pytest"]):
+    if not run("tests", [sys.executable, "-m", "pytest", "-q", f"--basetemp={pytest_basetemp}"]):
         return 1
     if not run(
         "dataset-contract",
@@ -97,7 +108,7 @@ def main() -> int:
     if docker:
         run(
             "compose-config",
-            [docker, "compose", "-f", "docker-compose.base.yml", "config"],
+            [docker, "compose", "-f", "docker-compose.base.yml", "config", "--quiet"],
             optional=True,
         )
     else:

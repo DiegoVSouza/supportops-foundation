@@ -16,7 +16,7 @@ allowed_write_paths:
 - `docs/harness/failures.md`
 - `docs/knowledge/private-campaign-review.md`
 - `scripts/review_ui.py`
-- `scripts/check_full.py` (add an optional isolated pytest basetemp override; keep existing default)
+- `scripts/check_full.py` (optional isolated pytest basetemp override, retaining the default; quiet Compose validation to keep expanded configuration out of logs)
 - `tests/llm/test_review_ui.py`
 - `artifacts/evidence/private-review-ui/**`
 - `.runtime/llm-review-ui/**` (local private runtime state only; never stage or commit)

@@ -1,0 +1,4 @@
+annotation_directory_owner_only=true
+docker_container_identities_unchanged=true
+provider_accessed=false
+annotations_written=0

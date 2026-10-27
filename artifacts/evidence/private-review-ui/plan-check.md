@@ -1,8 +1,8 @@
 # Phase 018 plan check
 
-Command: manual requirements review against `harness/GSD-LITE-PLUS.md`, P00 `AGENTS.md`, root live-readiness SPEC, and the phase 018 requirements.
+Method: manual requirements review by the implementing agent against `harness/GSD-LITE-PLUS.md`, P00 `AGENTS.md`, root live-readiness SPEC, and the phase 018 requirements.
 
-Exit code: 0 (plan accepted; implementation proceeds offline).
+Status: PASS for plan completeness; implementation proceeds offline. A manual review has no subprocess exit code. Independent review remains PENDING.
 
 Output:
 
