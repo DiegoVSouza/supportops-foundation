@@ -8,6 +8,8 @@ Antes de preparar arquivos de campanha ou um cliente live, o P00 compara o hash 
 
 Gates offline da implementação: 57 testes focados e 144 testes no gate travado, além de lint, formato, compilação, contrato determinístico do dataset e configuração Compose. Os serviços locais opcionais permanecem INCOMPLETE. Nenhum desses resultados demonstra qualidade live. As revisões humana, independente, de dataset/rubric e promoção continuam PENDING.
 
+Após o commit do guard autenticado do root `8e03565`, o dry-run foi regenerado. A identidade congelada para a continuação é P00 source commit `dec99d750c9ff5482ee46c73aea3a26ba944eadf` + fingerprint completo `e53a13408600aa8d3faf8dfafa59192f5ede1f052866a81b22536e926e637488`; o fingerprint anterior `5d32a6c...` está arquivado como stale e não pode ser usado. O relatório atual mostra 36 chamadas C2, 84 de holdout futuro, 120 primárias P00, 60 confirmações protegidas, 16 usos históricos e as duas reservas desconhecidas sem somá-las. A geração permanece INCOMPLETE enquanto dataset/rubric review e preflight autenticado não forem resolvidos; nenhum provider foi chamado.
+
 ## Pergunta de entrevista
 
 **Português:** Como você impede que um candidato corrigido herde resultados antigos ou ultrapasse o orçamento?
