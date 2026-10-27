@@ -1,0 +1,33 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+All checks passed!
+EXIT_CODE=0
+
+== format: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff format --check supportops_foundation demo scripts tests ==
+32 files already formatted
+EXIT_CODE=0
+
+== compile: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m compileall -q supportops_foundation demo scripts tests ==
+
+EXIT_CODE=0
+
+== tests: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m pytest -q --basetemp=artifacts/evidence/funded-candidate-continuation/tmp-full ==
+........................................................................ [ 50%]
+......................................................................   [100%]
+142 passed in 43.59s
+EXIT_CODE=0
+
+== dataset-contract: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -c from supportops_foundation import __version__; from supportops_foundation.testkit import dataset_sha256, generate_dataset; a=generate_dataset(seed=42); b=generate_dataset(seed=42); assert len(a.customers)==40 and len(a.tickets)==200 and len(a.articles)==30 and len(a.invoices)==80; assert len(a.golden_cases)==60 and dataset_sha256(a)==dataset_sha256(b); print(f'version={__version__} customers=40 tickets=200 golden=60 digest={dataset_sha256(a)}') ==
+version=1.0.1 customers=40 tickets=200 golden=60 digest=8d1a2cd8823a108d450010952ec8abf5717d3c0bec2a878603418867c78b3e76
+EXIT_CODE=0
+
+== compose-config: C:\Program Files\Docker\Docker\resources\bin\docker.EXE compose -f docker-compose.base.yml config --quiet ==
+
+EXIT_CODE=0
+
+PRODUCT_CHECK=PASS; OPTIONAL_SERVICE_E2E=INCOMPLETE unless separately executed
+EXIT_CODE=0

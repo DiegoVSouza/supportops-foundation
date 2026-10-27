@@ -1,6 +1,6 @@
 # Phase 019 — Funded corrected candidate continuation
 
-Status: PLANNED. Generation is blocked until root phase 005's approved migration is validated and applied. Human/independent/dataset/rubric review and promotion remain PENDING.
+Status: IN PROGRESS. Offline C2 controls are implemented; generation is blocked until root phase 005's approved migration is validated and applied. Human/independent/dataset/rubric review and promotion remain PENDING.
 
 ## Candidate and immutable history
 

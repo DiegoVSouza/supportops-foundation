@@ -36,9 +36,14 @@ def main() -> int:
         if not requested.is_absolute():
             requested = ROOT / requested
         requested = requested.resolve()
-        allowed = (ROOT / "artifacts/evidence/private-review-ui").resolve()
-        if requested == allowed or not requested.is_relative_to(allowed):
-            print("Invalid P00_PYTEST_BASETEMP: path must stay under private-review-ui evidence")
+        allowed_roots = (
+            (ROOT / "artifacts/evidence/private-review-ui").resolve(),
+            (ROOT / "artifacts/evidence/funded-candidate-continuation").resolve(),
+        )
+        if not any(
+            requested.is_relative_to(allowed) and requested != allowed for allowed in allowed_roots
+        ):
+            print("Invalid P00_PYTEST_BASETEMP: path must stay under an owned evidence directory")
             return 2
         pytest_basetemp = requested.relative_to(ROOT).as_posix()
     if not run("fast", [sys.executable, "scripts/check_fast.py"]):

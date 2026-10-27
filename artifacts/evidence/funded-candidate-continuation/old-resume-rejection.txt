@@ -1,0 +1,2 @@
+{"status": "INCOMPLETE", "reason": "immutable_campaign_provenance_mismatch"}
+EXIT_CODE=2

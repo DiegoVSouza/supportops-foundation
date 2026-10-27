@@ -33,17 +33,103 @@ class ExecutionBlocked(RuntimeError):
 # The ledger already includes every historical reservation across campaign IDs.
 # These are full primary ceilings, leaving the separate 60-call confirmation reserve.
 PRIMARY_CAPS = ResourceCaps(
-    126,
-    258048,
-    32256,
-    Decimal("0.0290304"),
+    136,
+    278528,
+    34816,
+    Decimal("0.0313344"),
 )
 
 
 def validate_live_scope(stage: str, campaign: str) -> None:
-    """Phase 016 allocates exactly one development campaign; IDs cannot reset it."""
-    if (stage, campaign) != ("development", "free-dev-c1"):
-        raise ExecutionBlocked("phase_016_live_scope_not_allocated")
+    """Phase 019 allocates only fresh C2 development; identities cannot reset caps."""
+    if stage == "development" and campaign == "free-dev-c1":
+        raise ExecutionBlocked("immutable_campaign_provenance_mismatch")
+    if (stage, campaign) != ("development", "free-dev-c2"):
+        raise ExecutionBlocked("phase_019_live_scope_not_allocated")
+
+
+def _safe_account_path(lab: Path, path: Path) -> Path:
+    if not path.resolve().is_relative_to(lab.resolve()):
+        raise ExecutionBlocked("root_account_path_outside_lab")
+    for part in (path, *path.parents):
+        if part == lab:
+            break
+        if part.is_symlink() or part.is_junction():
+            raise ExecutionBlocked("root_account_linked_path")
+        if part.is_file() and part.stat().st_nlink != 1:
+            raise ExecutionBlocked("root_account_linked_path")
+    return path
+
+
+def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
+    """Read-only applied-policy and provider-ledger identity gate before any live setup."""
+    runtime = lab / ".runtime/llm-live-readiness"
+    marker = _safe_account_path(lab, runtime / "policy-migration.pending")
+    if marker.exists() or marker.is_symlink() or marker.is_junction():
+        raise ExecutionBlocked("policy_migration_pending")
+    expected = {
+        "requests": 196,
+        "input_tokens": 401408,
+        "output_tokens": 50176,
+        "estimated_cost_usd": "0.0451584",
+    }
+    projects = policy.get("projects")
+    p00 = projects.get("p00") if isinstance(projects, dict) else None
+    if (
+        policy.get("model") != "openai/gpt-oss-20b"
+        or policy.get("authorized_paid_spend_usd") != "0.00"
+        or not isinstance(p00, dict)
+        or any(
+        p00.get(name) != value for name, value in expected.items()
+        )
+        or p00.get("calls_per_trial") != 1
+        or p00.get("input_tokens_per_call") != 2048
+        or p00.get("output_tokens_per_call") != 256
+    ):
+        raise ExecutionBlocked("p00_allocation_policy_mismatch")
+    confirmation = {
+        "requests": 60,
+        "input_tokens": 122880,
+        "output_tokens": 15360,
+        "estimated_cost_usd": "0.013824",
+    }
+    remaining = {
+        "requests": p00.get("requests", 0) - PRIMARY_CAPS.requests,
+        "input_tokens": p00.get("input_tokens", 0) - PRIMARY_CAPS.input_tokens,
+        "output_tokens": p00.get("output_tokens", 0) - PRIMARY_CAPS.output_tokens,
+    }
+    try:
+        remaining_cost = (
+            Decimal(p00.get("estimated_cost_usd", "-1"))
+            - PRIMARY_CAPS.estimated_cost_usd
+        )
+    except (ArithmeticError, TypeError, ValueError):
+        raise ExecutionBlocked("p00_allocation_policy_mismatch") from None
+    if remaining != {
+        key: value for key, value in confirmation.items() if key != "estimated_cost_usd"
+    } or remaining_cost != Decimal(confirmation["estimated_cost_usd"]):
+        raise ExecutionBlocked("p00_confirmation_reserve_changed")
+    policy_sha = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
+    registry_path = _safe_account_path(lab, runtime / "ledger-references.json")
+    ledger_path = _safe_account_path(
+        lab, lab / "projects/p00/artifacts/evals/live/provider-usage.sqlite"
+    )
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        if registry.get("policy_sha256") != policy_sha:
+            raise ExecutionBlocked("applied_policy_registry_mismatch")
+        identity = registry["projects"]["p00"]
+        if not isinstance(identity, str) or not re.fullmatch(r"[a-f0-9]{32}", identity):
+            raise ExecutionBlocked("p00_provider_ledger_identity_mismatch")
+        with closing(sqlite3.connect(ledger_path.as_uri() + "?mode=ro", uri=True)) as db:
+            rows = db.execute("SELECT identity FROM identity").fetchall()
+        if len(rows) != 1 or rows[0][0] != identity:
+            raise ExecutionBlocked("p00_provider_ledger_identity_mismatch")
+    except ExecutionBlocked:
+        raise
+    except (OSError, ValueError, KeyError, TypeError, sqlite3.Error):
+        raise ExecutionBlocked("root_account_binding_unavailable") from None
+    return identity
 
 
 def require_committed_sources(project: Path, source_files: dict[str, str]) -> str:
@@ -543,6 +629,8 @@ def run_campaign(
     source_files = fingerprint(project, policy_path)
     if revision is None or client_factory is ProviderClient:
         revision = require_committed_sources(project, source_files)
+    if client_factory is ProviderClient or getattr(client_factory, "provenance", None) == "live":
+        verify_applied_policy_binding(lab, policy)
     selected = (
         [case for case in cases if case["case_id"] in config["pilot_case_ids"]]
         if stage == "pilot"

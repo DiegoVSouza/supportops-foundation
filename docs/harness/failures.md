@@ -30,6 +30,10 @@ These source corrections invalidate the frozen `free-dev-c1` fingerprint. The ol
 
 The corrected source cannot resume or inherit twelve quality trials from `free-dev-c1`. A complete fresh development/holdout requires 120 primary calls, against 110 remaining; full output reservations also exceed remaining primary capacity by 370 tokens. The 60-call confirmation reserve is protected. Other projects' original pilots, three-trial evaluations and confirmation exactly occupy their allocations. No valid donor is identified, and no cap, registry UUID or ledger is reset. Phase 017 records the exact reconciliation and an explicitly unapproved future ten-call uniform-envelope proposal. Generation remains INCOMPLETE pending a budget decision; no provider call occurred.
 
+## 2026-10-27 — Phase 019 ceiling regression after explicit allocation
+
+The first P00 full-gate run after applying the user-approved policy file failed one assertion that still expected the old 126-call primary and derived a 60-call confirmation by subtracting 126 from the P00 project total. The test exposed the intended phase-019 change: P00 primary must be 136 while confirmation remains 60. Updated the controller to 136 and rewrote the regression to model 4 historical pilot + 132 primary reservations and assert the unchanged confirmation dimensions directly. The corrected focused suite passed 34 tests and the locked full gate passed 142. No provider or credential path ran; the root registry remains old until phase 005 apply.
+
 ## 2026-10-27 — Review provenance and temporary gate files
 
 An initial UI prototype filtered out the historical pilot because its manifest predates the separate strict-schema file. Read-only inspection confirmed all three pilot responses remain in the protected database. The interface now marks schema provenance as NOT_APPLICABLE_LEGACY_NO_SCHEMA only for that exact historical candidate and requires complete hashes for newer candidates. Missing/mismatched dataset or receipt provenance fails closed. The pilot's operational error remains a record without a response; missing HTTP status/code are not reconstructed.

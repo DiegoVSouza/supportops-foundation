@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 import shutil
@@ -268,6 +269,7 @@ def test_tampering_result_to_pass_cannot_override_immutable_ledger(campaign):
 
 def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campaign, monkeypatch):
     monkeypatch.setattr(FixtureClient, "provenance", "live")
+    monkeypatch.setattr(execution, "verify_applied_policy_binding", lambda *_: "a" * 32)
     with pytest.raises(execution.ExecutionBlocked, match="provider_usage_proof_unavailable"):
         project, config, cases = campaign
         execution.run_campaign(
@@ -275,7 +277,7 @@ def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campa
             config,
             cases,
             "development",
-            "free-dev-c1",
+            "free-dev-c2",
             client_factory=FixtureClient,
             revision="a" * 40,
             max_trials=1,
@@ -285,14 +287,19 @@ def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campa
 @pytest.mark.parametrize(
     "stage,name",
     [
-        ("development", "free-dev-c2"),
+        ("development", "free-dev-c1"),
         ("development", "renamed-campaign"),
         ("pilot", "free-dev-c1"),
-        ("holdout", "free-dev-c1"),
+        ("holdout", "free-dev-c2"),
     ],
 )
 def test_live_scope_rejects_new_ids_and_stages_before_side_effects(tmp_path, stage, name):
-    with pytest.raises(execution.ExecutionBlocked, match="live_scope_not_allocated"):
+    reason = (
+        "immutable_campaign_provenance_mismatch"
+        if (stage, name) == ("development", "free-dev-c1")
+        else "phase_019_live_scope_not_allocated"
+    )
+    with pytest.raises(execution.ExecutionBlocked, match=reason):
         execution.run_campaign(tmp_path, {}, [], stage, name)
     assert list(tmp_path.iterdir()) == []
 
@@ -305,7 +312,7 @@ def test_development_cannot_exceed_36_attempts_across_chunks_and_resume(campaign
             config,
             cases,
             "development",
-            "free-dev-c1",
+            "free-dev-c2",
             client_factory=FixtureClient,
             revision="a" * 40,
             max_trials=10,
@@ -316,7 +323,7 @@ def test_development_cannot_exceed_36_attempts_across_chunks_and_resume(campaign
 def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(tmp_path):
     path = tmp_path / "ledger.sqlite"
     caps = vars(execution.PRIMARY_CAPS)
-    for campaign_id, count in (("pilot", 4), ("primary", 122)):
+    for campaign_id, count in (("pilot", 4), ("primary", 132)):
         ledger = CampaignLedger(path, project="p00", campaign_id=campaign_id)
         for index in range(count):
             ledger.reserve(
@@ -327,7 +334,11 @@ def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(
                 estimated_cost_usd=Decimal(0),
                 caps=caps,
             )
-    assert ledger.totals()["requests"] == 126
+    assert ledger.totals()["requests"] == 136
+    assert caps["requests"] == 136
+    assert caps["input_tokens"] == 278528
+    assert caps["output_tokens"] == 34816
+    assert caps["estimated_cost_usd"] == Decimal("0.0313344")
     with pytest.raises(CampaignBlocked, match="cumulative reservation cap"):
         ledger.reserve(
             case_id="extra",
@@ -342,6 +353,67 @@ def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(
     assert policy["input_tokens"] - caps["input_tokens"] == 122880
     assert policy["output_tokens"] - caps["output_tokens"] == 15360
     assert Decimal(policy["estimated_cost_usd"]) - caps["estimated_cost_usd"] == Decimal("0.013824")
+
+
+def test_applied_policy_binding_checks_policy_registry_and_provider_uuid(tmp_path):
+    lab = tmp_path / "lab"
+    runtime = lab / ".runtime/llm-live-readiness"
+    provider = lab / "projects/p00/artifacts/evals/live/provider-usage.sqlite"
+    runtime.mkdir(parents=True)
+    provider.parent.mkdir(parents=True)
+    policy = load_json(LAB / "shared/policies/groq-free-campaign.json")
+    identity = "a" * 32
+    registry = {"policy_sha256": "old-policy", "projects": {"p00": identity}}
+    (runtime / "ledger-references.json").write_text(json.dumps(registry))
+    with closing(sqlite3.connect(provider)) as db:
+        db.execute("CREATE TABLE identity(identity TEXT PRIMARY KEY)")
+        db.execute("INSERT INTO identity VALUES(?)", (identity,))
+        db.commit()
+    with pytest.raises(execution.ExecutionBlocked, match="applied_policy_registry_mismatch"):
+        execution.verify_applied_policy_binding(lab, policy)
+    registry["policy_sha256"] = hashlib.sha256(
+        json.dumps(policy, sort_keys=True).encode()
+    ).hexdigest()
+    (runtime / "ledger-references.json").write_text(json.dumps(registry))
+    with closing(sqlite3.connect(provider)) as db:
+        db.execute("UPDATE identity SET identity=?", ("b" * 32,))
+        db.commit()
+    with pytest.raises(execution.ExecutionBlocked, match="p00_provider_ledger_identity_mismatch"):
+        execution.verify_applied_policy_binding(lab, policy)
+    with closing(sqlite3.connect(provider)) as db:
+        db.execute("UPDATE identity SET identity=?", (identity,))
+        db.commit()
+    assert execution.verify_applied_policy_binding(lab, policy) == identity
+    (runtime / "policy-migration.pending").write_text("{}")
+    with pytest.raises(execution.ExecutionBlocked, match="policy_migration_pending"):
+        execution.verify_applied_policy_binding(lab, policy)
+
+
+def test_pending_migration_preflight_denies_before_live_client_or_campaign_files(campaign):
+    project, config, cases = campaign
+
+    class LiveProbe(FixtureClient):
+        provenance = "live"
+        initialized = 0
+
+        def __init__(self, project):
+            type(self).initialized += 1
+            super().__init__(project)
+
+    with pytest.raises(execution.ExecutionBlocked, match="root_account_binding_unavailable"):
+        execution.run_campaign(
+            project,
+            config,
+            cases,
+            "development",
+            "free-dev-c2",
+            client_factory=LiveProbe,
+            revision="a" * 40,
+            max_trials=1,
+        )
+    assert LiveProbe.initialized == 0
+    assert not (project / "artifacts/evals/live/free-dev-c2").exists()
+    assert FixtureClient.calls == []
 
 
 @pytest.mark.parametrize(
@@ -415,7 +487,7 @@ def test_explicit_revision_cannot_bypass_live_source_check(campaign, monkeypatch
             config,
             cases,
             "development",
-            "free-dev-c1",
+            "free-dev-c2",
             revision="a" * 40,
         )
 
