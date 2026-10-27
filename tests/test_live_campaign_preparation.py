@@ -77,7 +77,7 @@ def test_code_first_grader_rejects_truncated_json() -> None:
         json.loads('{"decision":{"category":"billing",')
 
 
-def test_dry_run_works_without_site_packages_or_provider_imports() -> None:
+def test_dry_run_fails_closed_on_uncommitted_candidate_sources() -> None:
     result = subprocess.run(
         [
             sys.executable,
@@ -92,22 +92,13 @@ def test_dry_run_works_without_site_packages_or_provider_imports() -> None:
         text=True,
         check=False,
     )
-    assert result.returncode == 0, result.stderr
+    assert result.returncode == 2, result.stderr
     report = json.loads(result.stdout)
-    assert report["cases"] == 6
-    assert report["logical_trials"] == 6
-    assert report["max_provider_calls"] == 6
+    assert report["status"] == "INCOMPLETE"
+    assert report["error"] == "candidate source provenance is not committed and clean"
     assert report["generation_authorized"] is False
     assert report["provider_accessed"] is False
     assert report["credentials_read"] is False
-    assert "authorization.dataset_review" in report["blockers"]
-    assert report["planned_reservations"]["primary_campaign_max_calls"] == 120
-    assert report["planned_reservations"]["confirmation_max_calls"] == 60
-    assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 186
-    assert report["limits"]["cumulative"]["max_requests"] == 186
-    assert report["limits"]["cumulative"]["max_input_tokens"] == 380928
-    assert report["limits"]["cumulative"]["max_output_tokens"] == 47616
-    assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
 
 
 @pytest.mark.parametrize(
@@ -127,13 +118,134 @@ def test_dry_run_reports_stage_reservations(stage, case_count, trial_count, call
     assert plan["confirmation_max_output_tokens"] == 20 * 3 * 256
 
 
+def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(monkeypatch) -> None:
+    from scripts import campaign_execution
+    from scripts.run_live_campaign import applied_allocation, summarize
+
+    monkeypatch.setattr(campaign_execution, "require_committed_sources", lambda *_: "candidate")
+    allocation = applied_allocation(ROOT)
+    report = summarize(
+        "development",
+        CASES,
+        CONFIG,
+        MANIFEST,
+        ROOT / CONFIG["cases_path"],
+        allocation=allocation,
+        campaign_id="free-dev-c2",
+    )
+    assert report["candidate"]["policy_registry_sha256_matches"] is True
+    assert report["planned_reservations"]["baseline_all_stages_max_calls_if_additive"] == 186
+    assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 196
+    assert report["limits"]["cumulative"]["max_requests"] == 196
+    assert report["limits"]["cumulative"]["max_input_tokens"] == 401408
+    assert report["limits"]["cumulative"]["max_output_tokens"] == 50176
+    assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
+    assert report["candidate"]["p00_primary_allocation"]["requests"] == 136
+    assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
+    assert report["candidate"]["global_remaining"] == {
+        "requests": 4068,
+        "primary_requests": 3228,
+        "protected_confirmation_requests": 840,
+    }
+    assert report["candidate"]["logical_ledger_usage"]["requests"] == 16
+    assert report["candidate"]["logical_ledger_usage"]["unknown_reservations"] == [
+        {"input_tokens": 2048, "output_tokens": 256}
+    ]
+    assert report["candidate"]["provider_ledger_usage"]["unknown_transport_reservations"] == [
+        {
+            "attempt_id": allocation["provider_ledger_usage"]["unknown_transport_reservations"][0][
+                "attempt_id"
+            ],
+            "input_tokens": 1475,
+            "output_tokens": 256,
+        }
+    ]
+    assert report["c2_scope"]["maximum_new_calls"] == 36
+    assert report["c2_scope"]["future_holdout_calls"] == 84
+    assert report["c2_scope"]["batches_maximum"] == [10, 10, 10, 6]
+    assert report["c2_scope"]["previous_candidate_results_reused"] is False
+    assert (
+        report["c2_scope"]["previous_candidate_commit"]
+        == "b42a198246274db5f7feb17a247ef1fe90e662e6"
+    )
+    assert report["c2_scope"]["previous_candidate_unexecuted_trials"] == 24
+    assert report["c2_scope"]["previous_pilot"] == {
+        "campaign_id": "free-pilot-v1",
+        "calls": 4,
+        "evaluated_responses": 3,
+        "passed_responses": 0,
+        "operational_errors": 1,
+        "unknown_usage_errors": 1,
+        "historical_http_code": "NOT_PRESERVED",
+    }
+    assert report["c2_scope"]["p00_primary_remaining_after_existing_usage"] == 120
+    assert report["c2_scope"]["p00_primary_token_capacity_after_existing_usage"] == {
+        "provider_ledger_input_tokens": 271817,
+        "logical_ledger_input_tokens": 271244,
+        "output_tokens": 32910,
+    }
+    assert report["c2_scope"]["c2_development_max_tokens"] == {
+        "input": 73728,
+        "output": 9216,
+    }
+    assert report["c2_scope"]["future_holdout_max_tokens"] == {
+        "input": 172032,
+        "output": 21504,
+    }
+    assert report["c2_scope"]["other_project_primary_remaining"] == {
+        "p01": 744,
+        "p02": 246,
+        "p03": 96,
+        "p04": 558,
+        "p05": 1464,
+    }
+    assert report["c2_scope"]["other_project_confirmations_protected"] == {
+        "p01": 240,
+        "p02": 60,
+        "p03": 60,
+        "p04": 180,
+        "p05": 240,
+    }
+    assert report["candidate"]["provider_accessed"] is False
+    assert report["candidate"]["credentials_read"] is False
+    assert "authorization.dataset_review" in report["blockers"]
+    assert report["campaign_id"] == "free-dev-c2"
+    assert report["candidate"]["billing"].startswith("UNKNOWN")
+
+
+def test_dry_run_rejects_unallocated_development_campaign_id() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-S",
+            str(ROOT / "scripts/run_live_campaign.py"),
+            "--stage",
+            "development",
+            "--campaign-id",
+            "invented-campaign",
+            "--dry-run",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    report = json.loads(result.stdout)
+    assert report["error"] == "phase 019 allocates only free-dev-c2"
+    assert report["provider_accessed"] is False
+    assert report["credentials_read"] is False
+
+
 def test_generation_is_incomplete_without_creating_a_provider_client(capsys) -> None:
     from scripts.run_live_campaign import main
 
     assert main(["--stage", "pilot"]) == 2
     report = json.loads(capsys.readouterr().out)
     assert report["status"] == "INCOMPLETE"
-    assert "requires --execute-free and LLM_MODE=live" in report["reason"]
+    assert report["error"] == "candidate source provenance is not committed and clean"
+    assert report["provider_accessed"] is False
+    assert report["credentials_read"] is False
 
 
 def test_resume_dry_run_reports_uncertain_attempt_without_provider_access(

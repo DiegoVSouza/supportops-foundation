@@ -79,9 +79,7 @@ def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
         policy.get("model") != "openai/gpt-oss-20b"
         or policy.get("authorized_paid_spend_usd") != "0.00"
         or not isinstance(p00, dict)
-        or any(
-        p00.get(name) != value for name, value in expected.items()
-        )
+        or any(p00.get(name) != value for name, value in expected.items())
         or p00.get("calls_per_trial") != 1
         or p00.get("input_tokens_per_call") != 2048
         or p00.get("output_tokens_per_call") != 256
@@ -100,8 +98,7 @@ def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
     }
     try:
         remaining_cost = (
-            Decimal(p00.get("estimated_cost_usd", "-1"))
-            - PRIMARY_CAPS.estimated_cost_usd
+            Decimal(p00.get("estimated_cost_usd", "-1")) - PRIMARY_CAPS.estimated_cost_usd
         )
     except (ArithmeticError, TypeError, ValueError):
         raise ExecutionBlocked("p00_allocation_policy_mismatch") from None

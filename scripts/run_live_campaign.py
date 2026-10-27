@@ -8,8 +8,11 @@ import hashlib
 import json
 import os
 import re
+import sqlite3
 import sys
 from collections import Counter
+from contextlib import closing, contextmanager
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +39,41 @@ DECISION_KEYS = {"category", "action", "escalate", "rationale"}
 
 class CampaignError(ValueError):
     """Raised for invalid local campaign inputs."""
+
+
+@contextmanager
+def readonly_accounting_window(lab: Path, account: Any, project: Path):
+    """Take the same leases as dispatch and clean only sidecars created by reads."""
+    from live_free_account import machine_lease
+
+    from scripts.campaign_execution import _safe_account_path
+
+    paths = [account.path(name) for name in account.policy["projects"]]
+    paths.append(project / "artifacts/evals/live/ledger.sqlite")
+    campaign_lock = _safe_account_path(lab, lab / ".runtime/llm-live-readiness/campaign.lock")
+    account_lock = _safe_account_path(lab, account.lock)
+    auxiliaries: list[tuple[Path, bool]] = []
+    with (
+        machine_lease(campaign_lock),
+        machine_lease(account_lock),
+    ):
+        for base in paths:
+            _safe_account_path(lab, base)
+            for suffix in ("-wal", "-shm"):
+                path = _safe_account_path(lab, Path(str(base) + suffix))
+                auxiliaries.append((path, path.exists()))
+        try:
+            yield
+        finally:
+            for path, existed in auxiliaries:
+                if (
+                    not existed
+                    and path.exists()
+                    and path.is_file()
+                    and not path.is_symlink()
+                    and not path.is_junction()
+                ):
+                    path.unlink()
 
 
 def validate_config(config: dict[str, Any], cases: list[dict[str, Any]]) -> None:
@@ -240,12 +278,188 @@ def pending_values(value: Any, prefix: str = "") -> list[str]:
     return pending
 
 
+def applied_allocation(project: Path) -> dict[str, Any]:
+    """Read the applied shared account and both P00 ledgers without credentials."""
+    lab = project.parents[1]
+    policy_path = lab / "shared/policies/groq-free-campaign.json"
+    registry_path = lab / ".runtime/llm-live-readiness/ledger-references.json"
+    sys.path.insert(0, str(project))
+    try:
+        from scripts.campaign_execution import _safe_account_path
+
+        _safe_account_path(lab, policy_path)
+        _safe_account_path(lab, registry_path)
+    except (ImportError, OSError, RuntimeError) as exc:
+        raise CampaignError("shared allocation path is unsafe") from exc
+    policy = load_json(policy_path)
+    sys.path.insert(0, str(lab / "scripts/harness"))
+    try:
+        from live_free_account import SharedAccount
+
+        account = SharedAccount(lab, policy)
+    except (ImportError, OSError, ValueError, KeyError, TypeError, RuntimeError) as exc:
+        raise CampaignError("applied shared allocation is unavailable") from exc
+
+    logical_path = project / "artifacts/evals/live/ledger.sqlite"
+    try:
+        with readonly_accounting_window(lab, account, project):
+            refs = account._references()
+            attempts = account._history()
+            registry_sha = json.loads(registry_path.read_text(encoding="utf-8"))["policy_sha256"]
+            with closing(sqlite3.connect(logical_path.as_uri() + "?mode=ro", uri=True)) as db:
+                logical_rows = db.execute(
+                    """SELECT e.reserved_calls,e.reserved_input_tokens,e.reserved_output_tokens,
+                              e.actual_input_tokens,e.actual_output_tokens,e.reserved_cost_usd,
+                              e.actual_cost_usd
+                       FROM events e JOIN (
+                         SELECT project,campaign_id,case_id,trial,MAX(sequence) sequence
+                         FROM events GROUP BY project,campaign_id,case_id,trial
+                       ) latest ON e.sequence=latest.sequence
+                       WHERE e.project='p00'"""
+                ).fetchall()
+    except (sqlite3.Error, OSError, RuntimeError) as exc:
+        raise CampaignError("accounting ledgers are unavailable") from exc
+
+    project_usage: dict[str, dict[str, int]] = {}
+    for name in policy["projects"]:
+        rows = [row for row in attempts if row["project"] == name]
+        project_usage[name] = {
+            "requests": len(rows),
+            "input_tokens": sum(account.usage(row)["input_tokens"] for row in rows),
+            "output_tokens": sum(account.usage(row)["output_tokens"] for row in rows),
+            "unknown_attempts": sum(
+                row["actual_input"] is None or row["actual_output"] is None for row in rows
+            ),
+        }
+    global_caps = policy["campaign_caps"]
+    global_usage = {
+        field: str(sum(account.usage(row)[field] for row in attempts))
+        for field in ("requests", "input_tokens", "output_tokens", "estimated_cost_usd")
+    }
+    confirmation_calls = {
+        "p00": 60,
+        "p01": 240,
+        "p02": 60,
+        "p03": 60,
+        "p04": 180,
+        "p05": 240,
+    }
+    primary_calls = {
+        name: policy["projects"][name]["requests"] - confirmation_calls[name]
+        for name in policy["projects"]
+    }
+    remaining_by_project = {
+        name: {
+            "primary_total": primary_calls[name],
+            "primary_consumed": project_usage[name]["requests"],
+            "primary_remaining": primary_calls[name] - project_usage[name]["requests"],
+            "primary_input_tokens_total": policy["projects"][name]["input_tokens"]
+            - confirmation_calls[name] * policy["projects"][name]["input_tokens_per_call"],
+            "primary_input_tokens_remaining": policy["projects"][name]["input_tokens"]
+            - confirmation_calls[name] * policy["projects"][name]["input_tokens_per_call"]
+            - project_usage[name]["input_tokens"],
+            "primary_output_tokens_total": policy["projects"][name]["output_tokens"]
+            - confirmation_calls[name] * policy["projects"][name]["output_tokens_per_call"],
+            "primary_output_tokens_remaining": policy["projects"][name]["output_tokens"]
+            - confirmation_calls[name] * policy["projects"][name]["output_tokens_per_call"]
+            - project_usage[name]["output_tokens"],
+            "confirmation_protected": confirmation_calls[name],
+        }
+        for name in policy["projects"]
+    }
+
+    logical_usage = {
+        "requests": sum(row[0] for row in logical_rows),
+        "input_tokens": sum(row[3] if row[3] is not None else row[1] for row in logical_rows),
+        "output_tokens": sum(row[4] if row[4] is not None else row[2] for row in logical_rows),
+        "estimated_cost_usd": str(
+            sum(
+                (Decimal(row[6]) if row[6] is not None else Decimal(row[5])) for row in logical_rows
+            )
+        ),
+        "unknown_attempts": sum(row[3] is None or row[4] is None for row in logical_rows),
+    }
+    p00_caps = policy["projects"]["p00"]
+    primary = {
+        "requests": p00_caps["requests"] - confirmation_calls["p00"],
+        "input_tokens": p00_caps["input_tokens"]
+        - confirmation_calls["p00"] * p00_caps["input_tokens_per_call"],
+        "output_tokens": p00_caps["output_tokens"]
+        - confirmation_calls["p00"] * p00_caps["output_tokens_per_call"],
+        "estimated_cost_usd": str(Decimal(p00_caps["estimated_cost_usd"]) - Decimal("0.013824")),
+    }
+    unknown_transport = [
+        row
+        for row in attempts
+        if row["project"] == "p00" and (row["actual_input"] is None or row["actual_output"] is None)
+    ]
+    try:
+        from scripts.campaign_execution import fingerprint, require_committed_sources
+
+        source_files = fingerprint(project, policy_path)
+        candidate_commit = require_committed_sources(project, source_files)
+    except (ImportError, OSError, ValueError, KeyError, TypeError, RuntimeError) as exc:
+        raise CampaignError("candidate source provenance is not committed and clean") from exc
+    policy_sha = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
+    if policy_sha != registry_sha:
+        raise CampaignError("applied shared allocation policy is not reconciled")
+    return {
+        "candidate_commit": candidate_commit,
+        "candidate_fingerprint_sha256": hashlib.sha256(
+            json.dumps(source_files, sort_keys=True).encode()
+        ).hexdigest(),
+        "source_sha256": source_files,
+        "policy_sha256": policy_sha,
+        "policy_registry_sha256_matches": True,
+        "registered_provider_ledger_uuids": refs,
+        "p00_primary_allocation": primary,
+        "p00_confirmation_protected": {
+            "requests": confirmation_calls["p00"],
+            "input_tokens": confirmation_calls["p00"] * p00_caps["input_tokens_per_call"],
+            "output_tokens": confirmation_calls["p00"] * p00_caps["output_tokens_per_call"],
+            "estimated_cost_usd": "0.013824",
+        },
+        "provider_ledger_usage": {
+            "total_accounted": global_usage,
+            "p00": project_usage["p00"],
+            "unknown_transport_reservations": [
+                {
+                    "attempt_id": row["attempt_id"],
+                    "input_tokens": row["reserved_input"],
+                    "output_tokens": row["reserved_output"],
+                }
+                for row in unknown_transport
+            ],
+        },
+        "logical_ledger_usage": {
+            **logical_usage,
+            "unknown_reservations": [
+                {"input_tokens": row[1], "output_tokens": row[2]}
+                for row in logical_rows
+                if row[3] is None or row[4] is None
+            ],
+        },
+        "remaining_capacity_by_project": remaining_by_project,
+        "global_remaining": {
+            "requests": global_caps["requests"] - int(global_usage["requests"]),
+            "primary_requests": sum(primary_calls.values()) - int(global_usage["requests"]),
+            "protected_confirmation_requests": sum(confirmation_calls.values()),
+        },
+        "billing": "UNKNOWN; economic policy estimates are not provider billing",
+        "provider_accessed": False,
+        "credentials_read": False,
+        "paid_spend_usd": "0.00",
+    }
+
+
 def summarize(
     stage: str,
     cases: list[dict[str, Any]],
     config: dict[str, Any],
     manifest: dict[str, Any],
     data_path: Path,
+    allocation: dict[str, Any] | None = None,
+    campaign_id: str | None = None,
 ) -> dict[str, Any]:
     if stage == "pilot":
         selected_ids = config.get("pilot_case_ids", [])
@@ -289,7 +503,52 @@ def summarize(
         for case in cases
         if case["case_id"] in set(config["pilot_case_ids"])
     )
-    return {
+    cumulative = config["cumulative_caps"]
+    if allocation is not None:
+        p00 = allocation["p00_primary_allocation"]
+        confirmation_caps = allocation["p00_confirmation_protected"]
+        cumulative = {
+            "max_requests": p00["requests"] + confirmation_caps["requests"],
+            "max_input_tokens": p00["input_tokens"] + confirmation_caps["input_tokens"],
+            "max_output_tokens": p00["output_tokens"] + confirmation_caps["output_tokens"],
+            "max_estimated_spend_usd": str(
+                Decimal(p00["estimated_cost_usd"])
+                + Decimal(confirmation_caps["estimated_cost_usd"])
+            ),
+            "authorized_paid_spend_usd": "0.00",
+            "authorized_free_quota_calls": p00["requests"] + confirmation_caps["requests"],
+        }
+    reservations = {
+        "primary_campaign_cases": len(cases),
+        "primary_campaign_logical_trials": len(cases) * campaign_trials,
+        "primary_campaign_max_calls": all_case_calls * campaign_trials,
+        "primary_campaign_max_input_tokens": all_case_input * campaign_trials,
+        "primary_campaign_max_output_tokens": all_case_output * campaign_trials,
+        "pilot_cases": pilot_cases,
+        "pilot_max_calls": pilot_calls,
+        "confirmation_cases": confirmation_cases,
+        "confirmation_logical_trials": confirmation_cases * confirmation_trials,
+        "confirmation_max_calls": confirmation_cases
+        * confirmation_trials
+        * confirmation["max_calls_per_case_trial"],
+        "confirmation_max_input_tokens": confirmation_cases
+        * confirmation_trials
+        * config["per_case_caps"]["max_input_tokens"],
+        "confirmation_max_output_tokens": confirmation_cases
+        * confirmation_trials
+        * config["per_case_caps"]["max_output_tokens"],
+        "confirmation_spend_usd": confirmation["reserved_spend_usd"],
+        "baseline_all_stages_max_calls_if_additive": all_case_calls * campaign_trials
+        + pilot_calls
+        + confirmation_cases * confirmation_trials * confirmation["max_calls_per_case_trial"],
+        "all_stages_max_calls_if_additive": cumulative["max_requests"]
+        if allocation is not None
+        else all_case_calls * campaign_trials
+        + pilot_calls
+        + confirmation_cases * confirmation_trials * confirmation["max_calls_per_case_trial"],
+        "authorized_new_primary_calls": 10 if allocation is not None else 0,
+    }
+    result = {
         "project": config["project"],
         "stage": stage,
         "mode": "dry-run",
@@ -302,45 +561,14 @@ def summarize(
         "max_provider_calls": max_calls,
         "max_input_tokens": max_input_tokens,
         "max_output_tokens": max_output_tokens,
-        "planned_reservations": {
-            "primary_campaign_cases": len(cases),
-            "primary_campaign_logical_trials": len(cases) * campaign_trials,
-            "primary_campaign_max_calls": all_case_calls * campaign_trials,
-            "primary_campaign_max_input_tokens": all_case_input * campaign_trials,
-            "primary_campaign_max_output_tokens": all_case_output * campaign_trials,
-            "pilot_cases": pilot_cases,
-            "pilot_max_calls": pilot_calls,
-            "confirmation_cases": confirmation_cases,
-            "confirmation_logical_trials": confirmation_cases * confirmation_trials,
-            "confirmation_max_calls": (
-                confirmation_cases * confirmation_trials * confirmation["max_calls_per_case_trial"]
-            ),
-            "confirmation_max_input_tokens": (
-                confirmation_cases
-                * confirmation_trials
-                * config["per_case_caps"]["max_input_tokens"]
-            ),
-            "confirmation_max_output_tokens": (
-                confirmation_cases
-                * confirmation_trials
-                * config["per_case_caps"]["max_output_tokens"]
-            ),
-            "confirmation_spend_usd": confirmation["reserved_spend_usd"],
-            "all_stages_max_calls_if_additive": (
-                all_case_calls * campaign_trials
-                + pilot_calls
-                + confirmation_cases
-                * confirmation_trials
-                * confirmation["max_calls_per_case_trial"]
-            ),
-        },
+        "planned_reservations": reservations,
         "families": dict(sorted(family_counts.items())),
         "languages": dict(sorted(language_counts.items())),
         "model": config["model"],
         "provider": config["provider"],
         "limits": {
             "per_case": config["per_case_caps"],
-            "cumulative": config["cumulative_caps"],
+            "cumulative": cumulative,
             "execution": config["execution"],
             "confirmation_reserve": config["confirmation_reserve"],
             "authorized_paid_spend_usd": config["cumulative_caps"]["authorized_paid_spend_usd"],
@@ -351,6 +579,89 @@ def summarize(
         "credentials_read": False,
         "docker_mutated": False,
     }
+    if allocation is not None:
+        result.update(
+            campaign_id=campaign_id or ("free-dev-c2" if stage == "development" else None),
+            candidate=allocation,
+            c2_scope={
+                "stage": "development",
+                "unique_cases": 12,
+                "trials_per_case": 3,
+                "maximum_new_calls": 36,
+                "batches_maximum": [10, 10, 10, 6],
+                "previous_candidate": "free-dev-c1",
+                "previous_candidate_commit": "b42a198246274db5f7feb17a247ef1fe90e662e6",
+                "previous_candidate_completed_trials": 12,
+                "previous_candidate_unexecuted_trials": 24,
+                "previous_candidate_results_reused": False,
+                "previous_pilot": {
+                    "campaign_id": "free-pilot-v1",
+                    "calls": 4,
+                    "evaluated_responses": 3,
+                    "passed_responses": 0,
+                    "operational_errors": 1,
+                    "unknown_usage_errors": 1,
+                    "historical_http_code": "NOT_PRESERVED",
+                },
+                "pilot_quality_results_reused": False,
+                "control_evidence_reusable": True,
+                "quality_evidence_candidate_scoped": True,
+                "future_holdout_calls": 84,
+                "future_holdout_max_tokens": {"input": 172032, "output": 21504},
+                "p00_primary_remaining_after_existing_usage": allocation[
+                    "remaining_capacity_by_project"
+                ]["p00"]["primary_remaining"],
+                "p00_primary_token_capacity_after_existing_usage": {
+                    "provider_ledger_input_tokens": allocation["remaining_capacity_by_project"][
+                        "p00"
+                    ]["primary_input_tokens_remaining"],
+                    "logical_ledger_input_tokens": allocation["p00_primary_allocation"][
+                        "input_tokens"
+                    ]
+                    - allocation["logical_ledger_usage"]["input_tokens"],
+                    "output_tokens": allocation["remaining_capacity_by_project"]["p00"][
+                        "primary_output_tokens_remaining"
+                    ],
+                },
+                "c2_development_max_tokens": {"input": 73728, "output": 9216},
+                "other_project_primary_remaining": {
+                    name: values["primary_remaining"]
+                    for name, values in allocation["remaining_capacity_by_project"].items()
+                    if name != "p00"
+                },
+                "other_project_confirmations_protected": {
+                    name: values["confirmation_protected"]
+                    for name, values in allocation["remaining_capacity_by_project"].items()
+                    if name != "p00"
+                },
+                "corrections_judges_canary_calls": 0,
+                "review_status": {
+                    "human": "PENDING",
+                    "independent": "PENDING",
+                    "dataset": "PENDING",
+                    "rubric": "PENDING",
+                    "promotion": "PENDING",
+                },
+                "stop_conditions": [
+                    "quota or provider error",
+                    "provenance mismatch",
+                    "unknown or interrupted attempt",
+                    "semantic failure (never replay the same trial)",
+                    "36 new C2 attempts",
+                ],
+                "safe_start_command": (
+                    '$env:LLM_MODE="live"; uv run --locked python '
+                    "scripts/run_live_campaign.py --stage development "
+                    "--campaign-id free-dev-c2 --execute-free --max-trials 10"
+                ),
+                "safe_resume_command": (
+                    '$env:LLM_MODE="live"; uv run --locked python '
+                    "scripts/run_live_campaign.py --resume free-dev-c2 "
+                    "--execute-free --max-trials 10"
+                ),
+            },
+        )
+    return result
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -464,9 +775,35 @@ def main(argv: list[str] | None = None) -> int:
         manifest = load_json(manifest_path)
         cases = load_cases(data_path, manifest)
         validate_config(config, cases)
-        summary = summarize(args.stage, cases, config, manifest, data_path)
+        if (
+            args.stage == "development"
+            and args.campaign_id is not None
+            and args.campaign_id != "free-dev-c2"
+        ):
+            raise CampaignError("phase 019 allocates only free-dev-c2")
+        allocation = applied_allocation(ROOT)
+        summary = summarize(
+            args.stage,
+            cases,
+            config,
+            manifest,
+            data_path,
+            allocation=allocation,
+            campaign_id=args.campaign_id,
+        )
     except (CampaignError, KeyError, TypeError) as exc:
-        print(json.dumps({"status": "INCOMPLETE", "error": str(exc)}, sort_keys=True))
+        print(
+            json.dumps(
+                {
+                    "status": "INCOMPLETE",
+                    "error": str(exc),
+                    "generation_authorized": False,
+                    "provider_accessed": False,
+                    "credentials_read": False,
+                },
+                sort_keys=True,
+            )
+        )
         return 2
     if args.dry_run:
         print(json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2))
