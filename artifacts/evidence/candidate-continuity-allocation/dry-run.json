@@ -1,0 +1,79 @@
+{
+  "mode": "offline_dry_run",
+  "provider_accessed": false,
+  "credentials_read": false,
+  "campaign_id": "PENDING_ALLOCATION",
+  "candidate": {
+    "historical_free_dev_c1": "b42a198246274db5f7feb17a247ef1fe90e662e6",
+    "corrected_source_head": "c9df52641d729da401498fec21b850d75445ef55",
+    "candidate_quality_evidence_transfer": false,
+    "head_read_from": "projects/p00/.git/refs/heads/main"
+  },
+  "prior_campaigns": {
+    "free_pilot_v1": {
+      "attempts": 4,
+      "evaluated_responses": 3,
+      "passed": 0,
+      "operational_error_unknown_usage": 1,
+      "historical_http_status_and_code": "UNKNOWN"
+    },
+    "free_dev_c1": {
+      "completed_trials": 12,
+      "planned_trials": 36,
+      "pending_trials": 24,
+      "completed_results_reusable_as_candidate_quality": false,
+      "old_resume": "REJECTED_BY_PROVENANCE"
+    }
+  },
+  "fresh_candidate_plan": {
+    "unique_development_cases": 12,
+    "trials_per_case": 3,
+    "development_max_calls": 36,
+    "holdout_unique_cases": 28,
+    "trials_per_holdout_case": 3,
+    "holdout_max_calls": 84,
+    "maximum_required_primary_calls": 120,
+    "chunks": [10, 10, 10, 6, 10, 10, 10, 10, 10, 10, 10, 10, 4],
+    "semantic_failure_replay": false
+  },
+  "capacity": {
+    "p00_primary_envelope_calls": 126,
+    "existing_consumed_calls": 16,
+    "remaining_primary_calls": 110,
+    "new_candidate_requirement_calls": 120,
+    "deficit_calls": 10,
+    "p00_total_envelope_calls": 186,
+    "protected_confirmation": {
+      "calls": 60,
+      "input_tokens": 122880,
+      "output_tokens": 15360,
+      "economic_estimate_usd": "0.013824",
+      "available_to_primary": false
+    },
+    "root_account_envelope_calls": 4074,
+    "project_allocations_sum_to_root_envelope": true,
+    "identified_uncommitted_source_calls": 0
+  },
+  "unknown_usage": {
+    "pilot_logical_reservation_input_tokens": 2048,
+    "pilot_transport_reservation_input_tokens": 1475,
+    "values_are_layer_specific_and_not_additive": true,
+    "billing_amount": "PENDING"
+  },
+  "other_project_commitments": "UNCHANGED_AND_NOT_REDUCED",
+  "correction_judge_canary_allocations": "NONE_AUTHORIZED",
+  "reviews": {
+    "human": "PENDING",
+    "independent": "PENDING",
+    "dataset_rubric": "PENDING",
+    "promotion": "PENDING"
+  },
+  "stop_conditions": [
+    "10-call primary allocation deficit",
+    "any provider or resource error",
+    "candidate/provenance mismatch",
+    "uncertain attempt"
+  ],
+  "safe_next_step": "offline allocation proposal only; no live command is valid",
+  "status": "INCOMPLETE"
+}
