@@ -13,6 +13,7 @@ allowed_write_paths:
 - `.planning/phases/018-private-review-interface/PLAN.md`
 - `.planning/phases/018-private-review-interface/VERIFY.md`
 - `scripts/review_ui.py`
+- `scripts/check_full.py` (add an optional isolated pytest basetemp override; keep existing default)
 - `tests/llm/test_review_ui.py`
 - `artifacts/evidence/private-review-ui/**`
 - `.runtime/llm-review-ui/**` (local private runtime state only; never stage or commit)
@@ -28,6 +29,7 @@ budget: provider calls 0; paid spend USD 0. Human review is not performed by imp
 - `uv run --locked pytest tests/llm/test_review_ui.py -q`
 - `uv run --locked python scripts/check_fast.py`
 - `uv run --locked python scripts/check_full.py`
+- Set `P00_PYTEST_BASETEMP=artifacts/evidence/private-review-ui/full-gate-pytest` for the full gate so pytest does not clear the pre-existing `artifacts/tmp/pytest` tree.
 - Start the UI only on `127.0.0.1` using a locally generated ephemeral access token; verify auth, navigation, and annotation in a temporary private fixture store, never in historical production review rows during implementation.
 - Inspect output/artifacts to confirm no raw answers, annotations, credentials, or access token are present. Preserve command, exit code, and sanitized output under `artifacts/evidence/private-review-ui/`.
 
