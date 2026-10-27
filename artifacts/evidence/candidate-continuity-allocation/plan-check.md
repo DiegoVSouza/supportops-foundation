@@ -1,8 +1,8 @@
 # Phase 017 plan check
 
-Command: manual requirements review against `harness/GSD-LITE-PLUS.md`, P00 `AGENTS.md`, and phase 017 SPEC/PLAN/VERIFY.
+Method: manual requirements review by the implementing agent against `harness/GSD-LITE-PLUS.md`, P00 `AGENTS.md`, and phase 017 SPEC/PLAN/VERIFY.
 
-Exit code: 0 (plan accepted with execution blocked on allocation).
+Status: PASS for plan completeness; allocation execution remains INCOMPLETE. A manual review has no subprocess exit code. Independent review remains PENDING.
 
 Output:
 

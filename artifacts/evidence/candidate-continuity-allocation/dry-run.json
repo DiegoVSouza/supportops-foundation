@@ -42,6 +42,12 @@
     "remaining_primary_calls": 110,
     "new_candidate_requirement_calls": 120,
     "deficit_calls": 10,
+    "remaining_primary_input_tokens": 250764,
+    "remaining_primary_output_tokens": 30350,
+    "fresh_candidate_required_input_tokens": 245760,
+    "fresh_candidate_required_output_tokens": 30720,
+    "deficit_output_tokens": 370,
+    "accounting_source": "accounting.json",
     "p00_total_envelope_calls": 186,
     "protected_confirmation": {
       "calls": 60,

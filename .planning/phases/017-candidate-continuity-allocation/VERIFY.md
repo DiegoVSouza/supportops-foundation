@@ -6,7 +6,7 @@ All checks begin **PENDING**. Passing documentation or arithmetic checks does no
 - [x] `free-pilot-v1` manifest/ledger/report inspected: four attempts, three model evaluations, zero passes, one operational failure with unknown usage; historical HTTP status/code remain unknown.
 - [x] `free-dev-c1` manifest/ledger/report inspected: candidate b42a198…, 12/36 completed and passing, 24 pending; audit evidence says corrected code rejects old resume by fingerprint.
 - [x] Audit fix c9df526… and its 131-test locked offline gate evidence reviewed; reusable only as control evidence.
-- [ ] Logical and provider SQLite ledgers independently reconciled in this phase. Existing checkpoint evidence retains the prior reconciliation. Unknown pilot reservation remains represented as separate 2,048 logical and 1,475 transport input-token reservations.
+- [x] Logical and provider SQLite ledgers independently reconciled read-only by `reconcile.py`, exit 0; `accounting.json` preserves separate 2,048 logical and 1,475 transport input-token unknown reservations. Sixteen attempts, matching registry UUID, no ledger/registry writes. Exact deficient dimensions are ten calls and 370 output tokens; confirmation remains protected.
 - [x] Arithmetic proves 110 remaining primary calls cannot fund 36 fresh development plus 84 holdout (120); deficit exactly ten; no other allocation source appears in the policy, whose project allocations sum to the 4,074-call envelope; 60-call confirmation stays protected.
 - [x] Offline dry-run saved; arithmetic validation exited 0 with provider and credential access both false; explicit INCOMPLETE stop recorded.
 - [ ] No dataset, rubric, grading, holdout, privacy, or human/independent review status is changed or inferred.

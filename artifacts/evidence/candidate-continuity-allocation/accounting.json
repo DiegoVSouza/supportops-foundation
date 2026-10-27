@@ -1,0 +1,99 @@
+{
+  "remaining_project_commitments": {
+    "p00": {
+      "pilot_and_original_main_calls": 126,
+      "protected_confirmation_calls": 60,
+      "policy_allocation_calls": 186,
+      "unallocated_calls_before_any_consumption": 0
+    },
+    "p01": {
+      "pilot_and_original_main_calls": 744,
+      "protected_confirmation_calls": 240,
+      "policy_allocation_calls": 984,
+      "unallocated_calls_before_any_consumption": 0
+    },
+    "p02": {
+      "pilot_and_original_main_calls": 246,
+      "protected_confirmation_calls": 60,
+      "policy_allocation_calls": 306,
+      "unallocated_calls_before_any_consumption": 0
+    },
+    "p03": {
+      "pilot_and_original_main_calls": 96,
+      "protected_confirmation_calls": 60,
+      "policy_allocation_calls": 156,
+      "unallocated_calls_before_any_consumption": 0
+    },
+    "p04": {
+      "pilot_and_original_main_calls": 558,
+      "protected_confirmation_calls": 180,
+      "policy_allocation_calls": 738,
+      "unallocated_calls_before_any_consumption": 0
+    },
+    "p05": {
+      "pilot_and_original_main_calls": 1464,
+      "protected_confirmation_calls": 240,
+      "policy_allocation_calls": 1704,
+      "unallocated_calls_before_any_consumption": 0
+    }
+  },
+  "logical": {
+    "attempts": 16,
+    "known_input": 5236,
+    "known_output": 1650,
+    "unknown_attempts": 1,
+    "reserved_unknown_input": 2048,
+    "reserved_unknown_output": 256,
+    "charged_input": 7284,
+    "charged_output": 1906,
+    "charged_economic_estimate_usd": "0.001118100"
+  },
+  "provider_account": {
+    "attempts": 16,
+    "known_input": 5236,
+    "known_output": 1650,
+    "unknown_attempts": 1,
+    "reserved_unknown_input": 1475,
+    "reserved_unknown_output": 256,
+    "charged_input": 6711,
+    "charged_output": 1906,
+    "charged_economic_estimate_usd": "0.001075125"
+  },
+  "ledgers_are_not_additive": true,
+  "registry_identities": {
+    "p00": "384f921b0e8a4e7db7c5ae0491df3635"
+  },
+  "registered_account_attempts": 16,
+  "account_request_cap": 4074,
+  "account_request_cap_remaining": 4058,
+  "primary_remaining": {
+    "calls": 110,
+    "input_tokens": 250764,
+    "output_tokens": 30350,
+    "economic_estimate_usd": "0.027912300"
+  },
+  "fresh_development_and_holdout_requirement": {
+    "calls": 120,
+    "input_tokens": 245760,
+    "output_tokens": 30720,
+    "economic_estimate_usd": "0.0276480"
+  },
+  "minimum_deficit": {
+    "calls": 10,
+    "input_tokens": 0,
+    "output_tokens": 370,
+    "economic_estimate_usd": "0"
+  },
+  "confirmation_protected": {
+    "calls": 60,
+    "input_tokens": 122880,
+    "output_tokens": 15360,
+    "economic_estimate_usd": "0.013824"
+  },
+  "billed_amount_usd": null,
+  "billing_tier": "UNVERIFIED",
+  "provider_accessed": false,
+  "credentials_read": false,
+  "ledger_registry_policy_writes": 0,
+  "status": "INCOMPLETE"
+}

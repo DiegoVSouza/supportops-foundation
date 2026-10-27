@@ -25,3 +25,11 @@ An initial draft of the dry-run chunk list failed the arithmetic assertion (exit
 - Campaign reports/manifests and audit evidence were read only. No service, Docker stack, credential, provider, registry, SQLite ledger, receipt, or campaign artifact was mutated.
 
 Phase result: **plan-check PASS; allocation and live execution INCOMPLETE**. No CLI resume command is safe or valid for provider execution.
+
+## SQLite/account reconciliation, 2026-10-27
+
+Command: `uv run --locked python artifacts/evidence/candidate-continuity-allocation/reconcile.py`.
+
+Exit code: 0. Complete sanitized output: `accounting.json`. Both ledgers were opened with SQLite `mode=ro`; the registry/policy were read only. The registry UUID matches P00's provider ledger. Known input/output is 5,236/1,650; charged provider total is 6,711/1,906 with a 1,475/256 unknown reservation. Charged logical total is 7,284/1,906 with a 2,048/256 unknown reservation. There are sixteen unique attempts at both layers. The exact deficient dimensions for a fresh candidate plus holdout are ten calls and 370 output tokens. All other projects' original commitments and confirmation exactly occupy their allocations. No donor or migration is applied.
+
+Correction to the earlier manual-plan-check record: a manual implementing-agent review has no subprocess exit code. Its PASS is a plan completeness assessment, not an executed machine command or independent review. The actual arithmetic and SQLite commands above exited 0. Independent verification remains PENDING.
