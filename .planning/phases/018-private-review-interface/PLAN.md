@@ -12,6 +12,9 @@ allowed_write_paths:
 - `.planning/phases/018-private-review-interface/SPEC.md`
 - `.planning/phases/018-private-review-interface/PLAN.md`
 - `.planning/phases/018-private-review-interface/VERIFY.md`
+- `docs/harness/progress.md`
+- `docs/harness/failures.md`
+- `docs/knowledge/private-campaign-review.md`
 - `scripts/review_ui.py`
 - `scripts/check_full.py` (add an optional isolated pytest basetemp override; keep existing default)
 - `tests/llm/test_review_ui.py`
