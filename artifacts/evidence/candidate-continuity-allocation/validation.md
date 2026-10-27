@@ -33,3 +33,9 @@ Command: `uv run --locked python artifacts/evidence/candidate-continuity-allocat
 Exit code: 0. Complete sanitized output: `accounting.json`. Both ledgers were opened with SQLite `mode=ro`; the registry/policy were read only. The registry UUID matches P00's provider ledger. Known input/output is 5,236/1,650; charged provider total is 6,711/1,906 with a 1,475/256 unknown reservation. Charged logical total is 7,284/1,906 with a 2,048/256 unknown reservation. There are sixteen unique attempts at both layers. The exact deficient dimensions for a fresh candidate plus holdout are ten calls and 370 output tokens. All other projects' original commitments and confirmation exactly occupy their allocations. No donor or migration is applied.
 
 Correction to the earlier manual-plan-check record: a manual implementing-agent review has no subprocess exit code. Its PASS is a plan completeness assessment, not an executed machine command or independent review. The actual arithmetic and SQLite commands above exited 0. Independent verification remains PENDING.
+
+## Committed-source resume rejection
+
+Command: `uv run --locked python artifacts/evidence/candidate-continuity-allocation/verify_provenance.py`.
+
+Exit code: 0. Output: `provenance.json`. On committed implementation `3d1384995790585c6c0ad37bd12b3017ed225dc0`, the real campaign runner rejects historical `free-dev-c1` with `immutable_campaign_provenance_mismatch` before the deny-only offline provider factory is initialized (initializations: zero). It checks committed sources through the normal path. Snapshots confirm no change to either historical campaign, logical/provider ledger, account registry or protected answer database. All saved hashes are public source/configuration identities; no credential is read or hashed. No replacement campaign or allocation is created.

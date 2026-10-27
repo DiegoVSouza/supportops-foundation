@@ -9,6 +9,7 @@ All checks begin **PENDING**. Passing documentation or arithmetic checks does no
 - [x] Logical and provider SQLite ledgers independently reconciled read-only by `reconcile.py`, exit 0; `accounting.json` preserves separate 2,048 logical and 1,475 transport input-token unknown reservations. Sixteen attempts, matching registry UUID, no ledger/registry writes. Exact deficient dimensions are ten calls and 370 output tokens; confirmation remains protected.
 - [x] Arithmetic proves 110 remaining primary calls cannot fund 36 fresh development plus 84 holdout (120); deficit exactly ten; no other allocation source appears in the policy, whose project allocations sum to the 4,074-call envelope; 60-call confirmation stays protected.
 - [x] Offline dry-run saved; arithmetic validation exited 0 with provider and credential access both false; explicit INCOMPLETE stop recorded.
+- [x] Committed-source runner probe on implementation `3d1384995790585c6c0ad37bd12b3017ed225dc0` rejects old `free-dev-c1` with `immutable_campaign_provenance_mismatch`, zero provider initializations and unchanged historical/private/ledger/registry files. Command exited 0; `provenance.json` records public source hashes. This implementation has no live quality trials and no new frozen campaign.
 - [ ] No dataset, rubric, grading, holdout, privacy, or human/independent review status is changed or inferred.
 - [ ] Staged diff reviewed; local planning commit exists only if validation passed.
 
