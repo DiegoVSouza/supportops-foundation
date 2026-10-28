@@ -1,0 +1,5 @@
+{
+  "command": "LLM_MODE=live uv run --locked python scripts/run_live_campaign.py --resume free-dev-c2 --execute-free --max-trials 10",
+  "exit_code": 2,
+  "output": "batch-02.json"
+}

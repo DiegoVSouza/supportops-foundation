@@ -131,3 +131,7 @@ The foundation live smoke passed with 147 input and 94 output tokens. All 40 off
 ## 2026-10-27 — Phase 020 rotation provenance
 
 Root transport rotation is committed; locked full product gate passes 145 tests after repairing two checkout-dependent provenance tests without weakening dirty-source rejection. Focused 24 tests and fast check pass. Optional service E2E remains INCOMPLETE. Source fingerprint is 56bef263770d396fe69d915bc8aea1bdc9a9109e83584d08e28377adbb01af6b. The user confirms all four distinct accounts are Free; API billing verification and exact daily balances remain unknown. No new model completion in this phase; historical reservations, funding and reviews are preserved.
+
+## 2026-10-27 — Phase 021 live C2 checkpoint
+
+User attested all four distinct accounts Free. Candidate 7099cc5d0f4d576d14f28f7dab4648b074b59740 ran 10 + 3 new attempts: 13/36 grader passes, zero critical/operational failures, then free_token_minute_checkpoint. Total historical plus C2 consumption 29 calls; 107 primary remain (23 C2 + 84 future holdout), confirmation 60 protected. Provider bound 11470/3255; logical bound 12043/3255, same history, never add. Actual billed UNKNOWN. No new unknown attempt, holdout or promotion; review remains PENDING. Evidence and safe resume in artifacts/evidence/funded-candidate-continuation/rotation-live/README.md.

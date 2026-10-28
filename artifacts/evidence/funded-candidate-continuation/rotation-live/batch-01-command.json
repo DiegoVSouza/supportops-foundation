@@ -1,0 +1,6 @@
+{
+  "output": "batch-01.json",
+  "exit_code": 2,
+  "billing_basis": "user attests four distinct Free accounts; API billing unknown",
+  "command": "LLM_MODE=live uv run --locked python scripts/run_live_campaign.py --stage development --campaign-id free-dev-c2 --execute-free --max-trials 10"
+}

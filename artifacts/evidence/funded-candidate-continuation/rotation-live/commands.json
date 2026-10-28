@@ -1,0 +1,12 @@
+{
+  "dry_run_command": "uv run --locked python scripts/run_live_campaign.py --dry-run --stage development --campaign-id free-dev-c2",
+  "fingerprint": "56bef263770d396fe69d915bc8aea1bdc9a9109e83584d08e28377adbb01af6b",
+  "final_reconciliation_exit": 0,
+  "preflight_exit": 0,
+  "private_probe_exit": 0,
+  "gate_tests": 145,
+  "dry_run_exit": 0,
+  "gate_exit": 0,
+  "preflight_command": "python -S ../../scripts/harness/live_free_account.py --catalog-preflight",
+  "candidate": "7099cc5d0f4d576d14f28f7dab4648b074b59740"
+}

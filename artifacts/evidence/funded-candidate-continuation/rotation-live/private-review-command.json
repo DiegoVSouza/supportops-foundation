@@ -1,0 +1,7 @@
+{
+  "previous_probe_exit": 1,
+  "previous_reason": "5 second local navigation timeout",
+  "exit_code": 0,
+  "provider_calls": 0,
+  "command": "uv run --locked python artifacts/evidence/funded-candidate-continuation/rotation-live/verify_private_review.py"
+}
