@@ -1,0 +1,6 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python -m pytest -q tests/llm/test_campaign_execution.py --basetemp=artifacts/evidence/funded-candidate-continuation/transport-regression-027/tmp-resume-green",
+  "attempt": 2,
+  "exit_code": 0
+}

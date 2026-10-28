@@ -172,6 +172,25 @@ def test_prompt_change_rejects_resume_before_client_or_generation(campaign):
     assert len(FixtureClient.calls) == 1
 
 
+def test_provider_error_blocks_resume_before_client_initialization(campaign, monkeypatch):
+    FixtureClient.response = {
+        "status": "INCOMPLETE",
+        "reason": "transport",
+        "attempt_id": "b" * 32,
+    }
+    report, _ = run(campaign)
+    assert report["chunk"]["reason"] == "provider_error"
+    previous = list(FixtureClient.calls)
+
+    def denied_init(self, project):
+        pytest.fail("provider must not initialize after an unreconciled operational failure")
+
+    monkeypatch.setattr(FixtureClient, "__init__", denied_init)
+    with pytest.raises(execution.ExecutionBlocked, match="provider_failure_requires_review"):
+        run(campaign)
+    assert FixtureClient.calls == previous
+
+
 def test_account_denial_precedes_local_reservation(campaign):
     FixtureClient.deny = True
     report, code = run(campaign)

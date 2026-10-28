@@ -1,0 +1,5 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "command": "uv run --locked python artifacts/evidence/funded-candidate-continuation/transport-regression-027/reconcile.py"
+}

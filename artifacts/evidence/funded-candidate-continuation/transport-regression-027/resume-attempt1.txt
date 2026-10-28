@@ -1,0 +1,44 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______ test_provider_error_blocks_resume_before_client_initialization ________
+
+campaign = (WindowsPath('C:/estudo/Golpe/lab/projects/p00/artifacts/evidence/funded-candidate-continuation/transport-regression-0...e-006', 'dataset_version': 'p00-live-v1', 'split': 'development', 'source_group': 'shipping-address-en-04', ...}, ...])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FC95A7E2C0>
+
+    def test_provider_error_blocks_resume_before_client_initialization(campaign, monkeypatch):
+        FixtureClient.response = {
+            "status": "INCOMPLETE",
+            "reason": "transport",
+            "attempt_id": "b" * 32,
+        }
+        report, _ = run(campaign)
+        assert report["chunk"]["reason"] == "provider_error"
+        previous = list(FixtureClient.calls)
+    
+        def denied_init(self, project):
+            pytest.fail("provider must not initialize after an unreconciled operational failure")
+    
+        monkeypatch.setattr(FixtureClient, "__init__", denied_init)
+        with pytest.raises(execution.ExecutionBlocked, match="provider_failure_requires_review"):
+>           run(campaign)
+
+tests\llm\test_campaign_execution.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\llm\test_campaign_execution.py:113: in run
+    return execution.run_campaign(
+scripts\campaign_execution.py:718: in run_campaign
+    client = client_factory(project)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_campaign_execution.FixtureClient object at 0x000001FC95A8CF50>
+project = WindowsPath('C:/estudo/Golpe/lab/projects/p00/artifacts/evidence/funded-candidate-continuation/transport-regression-027/tmp-resume-red/test_provider_error_blocks_res0/lab/projects/p00')
+
+    def denied_init(self, project):
+>       pytest.fail("provider must not initialize after an unreconciled operational failure")
+E       Failed: provider must not initialize after an unreconciled operational failure
+
+tests\llm\test_campaign_execution.py:186: Failed
+=========================== short test summary info ===========================
+FAILED tests/llm/test_campaign_execution.py::test_provider_error_blocks_resume_before_client_initialization
+1 failed, 34 deselected in 2.75s

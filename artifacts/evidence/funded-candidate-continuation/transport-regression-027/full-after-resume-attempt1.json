@@ -1,0 +1,7 @@
+{
+  "candidate": "operational-resume-guard",
+  "exit_code": 0,
+  "command": "uv run --locked python scripts/check_full.py",
+  "attempt": 1,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}

@@ -674,6 +674,8 @@ def run_campaign(
     verify_provider_usage(project, campaign, rows)
     if any(row.get("critical_failure") is True for row in rows):
         raise ExecutionBlocked("critical_failure_requires_review")
+    if any(row.get("outcome") == "provider_error" for row in rows):
+        raise ExecutionBlocked("provider_failure_requires_review")
     ledger = CampaignLedger(
         project / "artifacts/evals/live/ledger.sqlite", project="p00", campaign_id=campaign
     )

@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "command": "uv run --locked python -m pytest -q tests/llm/test_campaign_execution.py -k provider_error_blocks_resume --basetemp=artifacts/evidence/funded-candidate-continuation/transport-regression-027/tmp-resume-red",
+  "exit_code": 1,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}

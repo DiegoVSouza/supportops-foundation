@@ -1,0 +1,7 @@
+{
+  "attempt": 1,
+  "command": "uv run --locked python scripts/check_full.py",
+  "exit_code": 0,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "mode": "fake"
+}

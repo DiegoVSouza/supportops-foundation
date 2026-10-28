@@ -1,0 +1,36 @@
+{
+  "campaigns": {
+    "free-dev-c1": {
+      "candidate_commit": "b42a198246274db5f7feb17a247ef1fe90e662e6",
+      "critical": 0,
+      "manifest_sha256": "18be121bfca16599774734aed47a92c7135a6b86c777a85308d5490484a2e992",
+      "matched_receipts": 12,
+      "passes": 12,
+      "recorded": 12,
+      "trials_sha256": "46c76b1a2d5789ec4f48ec19b72393bcdc73b2a5320d34efaace3fe71052d13e"
+    },
+    "free-dev-c2": {
+      "candidate_commit": "7099cc5d0f4d576d14f28f7dab4648b074b59740",
+      "critical": 0,
+      "manifest_sha256": "eda52d80d9fb0d5a6c93d01cf66b19446c8a669ce7d049ef11d3129bf047e955",
+      "matched_receipts": 13,
+      "passes": 13,
+      "recorded": 13,
+      "trials_sha256": "86fd4124a4cfce25ff15b7814e07a3e89b60151549a778bbed69be8ca6c4ddd6"
+    },
+    "free-pilot-v1": {
+      "candidate_commit": "476fae54e239cfc7c2200831662ef1af2af52e27",
+      "critical": 0,
+      "manifest_sha256": "80ee61f0d9d6a571e8f1ce691928f8a36cf4a5631a2a6d3d5c2c0efc86a0a87b",
+      "matched_receipts": 4,
+      "passes": 0,
+      "recorded": 4,
+      "trials_sha256": "f88becd7b212408fbbca6dba0b0e1aa32435ff9ab890091559994ebae8bb9e01"
+    }
+  },
+  "completed_count": 29,
+  "credentials_read": false,
+  "provider_accessed": false,
+  "reservation_count": 29,
+  "reserved_slot_attribution_count": 0
+}

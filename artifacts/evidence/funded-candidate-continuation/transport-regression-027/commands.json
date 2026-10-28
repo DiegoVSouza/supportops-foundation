@@ -1,0 +1,17 @@
+{
+  "commands": [
+    {
+      "exit_code": 0,
+      "argv": "uv run --locked python scripts/run_live_campaign.py --help"
+    },
+    {
+      "exit_code": 0,
+      "argv": "uv run --locked python scripts/run_live_campaign.py --stage development --campaign-id free-dev-c2 --dry-run"
+    },
+    {
+      "exit_code": 0,
+      "argv": "uv run --locked python scripts/run_live_campaign.py --resume free-dev-c2 --dry-run"
+    }
+  ],
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}
