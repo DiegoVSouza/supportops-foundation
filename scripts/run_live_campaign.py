@@ -649,16 +649,9 @@ def summarize(
                     "semantic failure (never replay the same trial)",
                     "36 new C2 attempts",
                 ],
-                "safe_start_command": (
-                    '$env:LLM_MODE="live"; uv run --locked python '
-                    "scripts/run_live_campaign.py --stage development "
-                    "--campaign-id free-dev-c2 --execute-free --max-trials 10"
-                ),
-                "safe_resume_command": (
-                    '$env:LLM_MODE="live"; uv run --locked python '
-                    "scripts/run_live_campaign.py --resume free-dev-c2 "
-                    "--execute-free --max-trials 10"
-                ),
+                "safe_start_command": None,
+                "safe_resume_command": None,
+                "execution_guidance": "BLOCKED_PENDING_CONTINUITY_AND_FUNDING",
             },
         )
     return result

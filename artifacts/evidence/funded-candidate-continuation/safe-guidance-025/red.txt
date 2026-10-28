@@ -1,0 +1,64 @@
+cwd: C:\estudo\Golpe\lab\projects\p00
+command: uv run --locked python -m pytest tests/test_live_campaign_preparation.py -q -k applied_dry_run --basetemp <phase-owned>
+exit_code: 1
+output:
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C3C7F3D5B0>
+
+    def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(monkeypatch) -> None:
+        from scripts import campaign_execution
+        from scripts.run_live_campaign import applied_allocation, summarize
+
+        monkeypatch.setattr(campaign_execution, "require_committed_sources", lambda *_: "candidate")
+        allocation = applied_allocation(ROOT)
+        report = summarize(
+            "development",
+            CASES,
+            CONFIG,
+            MANIFEST,
+            ROOT / CONFIG["cases_path"],
+            allocation=allocation,
+            campaign_id="free-dev-c2",
+        )
+        assert report["candidate"]["policy_registry_sha256_matches"] is True
+        assert report["planned_reservations"]["baseline_all_stages_max_calls_if_additive"] == 186
+        assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 196
+        assert report["limits"]["cumulative"]["max_requests"] == 196
+        assert report["limits"]["cumulative"]["max_input_tokens"] == 401408
+        assert report["limits"]["cumulative"]["max_output_tokens"] == 50176
+        assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
+        assert report["candidate"]["p00_primary_allocation"]["requests"] == 136
+        assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
+        accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
+        assert report["candidate"]["global_remaining"] == {
+            "requests": 4084 - accounted,
+            "primary_requests": 3244 - accounted,
+            "protected_confirmation_requests": 840,
+        }
+        assert (
+            report["candidate"]["logical_ledger_usage"]["requests"]
+            == allocation["provider_ledger_usage"]["p00"]["requests"]
+        )
+        assert report["candidate"]["logical_ledger_usage"]["unknown_reservations"] == [
+            {"input_tokens": 2048, "output_tokens": 256}
+        ]
+        assert report["candidate"]["provider_ledger_usage"]["unknown_transport_reservations"] == [
+            {
+                "attempt_id": allocation["provider_ledger_usage"]["unknown_transport_reservations"][0][
+                    "attempt_id"
+                ],
+                "input_tokens": 1475,
+                "output_tokens": 256,
+            }
+        ]
+        assert report["c2_scope"]["maximum_new_calls"] == 36
+>       assert report["c2_scope"]["safe_start_command"] is None
+E       assert '$env:LLM_MODE="live"; uv run --locked python scripts/run_live_campaign.py --stage development --campaign-id free-dev-c2 --execute-free --max-trials 10' is None
+
+tests\test_live_campaign_preparation.py:160: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_live_campaign_preparation.py::test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history
+1 failed, 23 deselected in 0.22s

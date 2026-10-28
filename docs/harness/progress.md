@@ -139,3 +139,7 @@ User attested all four distinct accounts Free. Candidate 7099cc5d0f4d576d14f28f7
 ## 2026-10-28 — Phase 022 critical failure stop
 
 - The fake campaign controller now stops after recording a critical result and refuses a subsequent resume when a critical result is present. Focused tests passed 65; the locked full offline gate passed 146 tests after repairing a stale 16-call accounting assumption. Historical gate failures remain in the phase evidence. Optional service E2E and independent verification remain INCOMPLETE. This changes the candidate fingerprint; historical C2 remains immutable and no provider call was made.
+
+## 2026-10-28 - Phase 025 safe campaign guidance
+
+- The offline report no longer labels live C2 commands as safe while continuity and funding are unresolved. The locked fake gate passed 146 tests; no provider calls occurred. See artifacts/evidence/funded-candidate-continuation/safe-guidance-025/.

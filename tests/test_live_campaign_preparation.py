@@ -157,6 +157,9 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
         }
     ]
     assert report["c2_scope"]["maximum_new_calls"] == 36
+    assert report["c2_scope"]["safe_start_command"] is None
+    assert report["c2_scope"]["safe_resume_command"] is None
+    assert report["c2_scope"]["execution_guidance"] == "BLOCKED_PENDING_CONTINUITY_AND_FUNDING"
     assert report["c2_scope"]["future_holdout_calls"] == 84
     assert report["c2_scope"]["batches_maximum"] == [10, 10, 10, 6]
     assert report["c2_scope"]["previous_candidate_results_reused"] is False
