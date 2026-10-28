@@ -1,0 +1,5 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "command": "uv run --locked python scripts/check_fast.py"
+}
