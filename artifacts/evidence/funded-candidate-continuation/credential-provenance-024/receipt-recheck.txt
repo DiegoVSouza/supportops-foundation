@@ -1,0 +1,6 @@
+cwd: C:\estudo\Golpe\lab\projects\p00
+command: uv run --locked python -c <read-only verify_provider_usage free-dev-c2 trials>
+exit_code: 0
+provider_calls: 0
+output:
+receipt_reconciliation=PASS rows=13
