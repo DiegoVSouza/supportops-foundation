@@ -1,0 +1,124 @@
+{
+  "application_requirements": [
+    "explicit free-only 13-call authorization",
+    "separate validated migration preserving all registry UUIDs, histories and unknown reservations",
+    "owning candidate/scope allocation and immutable source freeze",
+    "credential eligibility and no unresolved uncertain work",
+    "all original holdout and human gates remain"
+  ],
+  "authorization_id": "PENDING_EXPLICIT_USER_DECISION",
+  "candidate_commit": "d685a999957f6fb090ba8caa1335a87e4bc8c063",
+  "candidate_fingerprint_sha256": "1ba9aa84085dcf4b6b97f163a6e54437ea09345cb551d3d9a0b57f6c8ee85b89",
+  "confirmation_protected": {
+    "estimated_cost_usd": "0.013824",
+    "input_tokens": 122880,
+    "output_tokens": 15360,
+    "requests": 60
+  },
+  "credentials_read": false,
+  "delta": {
+    "authorized_paid_spend_usd": "0.00",
+    "economic_estimate_usd": "0.0029952",
+    "input_tokens": 26624,
+    "output_tokens": 3328,
+    "requests": 13
+  },
+  "expected_current_policy_sha256": "1c87eb87ba3a653235aca546180602f288993e49424d6eecdedb01f4688c2a16",
+  "expected_registered_provider_ledger_uuids": {
+    "p00": "384f921b0e8a4e7db7c5ae0491df3635"
+  },
+  "holdout_protected": 84,
+  "proposed_policy": {
+    "account_tier_attestation": "user-designated-free-plan; API model catalog cannot verify billing tier",
+    "authorization_reference": ".planning/llm-live-readiness/AUTHORIZATION.md",
+    "authorized_paid_spend_usd": "0.00",
+    "campaign_caps": {
+      "estimated_cost_usd": "1.6130304",
+      "input_tokens": 14338048,
+      "output_tokens": 1792256,
+      "requests": 4097
+    },
+    "free_limits": {
+      "requests_per_day": 1000,
+      "requests_per_minute": 30,
+      "tokens_per_day": 200000,
+      "tokens_per_minute": 8000
+    },
+    "human_review_status": "PENDING",
+    "model": "openai/gpt-oss-20b",
+    "policy_id": "groq-free-live-readiness-v1",
+    "pricing_per_million": {
+      "input_usd": "0.075",
+      "output_usd": "0.30"
+    },
+    "projects": {
+      "p00": {
+        "calls_per_trial": 1,
+        "estimated_cost_usd": "0.0481536",
+        "input_tokens": 428032,
+        "input_tokens_per_call": 2048,
+        "output_tokens": 53504,
+        "output_tokens_per_call": 256,
+        "requests": 209
+      },
+      "p01": {
+        "calls_per_trial": 4,
+        "estimated_cost_usd": "0.2267136",
+        "input_tokens": 2015232,
+        "input_tokens_per_call": 2048,
+        "output_tokens": 251904,
+        "output_tokens_per_call": 256,
+        "requests": 984
+      },
+      "p02": {
+        "calls_per_trial": 1,
+        "estimated_cost_usd": "0.1410048",
+        "input_tokens": 1253376,
+        "input_tokens_per_call": 4096,
+        "output_tokens": 156672,
+        "output_tokens_per_call": 512,
+        "requests": 306
+      },
+      "p03": {
+        "calls_per_trial": 1,
+        "estimated_cost_usd": "0.0718848",
+        "input_tokens": 638976,
+        "input_tokens_per_call": 4096,
+        "output_tokens": 79872,
+        "output_tokens_per_call": 512,
+        "requests": 156
+      },
+      "p04": {
+        "calls_per_trial": 3,
+        "estimated_cost_usd": "0.3400704",
+        "input_tokens": 3022848,
+        "input_tokens_per_call": 4096,
+        "output_tokens": 377856,
+        "output_tokens_per_call": 512,
+        "requests": 738
+      },
+      "p05": {
+        "calls_per_trial": 4,
+        "estimated_cost_usd": "0.7852032",
+        "input_tokens": 6979584,
+        "input_tokens_per_call": 4096,
+        "output_tokens": 872448,
+        "output_tokens_per_call": 512,
+        "requests": 1704
+      }
+    },
+    "promotion_enabled": false,
+    "provider": "groq",
+    "schema_version": 1,
+    "sources": {
+      "pricing": "https://console.groq.com/docs/models",
+      "rate_limits": "https://console.groq.com/docs/rate-limits"
+    },
+    "verified_on": "2026-10-26"
+  },
+  "proposed_policy_sha256": "a1144017dfc7e44ec4b985a58b061f60321b10b9d7fc43d63897c5c851b80463",
+  "provider_accessed": false,
+  "remaining_primary": 107,
+  "replacement_development": 36,
+  "status": "PROPOSAL_ONLY_NOT_AUTHORIZED_NOT_APPLIED"
+}

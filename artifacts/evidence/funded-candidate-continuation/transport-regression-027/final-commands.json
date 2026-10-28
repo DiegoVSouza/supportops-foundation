@@ -1,0 +1,13 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "commands": [
+    {
+      "command": "uv run --locked python artifacts/evidence/funded-candidate-continuation/transport-regression-027/prepare_proposal.py",
+      "exit_code": 0
+    },
+    {
+      "command": "uv run --locked python scripts/run_live_campaign.py --stage development --campaign-id free-dev-c2 --dry-run",
+      "exit_code": 0
+    }
+  ]
+}

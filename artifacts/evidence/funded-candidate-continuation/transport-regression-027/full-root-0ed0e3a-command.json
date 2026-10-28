@@ -1,0 +1,6 @@
+{
+  "root_candidate": "0ed0e3a",
+  "command": "uv run --locked python scripts/check_full.py",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0
+}
