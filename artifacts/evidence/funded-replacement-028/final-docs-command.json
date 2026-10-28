@@ -1,0 +1,6 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python scripts/check_fast.py",
+  "exit_code": 0,
+  "reason": "documentation-only reconciliation; prior 148-test gate unchanged"
+}

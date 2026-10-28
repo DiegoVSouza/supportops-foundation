@@ -1,6 +1,12 @@
 {
   "features": [
     {
+      "id": "funded-replacement-development",
+      "status": "FAIL_PROVISIONAL; LOCAL_CONTROLS_PASS; REVIEW_AND_PROMOTION_PENDING",
+      "evidence": ".planning/phases/028-funded-replacement/VERIFY.md; artifacts/evidence/funded-replacement-028/final-analysis.md",
+      "detail": "148-test offline gate passes. Frozen candidate completed 36 live development trials with 27 passes and nine semantic failures. 84 holdout and 60 confirmation calls remain protected; no correction budget or human approval is inferred."
+    },
+    {
       "id": "domain-contracts",
       "status": "complete",
       "evidence": "tests/domain/test_models.py and artifacts/evidence/phase-001-contract-coverage.txt"

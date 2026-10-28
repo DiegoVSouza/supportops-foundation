@@ -1,5 +1,13 @@
 # Progress
 
+## 2026-10-28 — Current phase 028 outcome
+
+- Root +13 free-only migration is explicitly authorized/applied, with registry UUID and all historical prefixes/unknown reserves preserved. Full local fake gate passed 148 tests. Operational provider failures now block resume before client construction; live reports publish no executable resume suggestion.
+- Replacement `free-dev-c2r1` completed 36 planned trials on candidate `43737f7c75475579d8bae099f9ec01b47feb0e88`, source fingerprint `7b1e79cae5ef397c45be36dac5860489e7ad858fb6e6817a88f3b46896763dc9`: 27 passes, nine semantic failures across three cases, no operational failures or deterministic critical flags. Final gate is FAIL_PROVISIONAL/exit 1, not live approved. Historical C2 remains immutable at 13/36.
+- All 65 cumulative receipts/reservations reconcile. Primary remaining is exactly 84 protected holdout calls; confirmation 60 remains protected, with no corrected-development/judge/canary spare. Billed amount is UNKNOWN, paid authorization USD 0. Slots 0–4 are user-attested Free; historical key/organization attribution remains unknown.
+- Private navigation passed for all 65 records with zero annotations/provider access and unchanged protected hashes. Actual human/dataset/rubric/independent review, contract resolution, fresh correction funding, holdout, generalization and promotion remain pending. Review the three failed cases using `artifacts/evidence/funded-replacement-028/REVIEW.md`; do not execute historical live commands below.
+- Evidence commit `09d8c1e` preserves campaign results, batch commands/exits, final reconciliation and cause-level analysis. Documentation-only updates do not change the evaluated source fingerprint.
+
 - Kit initialization completed.
 
 ## 2026-10-15 — Intake and plan review
