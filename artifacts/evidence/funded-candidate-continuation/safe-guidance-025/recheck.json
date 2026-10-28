@@ -1,0 +1,21 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python scripts/run_live_campaign.py --dry-run --stage development --campaign-id free-dev-c2",
+  "exit_code": 0,
+  "provider_accessed": false,
+  "credentials_read": false,
+  "generation_authorized": false,
+  "candidate_commit": "de5416260040c2b079756eb63c33c8cf8d1eea44",
+  "fingerprint": "ada12df5317f7d21158bd5268512e001ab1173f7f6ecc2ab7ddf54fb5104ebee",
+  "primary_remaining": 107,
+  "replacement_calls": 36,
+  "holdout_calls": 84,
+  "deficit": 13,
+  "confirmation_protected": 60,
+  "billing": "UNKNOWN; economic policy estimates are not provider billing",
+  "blockers": [
+    "authorization.dataset_review",
+    "authorization.rubric_review"
+  ],
+  "guidance": "BLOCKED_PENDING_CONTINUITY_AND_FUNDING"
+}

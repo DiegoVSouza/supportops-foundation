@@ -1,3 +1,5 @@
 # Verification
 
 PASS for fail-closed guidance: the pre-change test reproduced executable live suggestions and the locked full fake gate passed 146 tests after the change. The report now returns no start/resume command and identifies continuity/funding as blocked. Evidence: `artifacts/evidence/funded-candidate-continuation/safe-guidance-025/`. Optional service E2E, independent/human review and live campaign remain INCOMPLETE/PENDING. Source fingerprint changes again; no historical campaign data or ledger was modified and no provider calls occurred.
+
+Post-commit dry-run exit 0, without credentials or provider access, records candidate `de5416260040c2b079756eb63c33c8cf8d1eea44` and fingerprint `ada12df5317f7d21158bd5268512e001ab1173f7f6ecc2ab7ddf54fb5104ebee`. Primary remaining: 107; a replacement 36 plus holdout 84 requires 120, a deficit of 13. P00 confirmation 60 remains protected. Dataset/rubric reviews remain PENDING and billing UNKNOWN. This snapshot does not authorize generation. See `recheck.json`.
