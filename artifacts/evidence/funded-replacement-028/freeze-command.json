@@ -1,0 +1,5 @@
+{
+  "command": "uv run --locked python artifacts/evidence/funded-replacement-028/freeze_candidate.py",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0
+}

@@ -1,0 +1,6 @@
+{
+  "generation_calls": 0,
+  "exit_code": 0,
+  "command": "uv run --locked python -S ../../scripts/harness/live_free_account.py --catalog-preflight",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}
