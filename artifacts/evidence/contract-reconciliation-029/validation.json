@@ -1,0 +1,13 @@
+{
+  "files": {
+    "artifacts/evidence/contract-reconciliation-029/proposal.md": "B87873C9CF1BA01A25D937FD51E354BBAC44C02DBA8DC457BE9EDA373A307FF2",
+    "artifacts/evals/live/free-dev-c2r1/manifest.json": "11FCB9E6C595A09B3C6B367C3A96FB8C0779B9F78EE441FB054249C7DF6D3238",
+    ".planning/phases/029-contract-reconciliation/PLAN.md": "AFAAF3208D9B47BE00828020E5BBD33180A65079BD3D88846A436EFEFF223EF8",
+    "artifacts/evals/live/free-dev-c2r1/trials.jsonl": "06D89F3D09D9C2FEDFAF93D6EBB57513B8E808175D2D16398F86E7397C75E597",
+    ".planning/phases/029-contract-reconciliation/VERIFY.md": "41F8A709B4D01AC72878071C88DA8B88BE8E6208120269247ACFD4D415F0FED1",
+    ".planning/phases/029-contract-reconciliation/SPEC.md": "FD628D99CB53BDA9239BF946EA28C5A640F03AF54AECEA273599DDE20F526A97"
+  },
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "command": "Get-FileHash -Algorithm SHA256 on declared proposal and preserved campaign files"
+}
