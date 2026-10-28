@@ -99,8 +99,11 @@ class TrialOutcome:
     output_tokens: int | None
     estimated_cost_usd: Decimal | None
     error_class: str | None = None
+    critical: bool = False
 
     def validate(self) -> None:
+        if type(self.critical) is not bool or (self.critical and self.outcome != "failed"):
+            raise ValueError("critical outcomes must be failed trials")
         if self.outcome not in {"passed", "failed", "provider_error"}:
             raise ValueError("invalid sanitized outcome")
         if (self.outcome == "passed" and self.error_class is not None) or (
@@ -251,4 +254,6 @@ def run_chunk(
                 return result("accounting_overrun")
             if observation.outcome == "provider_error":
                 return result("provider_error")
+            if observation.critical:
+                return result("critical_failure")
         return result("manifest_exhausted", finished=True)

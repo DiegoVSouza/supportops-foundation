@@ -1,0 +1,72 @@
+cwd: C:\estudo\Golpe\lab\projects\p00
+command: LLM_MODE=fake P00_PYTEST_BASETEMP=<phase-owned> uv run --locked python scripts/check_full.py
+exit_code: 1
+output:
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+All checks passed!
+EXIT_CODE=0
+
+== format: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff format --check supportops_foundation demo scripts tests ==
+32 files already formatted
+EXIT_CODE=0
+
+== compile: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m compileall -q supportops_foundation demo scripts tests ==
+
+EXIT_CODE=0
+
+== tests: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m pytest -q --basetemp=artifacts/evidence/funded-candidate-continuation/critical-stop-022/tmp-full ==
+........................................................................ [ 49%]
+.............................................................F.......... [ 98%]
+..                                                                       [100%]
+================================== FAILURES ===================================
+_ test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A174F0A890>
+
+    def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(monkeypatch) -> None:
+        from scripts import campaign_execution
+        from scripts.run_live_campaign import applied_allocation, summarize
+
+        monkeypatch.setattr(campaign_execution, "require_committed_sources", lambda *_: "candidate")
+        allocation = applied_allocation(ROOT)
+        report = summarize(
+            "development",
+            CASES,
+            CONFIG,
+            MANIFEST,
+            ROOT / CONFIG["cases_path"],
+            allocation=allocation,
+            campaign_id="free-dev-c2",
+        )
+        assert report["candidate"]["policy_registry_sha256_matches"] is True
+        assert report["planned_reservations"]["baseline_all_stages_max_calls_if_additive"] == 186
+        assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 196
+        assert report["limits"]["cumulative"]["max_requests"] == 196
+        assert report["limits"]["cumulative"]["max_input_tokens"] == 401408
+        assert report["limits"]["cumulative"]["max_output_tokens"] == 50176
+        assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
+        assert report["candidate"]["p00_primary_allocation"]["requests"] == 136
+        assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
+>       assert report["candidate"]["global_remaining"] == {
+            "requests": 4068,
+            "primary_requests": 3228,
+            "protected_confirmation_requests": 840,
+        }
+E       AssertionError: assert {'requests': ...equests': 840} == {'requests': ...equests': 840}
+E
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'requests': 4055} != {'requests': 4068}
+E         {'primary_requests': 3215} != {'primary_requests': 3228}
+E         Use -v to get more diff
+
+tests\test_live_campaign_preparation.py:137: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_live_campaign_preparation.py::test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history
+1 failed, 145 passed in 35.74s
+EXIT_CODE=1

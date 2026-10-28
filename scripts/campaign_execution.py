@@ -672,6 +672,8 @@ def run_campaign(
     )
     report_trials(rows, selected, trial_count)
     verify_provider_usage(project, campaign, rows)
+    if any(row.get("critical_failure") is True for row in rows):
+        raise ExecutionBlocked("critical_failure_requires_review")
     ledger = CampaignLedger(
         project / "artifacts/evals/live/ledger.sqlite", project="p00", campaign_id=campaign
     )
@@ -829,6 +831,7 @@ def run_campaign(
             out,
             cost(inp, out) if inp is not None and out is not None else None,
             errors[0] if errors else None,
+            critical=row["critical_failure"],
         )
 
     try:

@@ -1,0 +1,6 @@
+cwd: C:\estudo\Golpe\lab\projects\p00
+command: uv run --locked python -m pytest tests/llm/test_campaign_batch.py tests/llm/test_campaign_execution.py -q --basetemp artifacts/evidence/funded-candidate-continuation/critical-stop-022/tmp-focused
+exit_code: 0
+output:
+.................................................................        [100%]
+65 passed in 27.79s

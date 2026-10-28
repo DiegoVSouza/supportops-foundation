@@ -134,12 +134,16 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
     assert report["candidate"]["p00_primary_allocation"]["requests"] == 136
     assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
+    accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4068,
-        "primary_requests": 3228,
+        "requests": 4084 - accounted,
+        "primary_requests": 3244 - accounted,
         "protected_confirmation_requests": 840,
     }
-    assert report["candidate"]["logical_ledger_usage"]["requests"] == 16
+    assert (
+        report["candidate"]["logical_ledger_usage"]["requests"]
+        == allocation["provider_ledger_usage"]["p00"]["requests"]
+    )
     assert report["candidate"]["logical_ledger_usage"]["unknown_reservations"] == [
         {"input_tokens": 2048, "output_tokens": 256}
     ]
@@ -170,11 +174,14 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
         "unknown_usage_errors": 1,
         "historical_http_code": "NOT_PRESERVED",
     }
-    assert report["c2_scope"]["p00_primary_remaining_after_existing_usage"] == 120
+    p00_usage = allocation["provider_ledger_usage"]["p00"]
+    assert report["c2_scope"]["p00_primary_remaining_after_existing_usage"] == (
+        136 - p00_usage["requests"]
+    )
     assert report["c2_scope"]["p00_primary_token_capacity_after_existing_usage"] == {
-        "provider_ledger_input_tokens": 271817,
-        "logical_ledger_input_tokens": 271244,
-        "output_tokens": 32910,
+        "provider_ledger_input_tokens": 278528 - p00_usage["input_tokens"],
+        "logical_ledger_input_tokens": 278528 - allocation["logical_ledger_usage"]["input_tokens"],
+        "output_tokens": 34816 - p00_usage["output_tokens"],
     }
     assert report["c2_scope"]["c2_development_max_tokens"] == {
         "input": 73728,

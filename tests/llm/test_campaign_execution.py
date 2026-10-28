@@ -156,10 +156,11 @@ def test_semantic_failure_is_preserved_and_skipped_on_resume(campaign):
     first, _ = run(campaign)
     assert first["passed_trials"] == 0 and first["critical_failures"] == 1
     previous = list(FixtureClient.calls)
-    second, _ = run(campaign)
+    with pytest.raises(execution.ExecutionBlocked, match="critical_failure_requires_review"):
+        run(campaign)
     assert FixtureClient.calls == previous
-    assert second["chunk"]["skipped"] == 1
-    assert second["slices"]["family"]["model_usage_identity"]["errors"]["tool_selection"] == 1
+    assert first["chunk"]["reason"] == "critical_failure"
+    assert first["slices"]["family"]["model_usage_identity"]["errors"]["tool_selection"] == 1
 
 
 def test_prompt_change_rejects_resume_before_client_or_generation(campaign):

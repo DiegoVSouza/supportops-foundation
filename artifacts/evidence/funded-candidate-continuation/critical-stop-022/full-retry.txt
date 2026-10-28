@@ -1,0 +1,30 @@
+cwd: C:\estudo\Golpe\lab\projects\p00
+command: LLM_MODE=fake P00_PYTEST_BASETEMP=<phase-owned> uv run --locked python scripts/check_full.py
+exit_code: 1
+output:
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+All checks passed!
+EXIT_CODE=0
+
+== format: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff format --check supportops_foundation demo scripts tests ==
+unformatted: File would be reformatted
+   --> tests\test_live_campaign_preparation.py:143:12
+    |
+142 |     }
+    -     assert report["candidate"]["logical_ledger_usage"]["requests"] == allocation[
+    -         "provider_ledger_usage"
+    -     ]["p00"]["requests"]
+143 +     assert (
+144 +         report["candidate"]["logical_ledger_usage"]["requests"]
+145 +         == allocation["provider_ledger_usage"]["p00"]["requests"]
+146 +     )
+147 |     assert report["candidate"]["logical_ledger_usage"]["unknown_reservations"] == [
+    |
+
+1 file would be reformatted, 31 files already formatted
+EXIT_CODE=1

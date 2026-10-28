@@ -36,6 +36,20 @@ def passed(_):
     return TrialOutcome("passed", 250, 90, Decimal("0.004"))
 
 
+def test_critical_failure_stops_before_next_dispatch(tmp_path):
+    ledger, options = setup(tmp_path)
+    calls = []
+
+    def execute(item):
+        calls.append(item.case_id)
+        return TrialOutcome("failed", 250, 90, Decimal("0.004"), "tool_selection", critical=True)
+
+    result = run_chunk(ledger, [trial(1), trial(2)], execute=execute, **options)
+    assert result["reason"] == "critical_failure"
+    assert calls == ["case-1"]
+    assert ledger.reserved_trials()[0]["event"] == "completed"
+
+
 def test_chunk_is_bounded_and_resume_skips_failed_trials(tmp_path):
     ledger, options = setup(tmp_path)
     calls = []

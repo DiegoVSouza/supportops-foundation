@@ -135,3 +135,7 @@ Root transport rotation is committed; locked full product gate passes 145 tests 
 ## 2026-10-27 — Phase 021 live C2 checkpoint
 
 User attested all four distinct accounts Free. Candidate 7099cc5d0f4d576d14f28f7dab4648b074b59740 ran 10 + 3 new attempts: 13/36 grader passes, zero critical/operational failures, then free_token_minute_checkpoint. Total historical plus C2 consumption 29 calls; 107 primary remain (23 C2 + 84 future holdout), confirmation 60 protected. Provider bound 11470/3255; logical bound 12043/3255, same history, never add. Actual billed UNKNOWN. No new unknown attempt, holdout or promotion; review remains PENDING. Evidence and safe resume in artifacts/evidence/funded-candidate-continuation/rotation-live/README.md.
+
+## 2026-10-28 — Phase 022 critical failure stop
+
+- The fake campaign controller now stops after recording a critical result and refuses a subsequent resume when a critical result is present. Focused tests passed 65; the locked full offline gate passed 146 tests after repairing a stale 16-call accounting assumption. Historical gate failures remain in the phase evidence. Optional service E2E and independent verification remain INCOMPLETE. This changes the candidate fingerprint; historical C2 remains immutable and no provider call was made.
