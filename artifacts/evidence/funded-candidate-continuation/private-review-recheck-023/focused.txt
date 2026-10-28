@@ -1,0 +1,6 @@
+cwd: C:\estudo\Golpe\lab\projects\p00
+command: uv run --locked python -m pytest tests/llm/test_review_ui.py -q --basetemp <phase-owned>
+exit_code: 0
+output:
+.........                                                                [100%]
+9 passed in 9.82s
