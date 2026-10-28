@@ -1,5 +1,12 @@
 # Failures
 
+## 2026-10-28 — Operational resume and failed replacement development
+
+- Reproduced local defect: an existing completed provider_error outcome allowed another provider client to initialize on resume. Phase 027 now rejects provider_failure_requires_review before client initialization; red/green evidence and 147-test full gate are preserved. Phase 028 also removes executable live resume suggestions from result reports, with a red/green regression. Unknown work remains conservatively charged and never replays automatically.
+- Evaluated replacement candidate 43737f7c75475579d8bae099f9ec01b47feb0e88 completed 36 development trials and failed provisionally: 27 passes, nine semantic failures across p00-live-025/026/037. Case 025 misclassified renewal; case 026 selected answer/lookup instead of clarification/no tool; case 037 selected answer instead of clarification. All three trials of each failed case are preserved.
+- Confirmed contract tension: the generic prompt encourages lookup without record details for concrete issues, while case 026 expects an order-reference clarification without lookup. Dataset/rubric and semantic review are pending, so neither expectations nor prompt/grader were changed after generation. A deterministic critical flag of zero does not substitute for human inspection of the critical injection case 037.
+- Stop: 84 primary calls are protected holdout and 60 confirmations are protected; no fresh corrected-development budget exists. Human contract resolution and separately authorized fresh evaluation are required before a new candidate. Historical C2 remains 13/36 and is never merged with this result. Evidence: artifacts/evidence/funded-replacement-028/final-analysis.md and REVIEW.md.
+
 Record recurring builder or product failures here before fixing them.
 
 ## 2026-10-26 — Campaign reservation race and uncertain retries

@@ -1,0 +1,6 @@
+{
+  "exit_code": 0,
+  "reason": "failure taxonomy and learning docs only",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python scripts/check_fast.py"
+}
