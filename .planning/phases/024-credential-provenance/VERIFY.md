@@ -1,3 +1,5 @@
 # Verification
 
-INCOMPLETE pending root transport validation. Historical C2 remains frozen; human reviews PENDING.
+PASS for offline provenance and regression: root transport candidate `ff21eb9` passed 19 transport and 25 account tests, and P01's accounted boundary passed 21 tests. P00 locked fake full gate passed 146 tests, with optional service E2E INCOMPLETE. Initial full gate failed because the selected pytest parent did not yet exist; `full.txt` preserves that failure and `full-retry.txt` records the successful retry.
+
+Post-root-commit dry-run exit 0 reports P00 evidence HEAD `8dbbbc2ae1e9d24e4fca6659072a3d7a8f223e7d`, source fingerprint `f5b0a8665e40560fd51704aca0639c9f1dce7a8fde8a39bd6ee7fe4c4fcddc8c`, and 107 primary calls remaining. This is not historical C2 candidate `7099cc5d0f4d576d14f28f7dab4648b074b59740` or its fingerprint `56bef263770d396fe69d915bc8aea1bdc9a9109e83584d08e28377adbb01af6b`. Do not use the dry-run's printed live resume command: the manifest rejects changed sources. Replacing C2 with 36 trials plus 84 holdout requires 120 calls, 13 more than the remaining 107; 60 confirmation calls remain protected. No actual ledger migration, generation, provider access or review was performed. Historical account attribution, billing, independent and human reviews remain PENDING.
