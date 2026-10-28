@@ -72,6 +72,7 @@ def campaign(tmp_path, monkeypatch):
         "shared/policies/groq-free-campaign.json",
         "scripts/harness/live_free_account.py",
         "scripts/harness/live_provider_transport.py",
+        ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json",
     ):
         target = project.parents[1] / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -180,6 +181,7 @@ def test_provider_error_blocks_resume_before_client_initialization(campaign, mon
     }
     report, _ = run(campaign)
     assert report["chunk"]["reason"] == "provider_error"
+    assert report["resume_command"] is None
     previous = list(FixtureClient.calls)
 
     def denied_init(self, project):
@@ -297,7 +299,7 @@ def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campa
             config,
             cases,
             "development",
-            "free-dev-c2",
+            "free-dev-c2r1",
             client_factory=FixtureClient,
             revision="a" * 40,
             max_trials=1,
@@ -308,16 +310,17 @@ def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campa
     "stage,name",
     [
         ("development", "free-dev-c1"),
+        ("development", "free-dev-c2"),
         ("development", "renamed-campaign"),
         ("pilot", "free-dev-c1"),
-        ("holdout", "free-dev-c2"),
+        ("holdout", "free-dev-c2r1"),
     ],
 )
 def test_live_scope_rejects_new_ids_and_stages_before_side_effects(tmp_path, stage, name):
     reason = (
         "immutable_campaign_provenance_mismatch"
-        if (stage, name) == ("development", "free-dev-c1")
-        else "phase_019_live_scope_not_allocated"
+        if stage == "development" and name in {"free-dev-c1", "free-dev-c2"}
+        else "phase_028_live_scope_not_allocated"
     )
     with pytest.raises(execution.ExecutionBlocked, match=reason):
         execution.run_campaign(tmp_path, {}, [], stage, name)
@@ -332,7 +335,7 @@ def test_development_cannot_exceed_36_attempts_across_chunks_and_resume(campaign
             config,
             cases,
             "development",
-            "free-dev-c2",
+            "free-dev-c2r1",
             client_factory=FixtureClient,
             revision="a" * 40,
             max_trials=10,
@@ -343,7 +346,7 @@ def test_development_cannot_exceed_36_attempts_across_chunks_and_resume(campaign
 def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(tmp_path):
     path = tmp_path / "ledger.sqlite"
     caps = vars(execution.PRIMARY_CAPS)
-    for campaign_id, count in (("pilot", 4), ("primary", 132)):
+    for campaign_id, count in (("pilot", 4), ("primary", 145)):
         ledger = CampaignLedger(path, project="p00", campaign_id=campaign_id)
         for index in range(count):
             ledger.reserve(
@@ -354,11 +357,11 @@ def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(
                 estimated_cost_usd=Decimal(0),
                 caps=caps,
             )
-    assert ledger.totals()["requests"] == 136
-    assert caps["requests"] == 136
-    assert caps["input_tokens"] == 278528
-    assert caps["output_tokens"] == 34816
-    assert caps["estimated_cost_usd"] == Decimal("0.0313344")
+    assert ledger.totals()["requests"] == 149
+    assert caps["requests"] == 149
+    assert caps["input_tokens"] == 305152
+    assert caps["output_tokens"] == 38144
+    assert caps["estimated_cost_usd"] == Decimal("0.0343296")
     with pytest.raises(CampaignBlocked, match="cumulative reservation cap"):
         ledger.reserve(
             case_id="extra",
@@ -426,13 +429,13 @@ def test_pending_migration_preflight_denies_before_live_client_or_campaign_files
             config,
             cases,
             "development",
-            "free-dev-c2",
+            "free-dev-c2r1",
             client_factory=LiveProbe,
             revision="a" * 40,
             max_trials=1,
         )
     assert LiveProbe.initialized == 0
-    assert not (project / "artifacts/evals/live/free-dev-c2").exists()
+    assert not (project / "artifacts/evals/live/free-dev-c2r1").exists()
     assert FixtureClient.calls == []
 
 
@@ -507,7 +510,7 @@ def test_explicit_revision_cannot_bypass_live_source_check(campaign, monkeypatch
             config,
             cases,
             "development",
-            "free-dev-c2",
+            "free-dev-c2r1",
             revision="a" * 40,
         )
 

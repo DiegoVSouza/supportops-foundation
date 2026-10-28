@@ -1,0 +1,7 @@
+{
+  "command": "uv run --locked python -m pytest -q tests/llm/test_campaign_execution.py tests/llm/test_campaign_batch.py tests/llm/test_campaign_ledger.py --basetemp=artifacts/evidence/funded-replacement-028/tmp-guidance-green",
+  "exit_code": 0,
+  "failure": "operational-live-guidance",
+  "attempt": 2,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}

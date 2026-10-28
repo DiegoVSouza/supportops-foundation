@@ -33,19 +33,19 @@ class ExecutionBlocked(RuntimeError):
 # The ledger already includes every historical reservation across campaign IDs.
 # These are full primary ceilings, leaving the separate 60-call confirmation reserve.
 PRIMARY_CAPS = ResourceCaps(
-    136,
-    278528,
-    34816,
-    Decimal("0.0313344"),
+    149,
+    305152,
+    38144,
+    Decimal("0.0343296"),
 )
 
 
 def validate_live_scope(stage: str, campaign: str) -> None:
-    """Phase 019 allocates only fresh C2 development; identities cannot reset caps."""
-    if stage == "development" and campaign == "free-dev-c1":
+    """Phase 028 funds one replacement; historical campaigns never resume."""
+    if stage == "development" and campaign in {"free-dev-c1", "free-dev-c2"}:
         raise ExecutionBlocked("immutable_campaign_provenance_mismatch")
-    if (stage, campaign) != ("development", "free-dev-c2"):
-        raise ExecutionBlocked("phase_019_live_scope_not_allocated")
+    if (stage, campaign) != ("development", "free-dev-c2r1"):
+        raise ExecutionBlocked("phase_028_live_scope_not_allocated")
 
 
 def _safe_account_path(lab: Path, path: Path) -> Path:
@@ -68,10 +68,10 @@ def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
     if marker.exists() or marker.is_symlink() or marker.is_junction():
         raise ExecutionBlocked("policy_migration_pending")
     expected = {
-        "requests": 196,
-        "input_tokens": 401408,
-        "output_tokens": 50176,
-        "estimated_cost_usd": "0.0451584",
+        "requests": 209,
+        "input_tokens": 428032,
+        "output_tokens": 53504,
+        "estimated_cost_usd": "0.0481536",
     }
     projects = policy.get("projects")
     p00 = projects.get("p00") if isinstance(projects, dict) else None
@@ -383,6 +383,7 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         policy_path,
         lab / "scripts/harness/live_free_account.py",
         lab / "scripts/harness/live_provider_transport.py",
+        lab / ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json",
     ]
     return {
         str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -876,7 +877,7 @@ def run_campaign(
         provider_usage_ledger="../provider-usage.sqlite",
         elapsed_seconds=round(time.monotonic() - started, 3),
         unfinalized_trial_artifacts=len(rows) - len(finalized),
-        resume_command=f'$env:LLM_MODE="live"; uv run --locked python scripts/run_live_campaign.py --resume {campaign} --execute-free',
+        resume_command=None,
     )
     complete = (
         chunk["remaining"] == 0
@@ -893,7 +894,7 @@ def run_campaign(
     atomic_text(directory / "report.json", json.dumps(report, indent=2, sort_keys=True) + "\n")
     atomic_text(
         directory / "report.md",
-        f"# P00 {stage} campaign\n\nStatus: `{report['status']}`. Human review: `PENDING`. Promotion: `INCOMPLETE`.\n\nRecorded trials: {len(rows)}/{report['planned_trials']}; real model trials: {report['real_model_trials']}; passed: {report['passed_trials']}.\n\nStop: `{report['provider_stop'] or chunk['reason']}`.\n\nResume (no completed/uncertain replay):\n\n```powershell\n{report['resume_command']}\n```\n\nPer-domain/family/language/errors and unique-case all-three Wilson intervals: see `report.json`. Raw synthetic answers are only in the private local review database. Provider accounting is authoritative in `../provider-usage.sqlite`; the logical trial ledger is not summed again.\n",
+        f"# P00 {stage} campaign\n\nStatus: `{report['status']}`. Human review: `PENDING`. Promotion: `INCOMPLETE`.\n\nRecorded trials: {len(rows)}/{report['planned_trials']}; real model trials: {report['real_model_trials']}; passed: {report['passed_trials']}.\n\nStop: `{report['provider_stop'] or chunk['reason']}`.\n\nResume requires current provenance, funding, window and failure review. No executable live command is published by this report. Completed or uncertain work is never replayed.\n\nPer-domain/family/language/errors and unique-case all-three Wilson intervals: see `report.json`. Raw synthetic answers are only in the private local review database. Provider accounting is authoritative in `../provider-usage.sqlite`; the logical trial ledger is not summed again.\n",
     )
     return report, 0 if report["status"] == "PASS_PROVISIONAL" else 1 if report[
         "status"

@@ -1,0 +1,22 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______ test_provider_error_blocks_resume_before_client_initialization ________
+
+campaign = (WindowsPath('C:/estudo/Golpe/lab/projects/p00/artifacts/evidence/funded-replacement-028/tmp-guidance-red/test_provide...e-006', 'dataset_version': 'p00-live-v1', 'split': 'development', 'source_group': 'shipping-address-en-04', ...}, ...])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019FB9E0E2C0>
+
+    def test_provider_error_blocks_resume_before_client_initialization(campaign, monkeypatch):
+        FixtureClient.response = {
+            "status": "INCOMPLETE",
+            "reason": "transport",
+            "attempt_id": "b" * 32,
+        }
+        report, _ = run(campaign)
+        assert report["chunk"]["reason"] == "provider_error"
+>       assert report["resume_command"] is None
+E       assert '$env:LLM_MODE="live"; uv run --locked python scripts/run_live_campaign.py --resume fixture-campaign --execute-free' is None
+
+tests\llm\test_campaign_execution.py:184: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/llm/test_campaign_execution.py::test_provider_error_blocks_resume_before_client_initialization
+1 failed, 35 deselected in 1.55s

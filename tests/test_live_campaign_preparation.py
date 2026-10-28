@@ -123,21 +123,21 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
         MANIFEST,
         ROOT / CONFIG["cases_path"],
         allocation=allocation,
-        campaign_id="free-dev-c2",
+        campaign_id="free-dev-c2r1",
     )
     assert report["candidate"]["policy_registry_sha256_matches"] is True
     assert report["planned_reservations"]["baseline_all_stages_max_calls_if_additive"] == 186
-    assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 196
-    assert report["limits"]["cumulative"]["max_requests"] == 196
-    assert report["limits"]["cumulative"]["max_input_tokens"] == 401408
-    assert report["limits"]["cumulative"]["max_output_tokens"] == 50176
+    assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 209
+    assert report["limits"]["cumulative"]["max_requests"] == 209
+    assert report["limits"]["cumulative"]["max_input_tokens"] == 428032
+    assert report["limits"]["cumulative"]["max_output_tokens"] == 53504
     assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
-    assert report["candidate"]["p00_primary_allocation"]["requests"] == 136
+    assert report["candidate"]["p00_primary_allocation"]["requests"] == 149
     assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4084 - accounted,
-        "primary_requests": 3244 - accounted,
+        "requests": 4097 - accounted,
+        "primary_requests": 3257 - accounted,
         "protected_confirmation_requests": 840,
     }
     assert (
@@ -159,7 +159,10 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["c2_scope"]["maximum_new_calls"] == 36
     assert report["c2_scope"]["safe_start_command"] is None
     assert report["c2_scope"]["safe_resume_command"] is None
-    assert report["c2_scope"]["execution_guidance"] == "BLOCKED_PENDING_CONTINUITY_AND_FUNDING"
+    assert (
+        report["c2_scope"]["execution_guidance"]
+        == "BLOCKED_PENDING_CANDIDATE_FREEZE_AND_EXECUTION_GATES"
+    )
     assert report["c2_scope"]["future_holdout_calls"] == 84
     assert report["c2_scope"]["batches_maximum"] == [10, 10, 10, 6]
     assert report["c2_scope"]["previous_candidate_results_reused"] is False
@@ -179,12 +182,12 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     }
     p00_usage = allocation["provider_ledger_usage"]["p00"]
     assert report["c2_scope"]["p00_primary_remaining_after_existing_usage"] == (
-        136 - p00_usage["requests"]
+        149 - p00_usage["requests"]
     )
     assert report["c2_scope"]["p00_primary_token_capacity_after_existing_usage"] == {
-        "provider_ledger_input_tokens": 278528 - p00_usage["input_tokens"],
-        "logical_ledger_input_tokens": 278528 - allocation["logical_ledger_usage"]["input_tokens"],
-        "output_tokens": 34816 - p00_usage["output_tokens"],
+        "provider_ledger_input_tokens": 305152 - p00_usage["input_tokens"],
+        "logical_ledger_input_tokens": 305152 - allocation["logical_ledger_usage"]["input_tokens"],
+        "output_tokens": 38144 - p00_usage["output_tokens"],
     }
     assert report["c2_scope"]["c2_development_max_tokens"] == {
         "input": 73728,
@@ -211,7 +214,7 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["candidate"]["provider_accessed"] is False
     assert report["candidate"]["credentials_read"] is False
     assert "authorization.dataset_review" in report["blockers"]
-    assert report["campaign_id"] == "free-dev-c2"
+    assert report["campaign_id"] == "free-dev-c2r1"
     assert report["candidate"]["billing"].startswith("UNKNOWN")
 
 
@@ -234,7 +237,7 @@ def test_dry_run_rejects_unallocated_development_campaign_id() -> None:
     )
     assert result.returncode == 2
     report = json.loads(result.stdout)
-    assert report["error"] == "phase 019 allocates only free-dev-c2"
+    assert report["error"] == "phase 028 allocates only free-dev-c2r1"
     assert report["provider_accessed"] is False
     assert report["credentials_read"] is False
 

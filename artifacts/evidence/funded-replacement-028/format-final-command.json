@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python -m ruff format --check scripts/campaign_execution.py scripts/run_live_campaign.py tests/llm/test_campaign_execution.py tests/test_live_campaign_preparation.py"
+}

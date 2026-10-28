@@ -1,0 +1,61 @@
+.F...                                                                    [100%]
+================================== FAILURES ===================================
+_ test_live_scope_rejects_new_ids_and_stages_before_side_effects[development-free-dev-c2] _
+
+tmp_path = WindowsPath('C:/estudo/Golpe/lab/projects/p00/artifacts/evidence/funded-replacement-028/tmp-scope-red/test_live_scope_rejects_new_id1')
+stage = 'development', name = 'free-dev-c2'
+
+    @pytest.mark.parametrize(
+        "stage,name",
+        [
+            ("development", "free-dev-c1"),
+            ("development", "free-dev-c2"),
+            ("development", "renamed-campaign"),
+            ("pilot", "free-dev-c1"),
+            ("holdout", "free-dev-c2"),
+        ],
+    )
+    def test_live_scope_rejects_new_ids_and_stages_before_side_effects(tmp_path, stage, name):
+        reason = (
+            "immutable_campaign_provenance_mismatch"
+            if stage == "development" and name in {"free-dev-c1", "free-dev-c2"}
+            else "phase_019_live_scope_not_allocated"
+        )
+        with pytest.raises(execution.ExecutionBlocked, match=reason):
+>           execution.run_campaign(tmp_path, {}, [], stage, name)
+
+tests\llm\test_campaign_execution.py:324: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+project = WindowsPath('C:/estudo/Golpe/lab/projects/p00/artifacts/evidence/funded-replacement-028/tmp-scope-red/test_live_scope_rejects_new_id1')
+config = {}, cases = [], stage = 'development', campaign = 'free-dev-c2'
+max_trials = 10
+client_factory = <class 'scripts.campaign_execution.ProviderClient'>
+revision = None
+
+    def run_campaign(
+        project: Path,
+        config: dict,
+        cases: list[dict],
+        stage: str,
+        campaign: str,
+        *,
+        max_trials: int = 10,
+        client_factory=ProviderClient,
+        revision: str | None = None,
+    ) -> tuple[dict, int]:
+        from scripts.run_live_campaign import validate_prediction
+    
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}", campaign):
+            raise ExecutionBlocked("invalid_campaign_id")
+        if client_factory is ProviderClient or getattr(client_factory, "provenance", None) == "live":
+            validate_live_scope(stage, campaign)
+        started = time.monotonic()
+>       deadline = started + config["execution"]["max_wall_clock_seconds"]
+                             ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'execution'
+
+scripts\campaign_execution.py:621: KeyError
+=========================== short test summary info ===========================
+FAILED tests/llm/test_campaign_execution.py::test_live_scope_rejects_new_ids_and_stages_before_side_effects[development-free-dev-c2]
+1 failed, 4 passed, 31 deselected in 0.21s

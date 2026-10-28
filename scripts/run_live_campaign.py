@@ -581,9 +581,17 @@ def summarize(
     }
     if allocation is not None:
         result.update(
-            campaign_id=campaign_id or ("free-dev-c2" if stage == "development" else None),
+            campaign_id=campaign_id or ("free-dev-c2r1" if stage == "development" else None),
             candidate=allocation,
             c2_scope={
+                "replacement_campaign": "free-dev-c2r1",
+                "historical_c2": {
+                    "campaign_id": "free-dev-c2",
+                    "candidate_commit": "7099cc5d0f4d576d14f28f7dab4648b074b59740",
+                    "completed_trials": 13,
+                    "unexecuted_trials": 23,
+                    "results_reused": False,
+                },
                 "stage": "development",
                 "unique_cases": 12,
                 "trials_per_case": 3,
@@ -651,7 +659,7 @@ def summarize(
                 ],
                 "safe_start_command": None,
                 "safe_resume_command": None,
-                "execution_guidance": "BLOCKED_PENDING_CONTINUITY_AND_FUNDING",
+                "execution_guidance": "BLOCKED_PENDING_CANDIDATE_FREEZE_AND_EXECUTION_GATES",
             },
         )
     return result
@@ -771,9 +779,9 @@ def main(argv: list[str] | None = None) -> int:
         if (
             args.stage == "development"
             and args.campaign_id is not None
-            and args.campaign_id != "free-dev-c2"
+            and args.campaign_id != "free-dev-c2r1"
         ):
-            raise CampaignError("phase 019 allocates only free-dev-c2")
+            raise CampaignError("phase 028 allocates only free-dev-c2r1")
         allocation = applied_allocation(ROOT)
         summary = summarize(
             args.stage,

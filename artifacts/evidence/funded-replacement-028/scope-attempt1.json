@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "command": "uv run --locked python -m pytest -q tests/llm/test_campaign_execution.py -k live_scope_rejects --basetemp=artifacts/evidence/funded-replacement-028/tmp-scope-red",
+  "exit_code": 1,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}
