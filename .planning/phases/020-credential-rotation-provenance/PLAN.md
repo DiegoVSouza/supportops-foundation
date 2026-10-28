@@ -13,3 +13,5 @@ llm_mode: fake/offline; zero provider calls; USD 0 paid.
 validation_commands: uv run --locked python scripts/check_fast.py; uv run --locked python scripts/check_full.py; uv run --locked python scripts/run_live_campaign.py --dry-run --stage development --campaign-id free-dev-c2.
 stop_condition: dirty source, failing gate, provenance mismatch or missing account verification. Generation stays INCOMPLETE.
 Plan-check: PASS (self-check); two tasks, bounded paths and no budget expansion. Independent/human review PENDING.
+
+Plan amendment after red gate: allow tests/test_live_campaign_preparation.py to explicitly inject dirty-source rejection at the provenance guard, retaining the existing isolated-Git staged/unstaged/untracked regressions. Add a distinct clean-source execution-opt-in test; do not weaken rejection assertions. Preserve first failed gate.
