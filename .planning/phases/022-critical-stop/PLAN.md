@@ -2,8 +2,9 @@
 
 1. Add a regression that proves a critical first result prevents a second dispatch, while preserving the finalized first result and ordinary semantic failure behavior.
 2. Implement and verify the explicit critical stop in the real campaign binding and batch controller; save sanitized command output and update verification.
+3. Repair the full-gate allocation regression so it checks accounting invariants against the current read-only ledger rather than assuming the earlier sixteen-call snapshot; preserve the failed gate evidence.
 
-allowed_write_paths: `.planning/phases/022-critical-stop/**`, `scripts/campaign_batch.py`, `scripts/campaign_execution.py`, `tests/llm/test_campaign_batch.py`, `tests/llm/test_campaign_execution.py`, `artifacts/evidence/funded-candidate-continuation/critical-stop-022/**`, `docs/harness/progress.md`, `docs/harness/feature_list.json`.
+allowed_write_paths: `.planning/phases/022-critical-stop/**`, `scripts/campaign_batch.py`, `scripts/campaign_execution.py`, `tests/llm/test_campaign_batch.py`, `tests/llm/test_campaign_execution.py`, `tests/test_live_campaign_preparation.py`, `artifacts/evidence/funded-candidate-continuation/critical-stop-022/**`, `docs/harness/progress.md`, `docs/harness/feature_list.json`.
 
 forbidden_changes: campaign manifests, historical results, runtime ledgers, prompts, datasets, rubrics, budgets, policy, other projects, credentials, provider execution, holdout, promotion.
 
