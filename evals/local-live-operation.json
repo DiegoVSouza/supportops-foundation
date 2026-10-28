@@ -1,0 +1,11 @@
+{
+  "enabled": false,
+  "campaign_id": "local-live-operation-v1",
+  "max_calls": 10,
+  "preexisting_p00_calls": 65,
+  "protected_holdout_calls": 84,
+  "protected_confirmation_calls": 60,
+  "policy_sha256": "PENDING_MIGRATION",
+  "synthetic_only": true,
+  "authorized_paid_spend_usd": "0.00"
+}
