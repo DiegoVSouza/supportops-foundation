@@ -1,0 +1,7 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python scripts/check_full.py",
+  "mode": "fake",
+  "exit_code": 0,
+  "reason": "final source changed during previous gate"
+}

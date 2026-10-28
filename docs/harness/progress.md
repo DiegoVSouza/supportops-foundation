@@ -1,5 +1,10 @@
 # Progress
 
+## 2026-10-28 — Phase 031 provisional local-live boundary
+
+- Added an explicit synthetic local-live command using the accounted provider subprocess, stable caller request IDs, one attempt, no fallback and conservative stop on duplicate, uncertain or previously failed work. Eight injected cases and the locked full fake gate passed (156 tests). Initial lint failure and intermediate gate are preserved under artifacts/evidence/local-live-operation-031/.
+- The command is disabled pending a separate root migration and shared guard that reserve a finite operational envelope without consuming the 84 holdout or 60 confirmation calls. No provider request occurred. Quality/human evaluation is deferred as requested; no approval is fabricated.
+
 ## 2026-10-28 — Phase 030 provisional local-live preparation
 
 - Updated the generic prompt to ask for a missing non-sensitive record reference before selecting a lookup. Initial locked fake gate failed 12 tests because the expanded prompt exceeded the existing request bound; the shortened version passed the complete fake gate with 148 tests. Failure and correction evidence: artifacts/evidence/local-live-preparation-030/.

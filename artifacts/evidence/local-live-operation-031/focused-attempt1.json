@@ -1,0 +1,6 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python -m pytest -q tests/llm/test_local_live.py",
+  "attempt": 1,
+  "exit_code": 0
+}

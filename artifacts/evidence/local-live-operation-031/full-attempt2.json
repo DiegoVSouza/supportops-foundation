@@ -1,0 +1,8 @@
+{
+  "mode": "fake",
+  "command": "uv run --locked python scripts/check_full.py",
+  "exit_code": 0,
+  "failure": "ruff_imports",
+  "attempt": 2,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}

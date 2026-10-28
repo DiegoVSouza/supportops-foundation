@@ -1,0 +1,63 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+RUF100 [*] Unused `noqa` directive (non-enabled: `E402`)
+  --> scripts\local_live.py:23:77
+   |
+21 | LAB = PROJECT.parents[1]
+22 | sys.path.insert(0, str(LAB / "scripts/harness"))
+23 | from live_free_account import AccountBlocked, SharedAccount, machine_lease  # noqa: E402
+   |                                                                             ^^^^^^^^^^^^
+help: Remove unused `noqa` directive
+   |
+22 | sys.path.insert(0, str(LAB / "scripts/harness"))
+   - from live_free_account import AccountBlocked, SharedAccount, machine_lease  # noqa: E402
+23 + from live_free_account import AccountBlocked, SharedAccount, machine_lease
+24 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests\llm\test_local_live.py:1:1
+  |
+1 | / import contextlib
+2 | | import hashlib
+3 | | import json
+4 | | from pathlib import Path
+5 | |
+6 | | import pytest
+7 | |
+8 | | from scripts.local_live import LocalLiveBlocked, run_operation
+9 | | from scripts import local_live
+  | |______________________________^
+help: Organize imports
+   |
+7  |
+8  + from scripts import local_live
+9  | from scripts.local_live import LocalLiveBlocked, run_operation
+   - from scripts import local_live
+10 |
+   |
+
+F401 [*] `pathlib.Path` imported but unused
+ --> tests\llm\test_local_live.py:4:21
+  |
+2 | import hashlib
+3 | import json
+4 | from pathlib import Path
+  |                     ^^^^
+5 |
+6 | import pytest
+  |
+help: Remove unused import: `pathlib.Path`
+  |
+3 | import json
+  - from pathlib import Path
+4 |
+  |
+
+Found 3 errors.
+[*] 3 fixable with `--fix`.
+EXIT_CODE=1
