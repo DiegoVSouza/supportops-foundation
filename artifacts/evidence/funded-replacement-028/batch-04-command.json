@@ -1,0 +1,8 @@
+{
+  "command": "uv run --locked python scripts/run_live_campaign.py --resume free-dev-c2r1 --execute-free --max-trials 10",
+  "maximum_new_trials": 10,
+  "precondition": "guard-after-navigation PASS after actual window expiry; no counter reset",
+  "exit_code": 2,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "mode": "live"
+}

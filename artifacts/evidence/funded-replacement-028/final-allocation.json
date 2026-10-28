@@ -1,0 +1,334 @@
+{
+  "blockers": [
+    "authorization.dataset_review",
+    "authorization.rubric_review"
+  ],
+  "c2_scope": {
+    "batches_maximum": [
+      10,
+      10,
+      10,
+      6
+    ],
+    "c2_development_max_tokens": {
+      "input": 73728,
+      "output": 9216
+    },
+    "control_evidence_reusable": true,
+    "corrections_judges_canary_calls": 0,
+    "execution_guidance": "BLOCKED_PENDING_CANDIDATE_FREEZE_AND_EXECUTION_GATES",
+    "future_holdout_calls": 84,
+    "future_holdout_max_tokens": {
+      "input": 172032,
+      "output": 21504
+    },
+    "historical_c2": {
+      "campaign_id": "free-dev-c2",
+      "candidate_commit": "7099cc5d0f4d576d14f28f7dab4648b074b59740",
+      "completed_trials": 13,
+      "results_reused": false,
+      "unexecuted_trials": 23
+    },
+    "maximum_new_calls": 36,
+    "other_project_confirmations_protected": {
+      "p01": 240,
+      "p02": 60,
+      "p03": 60,
+      "p04": 180,
+      "p05": 240
+    },
+    "other_project_primary_remaining": {
+      "p01": 744,
+      "p02": 246,
+      "p03": 96,
+      "p04": 558,
+      "p05": 1464
+    },
+    "p00_primary_remaining_after_existing_usage": 84,
+    "p00_primary_token_capacity_after_existing_usage": {
+      "logical_ledger_input_tokens": 280029,
+      "output_tokens": 31505,
+      "provider_ledger_input_tokens": 280602
+    },
+    "pilot_quality_results_reused": false,
+    "previous_candidate": "free-dev-c1",
+    "previous_candidate_commit": "b42a198246274db5f7feb17a247ef1fe90e662e6",
+    "previous_candidate_completed_trials": 12,
+    "previous_candidate_results_reused": false,
+    "previous_candidate_unexecuted_trials": 24,
+    "previous_pilot": {
+      "calls": 4,
+      "campaign_id": "free-pilot-v1",
+      "evaluated_responses": 3,
+      "historical_http_code": "NOT_PRESERVED",
+      "operational_errors": 1,
+      "passed_responses": 0,
+      "unknown_usage_errors": 1
+    },
+    "quality_evidence_candidate_scoped": true,
+    "replacement_campaign": "free-dev-c2r1",
+    "review_status": {
+      "dataset": "PENDING",
+      "human": "PENDING",
+      "independent": "PENDING",
+      "promotion": "PENDING",
+      "rubric": "PENDING"
+    },
+    "safe_resume_command": null,
+    "safe_start_command": null,
+    "stage": "development",
+    "stop_conditions": [
+      "quota or provider error",
+      "provenance mismatch",
+      "unknown or interrupted attempt",
+      "semantic failure (never replay the same trial)",
+      "36 new C2 attempts"
+    ],
+    "trials_per_case": 3,
+    "unique_cases": 12
+  },
+  "campaign_id": "free-dev-c2r1",
+  "candidate": {
+    "billing": "UNKNOWN; economic policy estimates are not provider billing",
+    "candidate_commit": "43737f7c75475579d8bae099f9ec01b47feb0e88",
+    "candidate_fingerprint_sha256": "7b1e79cae5ef397c45be36dac5860489e7ad858fb6e6817a88f3b46896763dc9",
+    "credentials_read": false,
+    "global_remaining": {
+      "primary_requests": 3192,
+      "protected_confirmation_requests": 840,
+      "requests": 4032
+    },
+    "logical_ledger_usage": {
+      "estimated_cost_usd": "0.003875925",
+      "input_tokens": 25123,
+      "output_tokens": 6639,
+      "requests": 65,
+      "unknown_attempts": 1,
+      "unknown_reservations": [
+        {
+          "input_tokens": 2048,
+          "output_tokens": 256
+        }
+      ]
+    },
+    "p00_confirmation_protected": {
+      "estimated_cost_usd": "0.013824",
+      "input_tokens": 122880,
+      "output_tokens": 15360,
+      "requests": 60
+    },
+    "p00_primary_allocation": {
+      "estimated_cost_usd": "0.0343296",
+      "input_tokens": 305152,
+      "output_tokens": 38144,
+      "requests": 149
+    },
+    "paid_spend_usd": "0.00",
+    "policy_registry_sha256_matches": true,
+    "policy_sha256": "a1144017dfc7e44ec4b985a58b061f60321b10b9d7fc43d63897c5c851b80463",
+    "provider_accessed": false,
+    "provider_ledger_usage": {
+      "p00": {
+        "input_tokens": 24550,
+        "output_tokens": 6639,
+        "requests": 65,
+        "unknown_attempts": 1
+      },
+      "total_accounted": {
+        "estimated_cost_usd": "0.003832950",
+        "input_tokens": "24550",
+        "output_tokens": "6639",
+        "requests": "65"
+      },
+      "unknown_transport_reservations": [
+        {
+          "attempt_id": "c77e984ea1374694b53c91c67f919a25",
+          "input_tokens": 1475,
+          "output_tokens": 256
+        }
+      ]
+    },
+    "registered_provider_ledger_uuids": {
+      "p00": "384f921b0e8a4e7db7c5ae0491df3635"
+    },
+    "remaining_capacity_by_project": {
+      "p00": {
+        "confirmation_protected": 60,
+        "primary_consumed": 65,
+        "primary_input_tokens_remaining": 280602,
+        "primary_input_tokens_total": 305152,
+        "primary_output_tokens_remaining": 31505,
+        "primary_output_tokens_total": 38144,
+        "primary_remaining": 84,
+        "primary_total": 149
+      },
+      "p01": {
+        "confirmation_protected": 240,
+        "primary_consumed": 0,
+        "primary_input_tokens_remaining": 1523712,
+        "primary_input_tokens_total": 1523712,
+        "primary_output_tokens_remaining": 190464,
+        "primary_output_tokens_total": 190464,
+        "primary_remaining": 744,
+        "primary_total": 744
+      },
+      "p02": {
+        "confirmation_protected": 60,
+        "primary_consumed": 0,
+        "primary_input_tokens_remaining": 1007616,
+        "primary_input_tokens_total": 1007616,
+        "primary_output_tokens_remaining": 125952,
+        "primary_output_tokens_total": 125952,
+        "primary_remaining": 246,
+        "primary_total": 246
+      },
+      "p03": {
+        "confirmation_protected": 60,
+        "primary_consumed": 0,
+        "primary_input_tokens_remaining": 393216,
+        "primary_input_tokens_total": 393216,
+        "primary_output_tokens_remaining": 49152,
+        "primary_output_tokens_total": 49152,
+        "primary_remaining": 96,
+        "primary_total": 96
+      },
+      "p04": {
+        "confirmation_protected": 180,
+        "primary_consumed": 0,
+        "primary_input_tokens_remaining": 2285568,
+        "primary_input_tokens_total": 2285568,
+        "primary_output_tokens_remaining": 285696,
+        "primary_output_tokens_total": 285696,
+        "primary_remaining": 558,
+        "primary_total": 558
+      },
+      "p05": {
+        "confirmation_protected": 240,
+        "primary_consumed": 0,
+        "primary_input_tokens_remaining": 5996544,
+        "primary_input_tokens_total": 5996544,
+        "primary_output_tokens_remaining": 749568,
+        "primary_output_tokens_total": 749568,
+        "primary_remaining": 1464,
+        "primary_total": 1464
+      }
+    },
+    "source_sha256": {
+      ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json": "198c4b4742ba5afc3e998f149c1e10bd95e41585c869c94da79fb6d0c00c36ad",
+      "projects/p00/agent/prompts/live-campaign.md": "354ee942da30deec61166fbe0509ad76da2b3baaa73c21abb90103e21bca8bb2",
+      "projects/p00/agent/schemas/live-decision.json": "e2fdc1f0a0c8a0cda002d6ac24b0bee46ecaf255ecacab6947df60111f24a829",
+      "projects/p00/evals/datasets/live-v1/cases.jsonl": "b1e3f779acf7948b2da17aee937f57f6fd643c7b0b0bb78294d09d6bf0326849",
+      "projects/p00/evals/datasets/live-v1/manifest.json": "86b056d2a516ef180a901af77b0953c4252b0932b6344517bda0820557959766",
+      "projects/p00/evals/live-campaign.json": "2845018fcf2866ce18703be74129cf160fb46a4dc8196e3aea5c6c7831aa17bd",
+      "projects/p00/evals/live-execution.json": "54926b1592342c11ca200411eebaf700488f38957577b7cd05b8cd0ee1663c5d",
+      "projects/p00/evals/rubrics/live-v1/rubric.md": "5d9b1b9803eff41f92bc9fe789c9deb757d36f7a859ee53f7b8c01a1f15fe1e9",
+      "projects/p00/pyproject.toml": "092ae0ca933ac89f7e8c65086f6551b51bf1d502b2cf3f83ef65b2fff9b36acf",
+      "projects/p00/scripts/campaign_batch.py": "750646d640a7aa2cd05c3abc3c5b94a8e3bcee484eaa210bf5ae4ec8446b07a3",
+      "projects/p00/scripts/campaign_execution.py": "670d8a75388bda911f8826be3a66cfe65fa5c4288f25a31b25747f6951dd576d",
+      "projects/p00/scripts/campaign_runtime.py": "f4bdd59a2c5aef0417b8491006dd6acef6c381b11cf4a0771ea58b125ce4deb0",
+      "projects/p00/scripts/check_fast.py": "f6e02a458b3e64fa26653900563cec8df69eecc38708dc30f77c04b3e73a609e",
+      "projects/p00/scripts/check_full.py": "7871aa360d52edd00569f70a8a43b0843dbf087f6239f6e6a48acfe08952261d",
+      "projects/p00/scripts/doctor.py": "b14719b0691406277c8082bcba304e8a9996fabb1051d2a65a8d3d897f64d7c8",
+      "projects/p00/scripts/review_ui.py": "2f4abfd5256b5750bf62197e95ded13b10ca315a867396e7e6adb244c03a5ced",
+      "projects/p00/scripts/run_live_campaign.py": "863fd654c83797e4d312e171776d8358153e2d762faed2cd4591512f9669c558",
+      "projects/p00/scripts/smoke_groq.py": "7886736a24634bdc4382d4832654e6141d96e45381ad05289b13943f91e901fc",
+      "projects/p00/scripts/validate_commit.py": "c711bfba616d45173325e4ca2088a225bd55216b303cfae174d9704a313c1903",
+      "projects/p00/supportops_foundation/__init__.py": "ab15ccb1c4bbfa5eb42dd434f78458848e02b517d5162f1512f5163574e5c7a4",
+      "projects/p00/supportops_foundation/domain/__init__.py": "c94cb9fe0a23f9fdfdf60468b3d51c01d9c200886aa56e1ecee7acf1ba544c01",
+      "projects/p00/supportops_foundation/domain/models.py": "1653222f01eb30df5e7941c1ff8a42643256fb55e9ab87ef5f3c5ee33c68c56d",
+      "projects/p00/supportops_foundation/llm/__init__.py": "dfb628e39b931c75e98cb3f8caea0d26b4163098686df2f525087bce28f32850",
+      "projects/p00/supportops_foundation/llm/cassette.py": "436d218f42bf5a3d9ce46bd9dcaa1401bd728287542789d093b491c30db713cf",
+      "projects/p00/supportops_foundation/llm/client.py": "61c38bf260b843f7477e417772e3192eb8f0b7f5254b0fc8b0c77420d659200b",
+      "projects/p00/supportops_foundation/llm/factory.py": "2a212559b36ecfe641a83c8651f7fa4996b8ee72df8f839bc31bf1483beb80d3",
+      "projects/p00/supportops_foundation/llm/live.py": "5a7db64e10e93475331dea4d97dbe59be2f373a06941c92b9a55d1384520d9bf",
+      "projects/p00/supportops_foundation/testkit/__init__.py": "000ff420ebfe623ba61266e59db90220143330fbec031872b46cc3ce9a01bd3e",
+      "projects/p00/supportops_foundation/testkit/dataset.py": "ba5940982a49c7f367aaf6b566f0564a148904dfb83cf581be6217fd6f545c9e",
+      "projects/p00/supportops_foundation/testkit/fixtures.py": "76bc9476da0a0ed31ff39a8e37748756ba314c38924d1c4a6d514b2d8b8ce339",
+      "projects/p00/uv.lock": "e595353c50a472570728db8cb1ebefe39ff5d2fc5efbb62e356c4a254cd73b8c",
+      "scripts/harness/live_free_account.py": "c10425d4b8c44571d83c3e6fd8b41af134f5d2aedf985ebd9b7dabf7a558cf2c",
+      "scripts/harness/live_provider_transport.py": "843fb327cdf330b8eb7b7a7f05b3682835958162c72171e5a0672d07c08429d4",
+      "shared/policies/groq-free-campaign.json": "0a6949e4373a34f11a1499a8f373a2798bb73a2c0b88afc6668caa9354ad5ff4"
+    }
+  },
+  "cases": 12,
+  "credentials_read": false,
+  "dataset_sha256": "b1e3f779acf7948b2da17aee937f57f6fd643c7b0b0bb78294d09d6bf0326849",
+  "dataset_version": "p00-live-v1",
+  "docker_mutated": false,
+  "families": {
+    "ambiguous_input": 2,
+    "model_usage_identity": 2,
+    "provider_failure_boundaries": 1,
+    "read_only_tool_selection": 2,
+    "structured_output_invalid": 1,
+    "structured_output_valid": 2,
+    "unsupported_request": 2
+  },
+  "generation_authorized": false,
+  "languages": {
+    "en": 8,
+    "pt-BR": 4
+  },
+  "limits": {
+    "authorized_paid_spend_usd": "0.00",
+    "confirmation_reserve": {
+      "fresh_cases": 20,
+      "max_calls_per_case_trial": 1,
+      "reserved_calls": 60,
+      "reserved_spend_usd": "0.013824",
+      "trials_per_case": 3
+    },
+    "cumulative": {
+      "authorized_free_quota_calls": 209,
+      "authorized_paid_spend_usd": "0.00",
+      "max_estimated_spend_usd": "0.0481536",
+      "max_input_tokens": 428032,
+      "max_output_tokens": 53504,
+      "max_requests": 209
+    },
+    "execution": {
+      "chunk_size": 10,
+      "max_wall_clock_seconds": 120,
+      "requests_per_minute": 30,
+      "resume_ledger": "artifacts/evals/live/ledger.sqlite",
+      "semantic_retries": 0,
+      "task_timeout_seconds": 15,
+      "transport_retries_per_call": 0
+    },
+    "per_case": {
+      "max_input_tokens": 2048,
+      "max_output_tokens": 256,
+      "max_provider_calls": 1
+    }
+  },
+  "logical_trials": 36,
+  "max_input_tokens": 73728,
+  "max_output_tokens": 9216,
+  "max_provider_calls": 36,
+  "mode": "dry-run",
+  "model": "openai/gpt-oss-20b",
+  "planned_reservations": {
+    "all_stages_max_calls_if_additive": 209,
+    "authorized_new_primary_calls": 10,
+    "baseline_all_stages_max_calls_if_additive": 186,
+    "confirmation_cases": 20,
+    "confirmation_logical_trials": 60,
+    "confirmation_max_calls": 60,
+    "confirmation_max_input_tokens": 122880,
+    "confirmation_max_output_tokens": 15360,
+    "confirmation_spend_usd": "0.013824",
+    "pilot_cases": 6,
+    "pilot_max_calls": 6,
+    "primary_campaign_cases": 40,
+    "primary_campaign_logical_trials": 120,
+    "primary_campaign_max_calls": 120,
+    "primary_campaign_max_input_tokens": 245760,
+    "primary_campaign_max_output_tokens": 30720
+  },
+  "project": "p00",
+  "provider": "groq",
+  "provider_accessed": false,
+  "review_status": "PENDING",
+  "stage": "development",
+  "trials_per_case": 3
+}

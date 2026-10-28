@@ -1,0 +1,6 @@
+{
+  "annotations_written": 0,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "command": "uv run --locked python artifacts/evidence/funded-replacement-028/verify_navigation.py",
+  "exit_code": 0
+}

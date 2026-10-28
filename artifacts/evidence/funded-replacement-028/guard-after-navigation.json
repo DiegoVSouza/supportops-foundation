@@ -1,0 +1,17 @@
+{
+  "provider_accessed": false,
+  "credentials_read": false,
+  "recorded_trials": 23,
+  "source_fingerprint_sha256": "7b1e79cae5ef397c45be36dac5860489e7ad858fb6e6817a88f3b46896763dc9",
+  "status": "PASS_NEXT_TRIAL_GUARD",
+  "next_trial": [
+    "p00-live-025",
+    3
+  ],
+  "approval": {
+    "status": "approved",
+    "input_tokens": 2048,
+    "output_tokens": 256,
+    "estimated_cost_usd": "0.0002304"
+  }
+}

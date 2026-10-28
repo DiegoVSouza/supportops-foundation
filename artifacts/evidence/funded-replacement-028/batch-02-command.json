@@ -1,0 +1,7 @@
+{
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "mode": "live",
+  "maximum_new_trials": 10,
+  "command": "uv run --locked python scripts/run_live_campaign.py --resume free-dev-c2r1 --execute-free --max-trials 10",
+  "exit_code": 2
+}

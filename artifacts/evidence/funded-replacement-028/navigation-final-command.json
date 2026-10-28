@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "reason": "all 36 candidate records now available",
+  "annotations_written": 0,
+  "command": "uv run --locked python artifacts/evidence/funded-replacement-028/verify_navigation.py",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}

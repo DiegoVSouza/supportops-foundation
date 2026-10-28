@@ -1,0 +1,8 @@
+{
+  "candidate": "43737f7c75475579d8bae099f9ec01b47feb0e88",
+  "exit_code": 2,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "maximum_new_trials": 10,
+  "command": "uv run --locked python scripts/run_live_campaign.py --stage development --campaign-id free-dev-c2r1 --execute-free --max-trials 10",
+  "mode": "live"
+}

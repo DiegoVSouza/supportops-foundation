@@ -1,0 +1,5 @@
+{
+  "command": "uv run --locked python artifacts/evidence/funded-replacement-028/check_next.py",
+  "exit_code": 0,
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00"
+}

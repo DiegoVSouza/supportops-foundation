@@ -1,0 +1,26 @@
+{
+  "annotation_store_presence_unchanged": true,
+  "annotations_written": 0,
+  "authenticated_pages": 66,
+  "credentials_read": false,
+  "external_connection_attempts": 0,
+  "human_review": "PENDING",
+  "independent_review": "PENDING",
+  "protected_hashes_unchanged": true,
+  "protected_sha256": {
+    ".runtime\\llm-review\\answers.sqlite": "2badb2f2d20bcaf0fea51b47a735914f936fa35a07400b191ae9644657dc5936",
+    "artifacts\\evals\\live\\free-dev-c1\\manifest.json": "18be121bfca16599774734aed47a92c7135a6b86c777a85308d5490484a2e992",
+    "artifacts\\evals\\live\\free-dev-c1\\trials.jsonl": "46c76b1a2d5789ec4f48ec19b72393bcdc73b2a5320d34efaace3fe71052d13e",
+    "artifacts\\evals\\live\\free-dev-c2\\manifest.json": "eda52d80d9fb0d5a6c93d01cf66b19446c8a669ce7d049ef11d3129bf047e955",
+    "artifacts\\evals\\live\\free-dev-c2\\trials.jsonl": "86fd4124a4cfce25ff15b7814e07a3e89b60151549a778bbed69be8ca6c4ddd6",
+    "artifacts\\evals\\live\\free-dev-c2r1\\manifest.json": "11fcb9e6c595a09b3c6b367c3a96fb8c0779b9f78ee441fb054249c7df6d3238",
+    "artifacts\\evals\\live\\free-dev-c2r1\\trials.jsonl": "06d89f3d09d9c2fedfaf93d6ebb57513b8e808175d2d16398f86e7397c75e597",
+    "artifacts\\evals\\live\\free-pilot-v1\\manifest.json": "80ee61f0d9d6a571e8f1ce691928f8a36cf4a5631a2a6d3d5c2c0efc86a0a87b",
+    "artifacts\\evals\\live\\free-pilot-v1\\trials.jsonl": "f88becd7b212408fbbca6dba0b0e1aa32435ff9ab890091559994ebae8bb9e01"
+  },
+  "provider_accessed": false,
+  "records": 65,
+  "scripts_disabled": true,
+  "status": "PASS_NAVIGATION_ONLY",
+  "unauthenticated_status": 401
+}
