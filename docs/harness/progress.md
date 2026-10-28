@@ -127,3 +127,7 @@ The foundation live smoke passed with 147 input and 94 output tokens. All 40 off
 - After root and P00 evidence commits and the final offline dry-run, the metadata-only catalog preflight checked four unique numbered root keys. Model access passed 4/4; `generation_calls=0`. The sanitized report contained no secret values or hashes.
 - No allowlisted authenticated rate-limit headers were returned. Billing tier is not exposed by this endpoint and remains UNKNOWN; exact remaining daily tokens remain PENDING. The metadata GETs are not model completions or campaign trials, and their effect on model rate-limit accounting was not exposed.
 - Paid authorization is USD 0. Therefore no generation attempt was made. C2 remains blocked until Free-tier billing can be verified; the 36 C2 calls, 84 future holdout calls and 60 protected confirmation calls remain unconsumed. Evidence: `artifacts/evidence/funded-candidate-continuation/authenticated-preflight.json`.
+
+## 2026-10-27 — Phase 020 rotation provenance
+
+Root transport rotation is committed; locked full product gate passes 145 tests after repairing two checkout-dependent provenance tests without weakening dirty-source rejection. Focused 24 tests and fast check pass. Optional service E2E remains INCOMPLETE. Source fingerprint is 56bef263770d396fe69d915bc8aea1bdc9a9109e83584d08e28377adbb01af6b. The user confirms all four distinct accounts are Free; API billing verification and exact daily balances remain unknown. No new model completion in this phase; historical reservations, funding and reviews are preserved.

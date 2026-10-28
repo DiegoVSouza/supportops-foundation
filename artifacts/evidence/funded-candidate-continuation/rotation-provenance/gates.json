@@ -1,0 +1,6 @@
+{
+  "fast_command": "uv run --locked python scripts/check_fast.py",
+  "fast_exit": 0,
+  "full_command": "uv run --locked python scripts/check_full.py",
+  "full_exit": 1
+}

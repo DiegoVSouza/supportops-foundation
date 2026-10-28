@@ -77,23 +77,15 @@ def test_code_first_grader_rejects_truncated_json() -> None:
         json.loads('{"decision":{"category":"billing",')
 
 
-def test_dry_run_fails_closed_on_uncommitted_candidate_sources() -> None:
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-S",
-            str(ROOT / "scripts/run_live_campaign.py"),
-            "--stage",
-            "pilot",
-            "--dry-run",
-        ],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert result.returncode == 2, result.stderr
-    report = json.loads(result.stdout)
+def test_dry_run_fails_closed_on_uncommitted_candidate_sources(monkeypatch, capsys) -> None:
+    from scripts import campaign_execution, run_live_campaign
+
+    def dirty_sources(*args):
+        raise RuntimeError("synthetic dirty source")
+
+    monkeypatch.setattr(campaign_execution, "require_committed_sources", dirty_sources)
+    assert run_live_campaign.main(["--stage", "pilot", "--dry-run"]) == 2
+    report = json.loads(capsys.readouterr().out)
     assert report["status"] == "INCOMPLETE"
     assert report["error"] == "candidate source provenance is not committed and clean"
     assert report["generation_authorized"] is False
@@ -237,13 +229,32 @@ def test_dry_run_rejects_unallocated_development_campaign_id() -> None:
     assert report["credentials_read"] is False
 
 
-def test_generation_is_incomplete_without_creating_a_provider_client(capsys) -> None:
+def test_generation_is_incomplete_without_creating_a_provider_client(capsys, monkeypatch) -> None:
+    from scripts import campaign_execution
     from scripts.run_live_campaign import main
 
+    def dirty_sources(*args):
+        raise RuntimeError("synthetic dirty source")
+
+    monkeypatch.setattr(campaign_execution, "require_committed_sources", dirty_sources)
     assert main(["--stage", "pilot"]) == 2
     report = json.loads(capsys.readouterr().out)
     assert report["status"] == "INCOMPLETE"
     assert report["error"] == "candidate source provenance is not committed and clean"
+    assert report["provider_accessed"] is False
+    assert report["credentials_read"] is False
+
+
+def test_clean_candidate_still_requires_explicit_generation_opt_in(capsys, monkeypatch):
+    from scripts import campaign_execution
+    from scripts.run_live_campaign import main
+
+    monkeypatch.setattr(campaign_execution, "require_committed_sources", lambda *args: "a" * 40)
+    assert main(["--stage", "pilot"]) == 2
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "INCOMPLETE"
+    assert "--execute-free" in report["reason"]
+    assert report["generation_authorized"] is False
     assert report["provider_accessed"] is False
     assert report["credentials_read"] is False
 

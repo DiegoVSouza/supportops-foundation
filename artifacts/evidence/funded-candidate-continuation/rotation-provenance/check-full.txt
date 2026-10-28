@@ -1,0 +1,64 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+All checks passed!
+EXIT_CODE=0
+
+== format: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff format --check supportops_foundation demo scripts tests ==
+32 files already formatted
+EXIT_CODE=0
+
+== compile: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m compileall -q supportops_foundation demo scripts tests ==
+
+EXIT_CODE=0
+
+== tests: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m pytest -q --basetemp=artifacts/evidence/funded-candidate-continuation/rotation-provenance/tmp-full ==
+........................................................................ [ 50%]
+.........................................................F....F......... [100%]
+================================== FAILURES ===================================
+_________ test_dry_run_fails_closed_on_uncommitted_candidate_sources __________
+
+    def test_dry_run_fails_closed_on_uncommitted_candidate_sources() -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-S",
+                str(ROOT / "scripts/run_live_campaign.py"),
+                "--stage",
+                "pilot",
+                "--dry-run",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert result.returncode == 2, result.stderr
+E       AssertionError:
+E       assert 0 == 2
+E        +  where 0 = CompletedProcess(args=['C:\\estudo\\Golpe\\lab\\projects\\p00\\.venv\\Scripts\\python.exe', '-S', 'C:\\estudo\\Golpe\\...rovider_accessed": false,\n  "review_status": "PENDING",\n  "stage": "pilot",\n  "trials_per_case": 1\n}\n', stderr='').returncode
+
+tests\test_live_campaign_preparation.py:95: AssertionError
+______ test_generation_is_incomplete_without_creating_a_provider_client _______
+
+capsys = <_pytest.capture.CaptureFixture object at 0x000001528FB0E5D0>
+
+    def test_generation_is_incomplete_without_creating_a_provider_client(capsys) -> None:
+        from scripts.run_live_campaign import main
+
+        assert main(["--stage", "pilot"]) == 2
+        report = json.loads(capsys.readouterr().out)
+        assert report["status"] == "INCOMPLETE"
+>       assert report["error"] == "candidate source provenance is not committed and clean"
+               ^^^^^^^^^^^^^^^
+E       KeyError: 'error'
+
+tests\test_live_campaign_preparation.py:246: KeyError
+=========================== short test summary info ===========================
+FAILED tests/test_live_campaign_preparation.py::test_dry_run_fails_closed_on_uncommitted_candidate_sources
+FAILED tests/test_live_campaign_preparation.py::test_generation_is_incomplete_without_creating_a_provider_client
+2 failed, 142 passed in 98.74s (0:01:38)
+EXIT_CODE=1

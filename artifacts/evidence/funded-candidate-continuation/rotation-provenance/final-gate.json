@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "command": "uv run --locked python scripts/check_full.py",
+  "output": "check-full-final.txt"
+}
