@@ -1,0 +1,8 @@
+{
+  "mode": "fake",
+  "attempt": 2,
+  "command": "uv run --locked python scripts/check_full.py",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "failure": "serialized_input_exceeds_reserved_bound",
+  "exit_code": 0
+}

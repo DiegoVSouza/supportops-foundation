@@ -1,5 +1,10 @@
 # Progress
 
+## 2026-10-28 — Phase 030 provisional local-live preparation
+
+- Updated the generic prompt to ask for a missing non-sensitive record reference before selecting a lookup. Initial locked fake gate failed 12 tests because the expanded prompt exceeded the existing request bound; the shortened version passed the complete fake gate with 148 tests. Failure and correction evidence: artifacts/evidence/local-live-preparation-030/.
+- This is a new unevaluated source candidate. Historical failed development results remain attached to their original immutable candidate. Human evaluation is deferred per user instruction; no live acceptance, provider call or operational budget is implied. An accounted operational allocation and actual runtime integration remain pending.
+
 ## 2026-10-28 — Current phase 028 outcome
 
 - Root +13 free-only migration is explicitly authorized/applied, with registry UUID and all historical prefixes/unknown reserves preserved. Full local fake gate passed 148 tests. Operational provider failures now block resume before client construction; live reports publish no executable resume suggestion.
