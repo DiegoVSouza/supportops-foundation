@@ -1,0 +1,6 @@
+{
+  "command": "uv run --locked python scripts/check_full.py",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 1,
+  "output": "\n== fast: C:\\estudo\\Golpe\\lab\\projects\\p00\\.venv\\Scripts\\python.exe scripts/check_fast.py ==\ncheck-fast: OK\nEXIT_CODE=0\n\n== lint: C:\\estudo\\Golpe\\lab\\projects\\p00\\.venv\\Scripts\\python.exe -m ruff check supportops_foundation demo scripts tests ==\nI001 [*] Import block is un-sorted or un-formatted\n  --> scripts\\smoke_groq.py:3:1\n   |\n 1 |   \"\"\"Run one sanitized, budget-capped live smoke check against Groq.\"\"\"\n 2 |\n 3 | / from __future__ import annotations\n 4 | |\n 5 | | import json\n 6 | | import os\n 7 | | from datetime import UTC, datetime\n 8 | | from decimal import Decimal\n 9 | | from pathlib import Path\n10 | | from typing import Literal\n11 | | from urllib.error import HTTPError, URLError\n12 | |\n13 | | from pydantic import BaseModel\n   | |______________________________^\nhelp: Organize imports\n   |\n14 |\n   -\n15 | ROOT = Path(__file__).resolve().parents[3]\n   |\n\nFound 1 error.\n[*] 1 fixable with `--fix`.\nEXIT_CODE=1\n"
+}

@@ -96,3 +96,15 @@ def test_sdk_transport_preserves_retryable_http_status(monkeypatch):
         assert exc.headers["retry-after"] == "1"
     else:
         raise AssertionError("HTTP status was not propagated")
+
+
+def test_legacy_smoke_refuses_before_credentials_and_provider(monkeypatch):
+    from scripts import smoke_groq
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("unexpected external access")
+
+    monkeypatch.setattr(smoke_groq, "load_root_env", forbidden)
+    monkeypatch.setattr(smoke_groq, "list_models_for_valid_keys", forbidden)
+    monkeypatch.setattr(smoke_groq, "write_evidence", forbidden)
+    assert smoke_groq.main() == 2
