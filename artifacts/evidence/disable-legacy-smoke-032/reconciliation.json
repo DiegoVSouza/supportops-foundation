@@ -1,0 +1,43 @@
+{
+  "command": "C:\\estudo\\Golpe\\lab\\projects\\p00\\.venv\\Scripts\\python.exe scripts/run_live_campaign.py --stage development --dry-run",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "fingerprint": "897bc37e886bb178c02ca825cd7e5d0aa59925f478c00e83f3fb2f2e4dc86b9b",
+  "commit": "3b8978f13e2dd8970f3a601cb470db77b969240a",
+  "p00_operation_allocation": {
+    "input_tokens_used": 342,
+    "output_tokens_used": 80,
+    "remaining": 9,
+    "total": 10,
+    "used": 1
+  },
+  "p00_confirmation_protected": {
+    "estimated_cost_usd": "0.013824",
+    "input_tokens": 122880,
+    "output_tokens": 15360,
+    "requests": 60
+  },
+  "provider_ledger_usage": {
+    "p00": {
+      "input_tokens": 24892,
+      "output_tokens": 6719,
+      "requests": 66,
+      "unknown_attempts": 1
+    },
+    "total_accounted": {
+      "estimated_cost_usd": "0.003882600",
+      "input_tokens": "24892",
+      "output_tokens": "6719",
+      "requests": "66"
+    },
+    "unknown_transport_reservations": [
+      {
+        "attempt_id": "c77e984ea1374694b53c91c67f919a25",
+        "input_tokens": 1475,
+        "output_tokens": 256
+      }
+    ]
+  },
+  "provider_accessed": false,
+  "credentials_read": false
+}
