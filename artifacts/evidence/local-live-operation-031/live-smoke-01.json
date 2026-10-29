@@ -1,0 +1,11 @@
+{
+  "command": "LLM_MODE=live python -m scripts.local_live --request-id local-smoke-20261028-01 --synthetic-text <synthetic ticket>",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "result": {
+    "status": "ok",
+    "model": "openai/gpt-oss-20b"
+  },
+  "stdout_redacted": true,
+  "stderr_redacted": true
+}
