@@ -1,0 +1,44 @@
+{
+  "command": "C:\\estudo\\Golpe\\lab\\projects\\p00\\.venv\\Scripts\\python.exe scripts/run_live_campaign.py --stage development --dry-run",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "fingerprint": "e1990edf7b61f35665336b2472c9a44caf99a68376d589f8ab9a2708c07100f7",
+  "commit": "46f478020d232afaede83775e907dc724b4cf1f8",
+  "p00_operation": {
+    "input_tokens_used": 342,
+    "output_tokens_used": 80,
+    "remaining": 9,
+    "total": 10,
+    "used": 1
+  },
+  "p01_operation": {
+    "input_tokens_used": 0,
+    "output_tokens_used": 0,
+    "remaining": 8,
+    "total": 8,
+    "used": 0
+  },
+  "p00_confirmation": {
+    "estimated_cost_usd": "0.013824",
+    "input_tokens": 122880,
+    "output_tokens": 15360,
+    "requests": 60
+  },
+  "global_remaining": {
+    "primary_requests": 3192,
+    "protected_confirmation_requests": 840,
+    "requests": 4049
+  },
+  "p00_primary": {
+    "confirmation_protected": 60,
+    "primary_consumed": 65,
+    "primary_input_tokens_remaining": 280602,
+    "primary_input_tokens_total": 305152,
+    "primary_output_tokens_remaining": 31505,
+    "primary_output_tokens_total": 38144,
+    "primary_remaining": 84,
+    "primary_total": 149
+  },
+  "provider_accessed": false,
+  "credentials_read": false
+}
