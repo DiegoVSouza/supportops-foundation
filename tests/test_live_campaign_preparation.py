@@ -136,8 +136,11 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4107 - accounted,
-        "primary_requests": 3257 - accounted + allocation["p00_operation_allocation"]["used"],
+        "requests": 4115 - accounted,
+        "primary_requests": 3257
+        - accounted
+        + allocation["p00_operation_allocation"]["used"]
+        + allocation["p01_operation_allocation"]["used"],
         "protected_confirmation_requests": 840,
     }
     assert (

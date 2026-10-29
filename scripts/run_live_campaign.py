@@ -342,9 +342,22 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in operation_rows),
     }
     operation_reserve = 10 if policy["projects"]["p00"]["requests"] == 219 else 0
+    p01_operation_reserve = 8 if policy["projects"]["p01"]["requests"] == 992 else 0
+    p01_operation_rows = [
+        row
+        for row in attempts
+        if row["project"] == "p01" and row["campaign"] == "local-operation-v1"
+    ]
+    p01_operation_usage = {
+        "requests": len(p01_operation_rows),
+        "input_tokens": sum(account.usage(row)["input_tokens"] for row in p01_operation_rows),
+        "output_tokens": sum(account.usage(row)["output_tokens"] for row in p01_operation_rows),
+    }
+    operation_reserves = {"p00": operation_reserve, "p01": p01_operation_reserve}
     evaluation_usage = {name: dict(value) for name, value in project_usage.items()}
     for field in ("requests", "input_tokens", "output_tokens"):
         evaluation_usage["p00"][field] -= operation_usage[field]
+        evaluation_usage["p01"][field] -= p01_operation_usage[field]
     global_caps = policy["campaign_caps"]
     global_usage = {
         field: str(sum(account.usage(row)[field] for row in attempts))
@@ -361,7 +374,7 @@ def applied_allocation(project: Path) -> dict[str, Any]:
     primary_calls = {
         name: policy["projects"][name]["requests"]
         - confirmation_calls[name]
-        - (operation_reserve if name == "p00" else 0)
+        - operation_reserves.get(name, 0)
         for name in policy["projects"]
     }
     remaining_by_project = {
@@ -370,17 +383,17 @@ def applied_allocation(project: Path) -> dict[str, Any]:
             "primary_consumed": evaluation_usage[name]["requests"],
             "primary_remaining": primary_calls[name] - evaluation_usage[name]["requests"],
             "primary_input_tokens_total": policy["projects"][name]["input_tokens"]
-            - (confirmation_calls[name] + (operation_reserve if name == "p00" else 0))
+            - (confirmation_calls[name] + operation_reserves.get(name, 0))
             * policy["projects"][name]["input_tokens_per_call"],
             "primary_input_tokens_remaining": policy["projects"][name]["input_tokens"]
-            - (confirmation_calls[name] + (operation_reserve if name == "p00" else 0))
+            - (confirmation_calls[name] + operation_reserves.get(name, 0))
             * policy["projects"][name]["input_tokens_per_call"]
             - evaluation_usage[name]["input_tokens"],
             "primary_output_tokens_total": policy["projects"][name]["output_tokens"]
-            - (confirmation_calls[name] + (operation_reserve if name == "p00" else 0))
+            - (confirmation_calls[name] + operation_reserves.get(name, 0))
             * policy["projects"][name]["output_tokens_per_call"],
             "primary_output_tokens_remaining": policy["projects"][name]["output_tokens"]
-            - (confirmation_calls[name] + (operation_reserve if name == "p00" else 0))
+            - (confirmation_calls[name] + operation_reserves.get(name, 0))
             * policy["projects"][name]["output_tokens_per_call"]
             - evaluation_usage[name]["output_tokens"],
             "confirmation_protected": confirmation_calls[name],
@@ -444,6 +457,13 @@ def applied_allocation(project: Path) -> dict[str, Any]:
             "input_tokens_used": operation_usage["input_tokens"],
             "output_tokens_used": operation_usage["output_tokens"],
         },
+        "p01_operation_allocation": {
+            "total": p01_operation_reserve,
+            "used": p01_operation_usage["requests"],
+            "remaining": p01_operation_reserve - p01_operation_usage["requests"],
+            "input_tokens_used": p01_operation_usage["input_tokens"],
+            "output_tokens_used": p01_operation_usage["output_tokens"],
+        },
         "p00_confirmation_protected": {
             "requests": confirmation_calls["p00"],
             "input_tokens": confirmation_calls["p00"] * p00_caps["input_tokens_per_call"],
@@ -475,7 +495,8 @@ def applied_allocation(project: Path) -> dict[str, Any]:
             "requests": global_caps["requests"] - int(global_usage["requests"]),
             "primary_requests": sum(primary_calls.values())
             - int(global_usage["requests"])
-            + operation_usage["requests"],
+            + operation_usage["requests"]
+            + p01_operation_usage["requests"],
             "protected_confirmation_requests": sum(confirmation_calls.values()),
         },
         "billing": "UNKNOWN; economic policy estimates are not provider billing",
