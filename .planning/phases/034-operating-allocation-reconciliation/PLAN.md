@@ -1,0 +1,8 @@
+# Plan
+
+1. Generalize report operation reserve/usage accounting for migrated P00–P03 and bind current policy without changing any caps or results. Add regressions for protected evaluation capacity and conservative provider/logical distinctions.
+2. Run locked fake fast/full checks and provider-free committed-source dry-run with new evidence/scratch; preserve existing outputs, manifests and histories.
+3. If operational controls, allocation and current fingerprint permit it, freeze a new operation-specific manifest and run at most one fixed synthetic smoke; stop and reconcile on every failure, no replay.
+
+allowed_write_paths: .planning/phases/034-operating-allocation-reconciliation/**; scripts/run_live_campaign.py; tests/test_live_campaign_preparation.py; evals/local-live-operation.json; artifacts/evidence/operating-allocation-034/**; artifacts/evals/live/local-live-operation-v1/ (new immutable operational binding only); artifacts/evals/live/ledger.sqlite* and provider-usage.sqlite* (normal append-only guard/controller); shared runtime registry/locks (normal operation only); docs/harness/progress.md.
+forbidden_changes: historical manifests/results/prompt/labels, other budgets, confirmation/holdout, original/diagnostic P01 reserves, provider/model fallback, paid use, customer data, Docker, fabricated human approval and weaker tests. Fake default; at most one live call of remaining nine P00 operating calls, original 2048/256 per-call caps, USD 0 paid. max_tries: 3 local failure attempts; no live replay. Stop on uncertainty/history mismatch/quota/provider/semantic/source errors. Plan-check implementer self-assessment.
