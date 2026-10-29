@@ -1,0 +1,6 @@
+{
+  "command": "uv run --locked python scripts/check_full.py",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 2,
+  "output": "Invalid P00_PYTEST_BASETEMP: path must stay under an owned evidence directory\r\n"
+}

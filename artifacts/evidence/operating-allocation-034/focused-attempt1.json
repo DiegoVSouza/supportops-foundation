@@ -1,0 +1,6 @@
+{
+  "command": "uv run --locked python -m pytest tests/test_live_campaign_preparation.py --basetemp artifacts/evidence/operating-allocation-034/tmp-focused1 -q",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "output": "........................                                                 [100%]\r\n24 passed in 0.82s\r\n"
+}

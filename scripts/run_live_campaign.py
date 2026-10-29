@@ -306,6 +306,16 @@ def applied_allocation(project: Path) -> dict[str, Any]:
             refs = account._references()
             attempts = account._history()
             registry_sha = json.loads(registry_path.read_text(encoding="utf-8"))["policy_sha256"]
+            p01_logical_reserved_calls = 0
+            p01_logical_path = lab / "projects/p01/artifacts/evals/live/ledger.sqlite"
+            if p01_logical_path.exists():
+                _safe_account_path(lab, p01_logical_path)
+                with closing(
+                    sqlite3.connect(p01_logical_path.as_uri() + "?mode=ro", uri=True)
+                ) as p01_db:
+                    p01_logical_reserved_calls = p01_db.execute(
+                        "SELECT COALESCE(SUM(reserved_calls),0) FROM events WHERE event='reserved' AND campaign_id IN ('local-operation-v1','local-diagnostic-v1')"
+                    ).fetchone()[0]
             with closing(sqlite3.connect(logical_path.as_uri() + "?mode=ro", uri=True)) as db:
                 logical_rows = db.execute(
                     """SELECT e.reserved_calls,e.reserved_input_tokens,e.reserved_output_tokens,
@@ -346,7 +356,8 @@ def applied_allocation(project: Path) -> dict[str, Any]:
     p01_operation_rows = [
         row
         for row in attempts
-        if row["project"] == "p01" and row["campaign"] == "local-operation-v1"
+        if row["project"] == "p01"
+        and row["campaign"] in {"local-operation-v1", "local-diagnostic-v1"}
     ]
     p01_operation_usage = {
         "requests": len(p01_operation_rows),
@@ -354,10 +365,27 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in p01_operation_rows),
     }
     operation_reserves = {"p00": operation_reserve, "p01": p01_operation_reserve}
+    other_operation_usage = {}
+    for name, migrated_total, reserve in (("p02", 310, 4), ("p03", 160, 4)):
+        operation_reserves[name] = (
+            reserve if policy["projects"][name]["requests"] == migrated_total else 0
+        )
+        rows = [
+            row
+            for row in attempts
+            if row["project"] == name and row["campaign"] == "local-operation-v1"
+        ]
+        other_operation_usage[name] = {
+            "requests": len(rows),
+            "input_tokens": sum(account.usage(row)["input_tokens"] for row in rows),
+            "output_tokens": sum(account.usage(row)["output_tokens"] for row in rows),
+        }
     evaluation_usage = {name: dict(value) for name, value in project_usage.items()}
     for field in ("requests", "input_tokens", "output_tokens"):
         evaluation_usage["p00"][field] -= operation_usage[field]
         evaluation_usage["p01"][field] -= p01_operation_usage[field]
+        for name, usage in other_operation_usage.items():
+            evaluation_usage[name][field] -= usage[field]
     global_caps = policy["campaign_caps"]
     global_usage = {
         field: str(sum(account.usage(row)[field] for row in attempts))
@@ -463,6 +491,19 @@ def applied_allocation(project: Path) -> dict[str, Any]:
             "remaining": p01_operation_reserve - p01_operation_usage["requests"],
             "input_tokens_used": p01_operation_usage["input_tokens"],
             "output_tokens_used": p01_operation_usage["output_tokens"],
+            "logical_reserved_calls_retained": p01_logical_reserved_calls,
+            "logical_unreserved_calls": p01_operation_reserve - p01_logical_reserved_calls,
+            "further_execution_authorized": False,
+        },
+        "other_operation_allocations": {
+            name: {
+                "total": operation_reserves[name],
+                "used": usage["requests"],
+                "remaining": operation_reserves[name] - usage["requests"],
+                "input_tokens_used": usage["input_tokens"],
+                "output_tokens_used": usage["output_tokens"],
+            }
+            for name, usage in other_operation_usage.items()
         },
         "p00_confirmation_protected": {
             "requests": confirmation_calls["p00"],
@@ -496,7 +537,8 @@ def applied_allocation(project: Path) -> dict[str, Any]:
             "primary_requests": sum(primary_calls.values())
             - int(global_usage["requests"])
             + operation_usage["requests"]
-            + p01_operation_usage["requests"],
+            + p01_operation_usage["requests"]
+            + sum(usage["requests"] for usage in other_operation_usage.values()),
             "protected_confirmation_requests": sum(confirmation_calls.values()),
         },
         "billing": "UNKNOWN; economic policy estimates are not provider billing",

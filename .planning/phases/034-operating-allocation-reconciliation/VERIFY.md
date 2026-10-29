@@ -1,1 +1,3 @@
 PENDING allocation controls, locked fake gates and current-fingerprint bounded operational smoke.
+
+PASS locked full fake gate attempt 3: 157 tests, lint/format/compile/dataset/Compose checks, exit 0. Attempt 1 rejected basetemp outside existing allowed roots; attempt 2 used an allowed root but missing parent prevented pytest setup (65 pass/92 setup errors). Created only the new phase-owned parent and used fresh scratch in attempt 3; no tests weakened or historical scratch overwritten. Allocation-focused 24 tests also passed. Evidence artifacts/evidence/operating-allocation-034/. Product fake scope PASS; optional service E2E not exercised. Post-commit provider-free reconciliation and current-fingerprint smoke PENDING.

@@ -134,13 +134,18 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
     assert report["candidate"]["p00_primary_allocation"]["requests"] == 149
     assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
+    for name, primary in (("p02", 246), ("p03", 96)):
+        assert allocation["other_operation_allocations"][name]["total"] == 4
+        assert allocation["remaining_capacity_by_project"][name]["primary_total"] == primary
+        assert allocation["remaining_capacity_by_project"][name]["primary_consumed"] == 0
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4115 - accounted,
+        "requests": 4123 - accounted,
         "primary_requests": 3257
         - accounted
         + allocation["p00_operation_allocation"]["used"]
-        + allocation["p01_operation_allocation"]["used"],
+        + allocation["p01_operation_allocation"]["used"]
+        + sum(row["used"] for row in allocation["other_operation_allocations"].values()),
         "protected_confirmation_requests": 840,
     }
     assert (
