@@ -372,10 +372,12 @@ def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(
             caps=caps,
         )
     policy = load_json(LAB / "shared/policies/groq-free-campaign.json")["projects"]["p00"]
-    assert policy["requests"] - caps["requests"] == 60
-    assert policy["input_tokens"] - caps["input_tokens"] == 122880
-    assert policy["output_tokens"] - caps["output_tokens"] == 15360
-    assert Decimal(policy["estimated_cost_usd"]) - caps["estimated_cost_usd"] == Decimal("0.013824")
+    assert policy["requests"] - caps["requests"] - 10 == 60
+    assert policy["input_tokens"] - caps["input_tokens"] - 20480 == 122880
+    assert policy["output_tokens"] - caps["output_tokens"] - 2560 == 15360
+    assert Decimal(policy["estimated_cost_usd"]) - caps["estimated_cost_usd"] - Decimal(
+        "0.002304"
+    ) == Decimal("0.013824")
 
 
 def test_applied_policy_binding_checks_policy_registry_and_provider_uuid(tmp_path):

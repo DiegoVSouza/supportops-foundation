@@ -68,10 +68,10 @@ def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
     if marker.exists() or marker.is_symlink() or marker.is_junction():
         raise ExecutionBlocked("policy_migration_pending")
     expected = {
-        "requests": 209,
-        "input_tokens": 428032,
-        "output_tokens": 53504,
-        "estimated_cost_usd": "0.0481536",
+        "requests": 219,
+        "input_tokens": 448512,
+        "output_tokens": 56064,
+        "estimated_cost_usd": "0.0504576",
     }
     projects = policy.get("projects")
     p00 = projects.get("p00") if isinstance(projects, dict) else None
@@ -92,13 +92,15 @@ def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
         "estimated_cost_usd": "0.013824",
     }
     remaining = {
-        "requests": p00.get("requests", 0) - PRIMARY_CAPS.requests,
-        "input_tokens": p00.get("input_tokens", 0) - PRIMARY_CAPS.input_tokens,
-        "output_tokens": p00.get("output_tokens", 0) - PRIMARY_CAPS.output_tokens,
+        "requests": p00.get("requests", 0) - PRIMARY_CAPS.requests - 10,
+        "input_tokens": p00.get("input_tokens", 0) - PRIMARY_CAPS.input_tokens - 20480,
+        "output_tokens": p00.get("output_tokens", 0) - PRIMARY_CAPS.output_tokens - 2560,
     }
     try:
         remaining_cost = (
-            Decimal(p00.get("estimated_cost_usd", "-1")) - PRIMARY_CAPS.estimated_cost_usd
+            Decimal(p00.get("estimated_cost_usd", "-1"))
+            - PRIMARY_CAPS.estimated_cost_usd
+            - Decimal("0.002304")
         )
     except (ArithmeticError, TypeError, ValueError):
         raise ExecutionBlocked("p00_allocation_policy_mismatch") from None

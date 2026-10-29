@@ -136,13 +136,14 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4097 - accounted,
-        "primary_requests": 3257 - accounted,
+        "requests": 4107 - accounted,
+        "primary_requests": 3257 - accounted + allocation["p00_operation_allocation"]["used"],
         "protected_confirmation_requests": 840,
     }
     assert (
         report["candidate"]["logical_ledger_usage"]["requests"]
         == allocation["provider_ledger_usage"]["p00"]["requests"]
+        - allocation["p00_operation_allocation"]["used"]
     )
     assert report["candidate"]["logical_ledger_usage"]["unknown_reservations"] == [
         {"input_tokens": 2048, "output_tokens": 256}
@@ -182,12 +183,16 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     }
     p00_usage = allocation["provider_ledger_usage"]["p00"]
     assert report["c2_scope"]["p00_primary_remaining_after_existing_usage"] == (
-        149 - p00_usage["requests"]
+        149 - p00_usage["requests"] + allocation["p00_operation_allocation"]["used"]
     )
     assert report["c2_scope"]["p00_primary_token_capacity_after_existing_usage"] == {
-        "provider_ledger_input_tokens": 305152 - p00_usage["input_tokens"],
+        "provider_ledger_input_tokens": 305152
+        - p00_usage["input_tokens"]
+        + allocation["p00_operation_allocation"]["input_tokens_used"],
         "logical_ledger_input_tokens": 305152 - allocation["logical_ledger_usage"]["input_tokens"],
-        "output_tokens": 38144 - p00_usage["output_tokens"],
+        "output_tokens": 38144
+        - p00_usage["output_tokens"]
+        + allocation["p00_operation_allocation"]["output_tokens_used"],
     }
     assert report["c2_scope"]["c2_development_max_tokens"] == {
         "input": 73728,
