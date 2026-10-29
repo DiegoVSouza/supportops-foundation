@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "receipt_matches": true,
+  "input_tokens": 354,
+  "output_tokens": 112,
+  "calls_used": 2,
+  "operating_calls_remaining": 8,
+  "holdout_protected": 84,
+  "confirmation_protected": 60,
+  "provider_and_logical_not_additive": true,
+  "actual_billed_usd": null
+}

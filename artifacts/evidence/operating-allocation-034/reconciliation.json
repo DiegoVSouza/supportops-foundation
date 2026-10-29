@@ -1,0 +1,71 @@
+{
+  "command": [
+    "C:\\estudo\\Golpe\\lab\\projects\\p00\\.venv\\Scripts\\python.exe",
+    "-m",
+    "scripts.run_live_campaign",
+    "--stage",
+    "development",
+    "--dry-run"
+  ],
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "fingerprint": "4507ac5cc2cf1f918c6807cfa178cf36f73f062f9d96475439f2b5ec55d4c9a3",
+  "commit": "cfe637448365033356dc212ff9c3d84a9505fb16",
+  "p00_operation": {
+    "input_tokens_used": 342,
+    "output_tokens_used": 80,
+    "remaining": 9,
+    "total": 10,
+    "used": 1
+  },
+  "p01_operation": {
+    "further_execution_authorized": false,
+    "input_tokens_used": 463,
+    "logical_reserved_calls_retained": 8,
+    "logical_unreserved_calls": 0,
+    "output_tokens_used": 229,
+    "remaining": 6,
+    "total": 8,
+    "used": 2
+  },
+  "other_operations": {
+    "p02": {
+      "input_tokens_used": 141,
+      "output_tokens_used": 37,
+      "remaining": 3,
+      "total": 4,
+      "used": 1
+    },
+    "p03": {
+      "input_tokens_used": 93,
+      "output_tokens_used": 23,
+      "remaining": 3,
+      "total": 4,
+      "used": 1
+    }
+  },
+  "p00_confirmation": {
+    "estimated_cost_usd": "0.013824",
+    "input_tokens": 122880,
+    "output_tokens": 15360,
+    "requests": 60
+  },
+  "global_remaining": {
+    "primary_requests": 3192,
+    "protected_confirmation_requests": 840,
+    "requests": 4053
+  },
+  "p00_primary": {
+    "confirmation_protected": 60,
+    "primary_consumed": 65,
+    "primary_input_tokens_remaining": 280602,
+    "primary_input_tokens_total": 305152,
+    "primary_output_tokens_remaining": 31505,
+    "primary_output_tokens_total": 38144,
+    "primary_remaining": 84,
+    "primary_total": 149
+  },
+  "provider_accessed": false,
+  "credentials_read": false,
+  "output": "sanitized report only"
+}

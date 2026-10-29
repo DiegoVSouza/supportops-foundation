@@ -1,0 +1,14 @@
+{
+  "status": "ok",
+  "model": "openai/gpt-oss-20b",
+  "attempt_id": "3cc7f8db68584b019f2a780dab9f823c",
+  "usage": {
+    "input_tokens": 354,
+    "output_tokens": 112
+  },
+  "finish_reason": "stop",
+  "candidate": "cfe637448365033356dc212ff9c3d84a9505fb16",
+  "fingerprint": "4507ac5cc2cf1f918c6807cfa178cf36f73f062f9d96475439f2b5ec55d4c9a3",
+  "request_id": "fixture-current-034",
+  "raw_response_persisted": false
+}
