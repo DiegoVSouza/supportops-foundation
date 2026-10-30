@@ -1,0 +1,1 @@
+{"command":"LLM_MODE=fake projects/p00/.venv/Scripts/python.exe projects/p00/scripts/check_fast.py","cwd":"C:\\estudo\\Golpe\\lab","exit_code":0,"output":"check-fast: OK","provider_accessed":false}
