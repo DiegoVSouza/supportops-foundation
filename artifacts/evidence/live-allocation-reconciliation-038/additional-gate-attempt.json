@@ -1,0 +1,1 @@
+{"historical_attempts": "3/3", "additional_attempt": "1/1", "state": "CONSUMED", "command": ["uv", "run", "--locked", "--no-sync", "--active", "python", "scripts/check_full.py"], "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\live-allocation-reconciliation-038\\snapshot-attempt2\\lab\\projects\\p00"}
