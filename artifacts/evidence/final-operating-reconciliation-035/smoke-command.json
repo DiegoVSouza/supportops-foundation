@@ -1,0 +1,12 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "artifacts/evidence/final-operating-reconciliation-035/run-smoke.py"
+  ],
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "output": "{\"status\": \"ok\", \"model\": \"openai/gpt-oss-20b\", \"attempt_id\": \"def6a8bc19f846708480e8a395b70ac8\", \"usage\": {\"input_tokens\": 354, \"output_tokens\": 112}, \"finish_reason\": \"stop\", \"candidate\": \"271fca758fb99429598c8a4dfcb73b02281a379b\", \"fingerprint\": \"f8608311104a4fb4005881b9569a94c1f29731707ac9f70247636bd63685f72d\", \"request_id\": \"fixture-current-035\", \"raw_response_persisted\": false}\n"
+}

@@ -161,3 +161,5 @@ User attested all four distinct accounts Free. Candidate 7099cc5d0f4d576d14f28f7
 ## 2026-10-28 - Phase 025 safe campaign guidance
 
 - The offline report no longer labels live C2 commands as safe while continuity and funding are unresolved. The locked fake gate passed 146 tests; no provider calls occurred. See artifacts/evidence/funded-candidate-continuation/safe-guidance-025/.
+
+2026-10-29 phase035: final allocation arithmetic reconciled all six operating envelopes, full fake157/ focused41/private review controls PASS. One current-fingerprint synthetic smoke354/112 PASS, fingerprintf8608311104a4fb4005881b9569a94c1f29731707ac9f70247636bd63685f72d. Operating3/10, holdout84 and confirmation60 protected. Historical semantic failures/human/holdout/promotion remain pending; see phase035 VERIFY.
