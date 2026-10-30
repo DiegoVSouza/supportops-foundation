@@ -1,5 +1,11 @@
 # Progress
 
+## 2026-10-30 — Phase 042 verified-scratch additional full gate
+
+- The explicitly funded, one-time additional P00 fake gate completed in a fresh Git-archived snapshot. `uv run --locked --no-sync --active python scripts/check_full.py` exited 0: fast check, Ruff lint/format, compilation, 161 tests, deterministic dataset contract, and quiet Compose configuration all passed.
+- The runner validated its pytest scratch path before recording consumption and placed the snapshot below the lab runtime Git exclusion, so the root documentation checker does not mistake copied historical phase links for live documentation. `provider_accessed=false`; no live operation, smoke, reservation release, holdout, or confirmation capacity was consumed.
+- Evidence is `artifacts/evidence/verified-scratch-gate-042/`. This exhausts the additional P00 full-gate validation authorized for this continuation; the existing allocation/source binding remains frozen unless separately authorized.
+
 ## 2026-10-30 — Phase 039 allocation reconciliation
 
 - Reconciled the applied phase039 policy binding, retained P01/P04 logical reservations and source fingerprint inputs. The campaign fixture now copies the root migration dependency required by that fingerprint; the direct allocation/campaign regression passed 63 tests and `check_fast` passed.
