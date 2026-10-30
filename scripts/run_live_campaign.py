@@ -314,7 +314,7 @@ def applied_allocation(project: Path) -> dict[str, Any]:
                     sqlite3.connect(p01_logical_path.as_uri() + "?mode=ro", uri=True)
                 ) as p01_db:
                     p01_logical_reserved_calls = p01_db.execute(
-                        "SELECT COALESCE(SUM(reserved_calls),0) FROM events WHERE event='reserved' AND campaign_id IN ('local-operation-v1','local-diagnostic-v1')"
+                        "SELECT COALESCE(SUM(reserved_calls),0) FROM events WHERE event='reserved' AND campaign_id IN ('local-operation-v1','local-diagnostic-v1','local-diagnostic-2-v1')"
                     ).fetchone()[0]
             p04_logical_reserved_calls = 0
             p04_logical_path = lab / "projects/p04/artifacts/evals/live/ledger.sqlite"
@@ -362,12 +362,13 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in operation_rows),
     }
     operation_reserve = 10 if policy["projects"]["p00"]["requests"] == 219 else 0
-    p01_operation_reserve = 8 if policy["projects"]["p01"]["requests"] == 992 else 0
+    p01_operation_reserve = {992: 8, 996: 12}.get(policy["projects"]["p01"]["requests"], 0)
     p01_operation_rows = [
         row
         for row in attempts
         if row["project"] == "p01"
-        and row["campaign"] in {"local-operation-v1", "local-diagnostic-v1"}
+        and row["campaign"]
+        in {"local-operation-v1", "local-diagnostic-v1", "local-diagnostic-2-v1"}
     ]
     p01_operation_usage = {
         "requests": len(p01_operation_rows),

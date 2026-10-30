@@ -143,6 +143,11 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
         assert allocation["other_operation_allocations"][name]["total"] == operating
         assert allocation["remaining_capacity_by_project"][name]["primary_total"] == primary
         assert allocation["remaining_capacity_by_project"][name]["primary_consumed"] == 0
+    p01 = allocation["p01_operation_allocation"]
+    assert p01["total"] == 12 and p01["used"] == 4
+    assert p01["logical_reserved_calls_retained"] == 12
+    assert p01["logical_unreserved_calls"] == 0
+    assert p01["further_execution_authorized"] is False
     p04 = allocation["other_operation_allocations"]["p04"]
     assert p04["used"] == 3
     assert p04["logical_reserved_calls_retained"] == 6
@@ -150,7 +155,7 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert p04["further_execution_authorized"] is False
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4137 - accounted,
+        "requests": 4141 - accounted,
         "primary_requests": 3257
         - accounted
         + allocation["p00_operation_allocation"]["used"]
