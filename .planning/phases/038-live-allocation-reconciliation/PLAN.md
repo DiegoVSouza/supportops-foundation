@@ -9,6 +9,7 @@
 ## allowed_write_paths
 
 - `scripts/run_live_campaign.py`
+- `scripts/campaign_execution.py`
 - `tests/test_live_campaign_preparation.py`
 - `.planning/phases/038-live-allocation-reconciliation/**`
 - `artifacts/evidence/live-allocation-reconciliation-038/**`
@@ -22,3 +23,5 @@
 ## Forbidden changes
 
 Do not modify existing phase 037 files, root policy/ledgers, other project files, reservations, operation IDs, holdout84, confirmation60, generated results, or unrelated untracked evidence.
+
+Post-gate offline amendment: the allocation reader now depends on the root migration validator, so include that root module in the candidate fingerprint and reconcile the now-consumed P01 operation in the logical ledger. The additional P00 gate remains consumed; this amendment authorizes no gate or focused-test substitute.

@@ -1,0 +1,10 @@
+{
+  "command": "ruff check; ruff format --check; git diff --check on phase038-owned source",
+  "cwd": "C:\\estudo\\Golpe\\lab",
+  "exit_code": 0,
+  "output": "lint PASS; formatting PASS after offline correction; diff check PASS",
+  "gate_executed": false,
+  "provider_accessed": false,
+  "historical_gate": "3/3",
+  "additional_gate": "1/1 consumed"
+}
