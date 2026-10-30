@@ -1,0 +1,1 @@
+{"historical": "3/3", "phase038_exception": "1/1", "phase039_exception": "1/1", "phase040_exception": "1/1", "phase041_exception": "1/1", "state": "CONSUMED", "command": ["uv", "run", "--locked", "--no-sync", "--active", "python", "scripts/check_full.py"], "cwd": "C:\\estudo\\Golpe\\lab\\.runtime\\p00-gate-041\\lab\\projects\\p00"}

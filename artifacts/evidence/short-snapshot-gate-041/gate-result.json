@@ -1,0 +1,15 @@
+{
+  "exit_code": 2,
+  "output": "Invalid P00_PYTEST_BASETEMP: path must stay under an owned evidence directory\n",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "--no-sync",
+    "--active",
+    "python",
+    "scripts/check_full.py"
+  ],
+  "cwd": "C:\\estudo\\Golpe\\lab\\.runtime\\p00-gate-041\\lab\\projects\\p00",
+  "provider_accessed": false
+}
