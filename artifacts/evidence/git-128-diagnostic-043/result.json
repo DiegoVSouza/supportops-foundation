@@ -1,0 +1,94 @@
+{
+  "phase040_cwd_suffix": "artifacts/evidence/additional-validation-040/.git/snapshot/lab/projects/p00",
+  "git_env": {
+    "GIT_DIR": null,
+    "GIT_WORK_TREE": null,
+    "GIT_INDEX_FILE": null
+  },
+  "cases": [
+    {
+      "name": "phase040_layout_with_dot_git",
+      "repo_path_length": 219,
+      "steps": [
+        {
+          "args": [
+            "init"
+          ],
+          "exit_code": 0,
+          "stderr": ""
+        },
+        {
+          "args": [
+            "add",
+            "guard.py"
+          ],
+          "exit_code": 128,
+          "stderr": "error: unable to write file .git/objects/7d/4290a117a4ddcc11daae7ea675841033830c8f: Filename too long\nerror: guard.py: failed to insert into database\nerror: unable to index file 'guard.py'\nfatal: adding files failed"
+        }
+      ]
+    },
+    {
+      "name": "same_length_without_dot_git",
+      "repo_path_length": 219,
+      "steps": [
+        {
+          "args": [
+            "init"
+          ],
+          "exit_code": 0,
+          "stderr": ""
+        },
+        {
+          "args": [
+            "add",
+            "guard.py"
+          ],
+          "exit_code": 128,
+          "stderr": "error: unable to write file .git/objects/7d/4290a117a4ddcc11daae7ea675841033830c8f: Filename too long\nerror: guard.py: failed to insert into database\nerror: unable to index file 'guard.py'\nfatal: adding files failed"
+        }
+      ]
+    },
+    {
+      "name": "short_path_with_dot_git",
+      "repo_path_length": 105,
+      "steps": [
+        {
+          "args": [
+            "init"
+          ],
+          "exit_code": 0,
+          "stderr": ""
+        },
+        {
+          "args": [
+            "add",
+            "guard.py"
+          ],
+          "exit_code": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "name": "short_path_plain",
+      "repo_path_length": 100,
+      "steps": [
+        {
+          "args": [
+            "init"
+          ],
+          "exit_code": 0,
+          "stderr": ""
+        },
+        {
+          "args": [
+            "add",
+            "guard.py"
+          ],
+          "exit_code": 0,
+          "stderr": ""
+        }
+      ]
+    }
+  ]
+}

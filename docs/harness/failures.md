@@ -57,3 +57,7 @@ Authenticated catalog access passed for four unique numbered credentials, but th
 # 2026-10-27 — Phase 019 dry-run cap mismatch
 
 The first P00 allocation dry-run still displayed the historical config ceiling (186 calls / 380,928 input / 47,616 output) after the authorized root policy was migrated to 196 / 401,408 / 50,176. It made no provider call and did not change any ledger. The dry-run now reads the applied shared policy and both append-only ledgers under the same campaign/account leases as dispatch, removes only WAL sidecars created by its read-only inspection, and rejects dirty/uncommitted candidate sources. The stale output is retained as `artifacts/evidence/funded-candidate-continuation/pre-reconciliation-cli-dry-run.json`; it is not allocation evidence. Latest full locked gate: 144 passed.
+
+## 2026-10-30 — Fixture `git add` exit 128 in deep snapshots
+
+Windows path limit, not a product defect. A snapshot whose fixture repository path nears 220 characters makes Git fail with `Filename too long`. Keep gate scratch paths short, as phase042 does. See phase043 VERIFY.
