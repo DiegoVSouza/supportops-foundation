@@ -1,0 +1,12 @@
+{
+  "reason": "Preserve partial lab snapshots as archived evidence excluded from the root active-documentation link scan",
+  "gate_reexecuted": false,
+  "historical_result_modified": false,
+  "command": "PowerShell Move-Item -LiteralPath <owned phase snapshot> -Destination <same phase .git archive>; absolute boundaries checked before each move",
+  "cwd": "C:\\estudo\\Golpe\\lab",
+  "exit_code": 0,
+  "mapping": {
+    "snapshot": ".git/snapshot",
+    "snapshot-attempt2": ".git/snapshot-attempt2"
+  }
+}
