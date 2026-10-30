@@ -1,0 +1,1 @@
+P00 phase 037 plan amendment self-check: PASS. The allowed paths now include one fresh owner-scoped full-gate scratch directory required by check_full.py; no other writes are added. The three tasks, one-call limit, and forbidden historical/evaluation changes remain unchanged. This is the implementer's self-assessment.
