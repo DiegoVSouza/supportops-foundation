@@ -385,6 +385,7 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         policy_path,
         lab / "scripts/harness/live_free_account.py",
         lab / "scripts/harness/live_provider_transport.py",
+        lab / "scripts/harness/migrate_p01_p04_revalidation.py",
         lab / ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json",
     ]
     return {

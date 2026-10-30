@@ -1,5 +1,10 @@
 # Progress
 
+## 2026-10-30 — Phase 039 allocation reconciliation
+
+- Reconciled the applied phase039 policy binding, retained P01/P04 logical reservations and source fingerprint inputs. The campaign fixture now copies the root migration dependency required by that fingerprint; the direct allocation/campaign regression passed 63 tests and `check_fast` passed.
+- The one permitted phase039 full fake gate remains failed and consumed (143 pass/18 fixture failures). This source commit records the offline repair only; it does not establish a full-gate PASS, authorize a smoke, or replace any counter.
+
 ## 2026-10-28 — Phase 031 provisional local-live boundary
 
 - Added an explicit synthetic local-live command using the accounted provider subprocess, stable caller request IDs, one attempt, no fallback and conservative stop on duplicate, uncertain or previously failed work. Eight injected cases and the locked full fake gate passed (156 tests). Initial lint failure and intermediate gate are preserved under artifacts/evidence/local-live-operation-031/.

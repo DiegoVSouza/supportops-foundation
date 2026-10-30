@@ -110,6 +110,25 @@ def test_dry_run_reports_stage_reservations(stage, case_count, trial_count, call
     assert plan["confirmation_max_output_tokens"] == 20 * 3 * 256
 
 
+@pytest.mark.parametrize(
+    "audit",
+    [[], [("prepared", {})], [("prepared", {}), ("applied", {"projects": {}})]],
+)
+def test_applied_allocation_rejects_unapplied_or_wrong_identity_migration(monkeypatch, audit):
+    from scripts import campaign_execution
+    from scripts.run_live_campaign import applied_allocation
+
+    monkeypatch.setattr(campaign_execution, "require_committed_sources", lambda *_: "candidate")
+    # applied_allocation installs the root harness import path before reading
+    # this module. Import it explicitly here using the same owner path.
+    monkeypatch.syspath_prepend(str(ROOT.parents[1] / "scripts/harness"))
+    import migrate_p01_p04_revalidation
+
+    monkeypatch.setattr(migrate_p01_p04_revalidation, "read_audit", lambda *_: audit)
+    with pytest.raises(CampaignError, match="operating migration"):
+        applied_allocation(ROOT)
+
+
 def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(monkeypatch) -> None:
     from scripts import campaign_execution
     from scripts.run_live_campaign import applied_allocation, summarize
@@ -137,26 +156,28 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     for name, primary, operating in (
         ("p02", 246, 4),
         ("p03", 96, 4),
-        ("p04", 558, 6),
+        ("p04", 747 - 180 - 9, 9),
         ("p05", 1464, 8),
     ):
         assert allocation["other_operation_allocations"][name]["total"] == operating
         assert allocation["remaining_capacity_by_project"][name]["primary_total"] == primary
         assert allocation["remaining_capacity_by_project"][name]["primary_consumed"] == 0
     p01 = allocation["p01_operation_allocation"]
-    assert p01["total"] == 12 and p01["used"] == 4
-    assert p01["logical_reserved_calls_retained"] == 12
+    assert p01["total"] == 12 + 4 and p01["used"] == 8
+    assert p01["logical_reserved_calls_retained"] == 16
     assert p01["logical_unreserved_calls"] == 0
     assert p01["further_execution_authorized"] is False
     p04 = allocation["other_operation_allocations"]["p04"]
     assert p04["used"] == 3
     assert p04["logical_reserved_calls_retained"] == 6
-    assert p04["logical_unreserved_calls"] == 0
+    assert p04["logical_unreserved_calls"] == 3
     assert p04["further_execution_authorized"] is False
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4141 - accounted,
-        "primary_requests": 3257
+        "requests": 4148 - accounted,
+        "primary_requests": 3282
+        - 16
+        - 9
         - accounted
         + allocation["p00_operation_allocation"]["used"]
         + allocation["p01_operation_allocation"]["used"]

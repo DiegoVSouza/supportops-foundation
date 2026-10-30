@@ -314,7 +314,7 @@ def applied_allocation(project: Path) -> dict[str, Any]:
                     sqlite3.connect(p01_logical_path.as_uri() + "?mode=ro", uri=True)
                 ) as p01_db:
                     p01_logical_reserved_calls = p01_db.execute(
-                        "SELECT COALESCE(SUM(reserved_calls),0) FROM events WHERE event='reserved' AND campaign_id IN ('local-operation-v1','local-diagnostic-v1','local-diagnostic-2-v1')"
+                        "SELECT COALESCE(SUM(reserved_calls),0) FROM events WHERE event='reserved' AND campaign_id IN ('local-operation-v1','local-diagnostic-v1','local-diagnostic-2-v1','local-reviewed-operation-027-v1')"
                     ).fetchone()[0]
             p04_logical_reserved_calls = 0
             p04_logical_path = lab / "projects/p04/artifacts/evals/live/ledger.sqlite"
@@ -363,12 +363,34 @@ def applied_allocation(project: Path) -> dict[str, Any]:
     }
     operation_reserve = 10 if policy["projects"]["p00"]["requests"] == 219 else 0
     p01_operation_reserve = {992: 8, 996: 12}.get(policy["projects"]["p01"]["requests"], 0)
+    revalidation_applied = False
+    policy_sha = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
+    from migrate_p01_p04_revalidation import NEW_SHA, MigrationBlocked, read_audit
+
+    if policy_sha == NEW_SHA:
+        try:
+            audit = read_audit(lab)
+        except (MigrationBlocked, OSError, sqlite3.Error) as exc:
+            raise CampaignError("operating migration audit is unavailable") from exc
+        if [event for event, _ in audit] != ["prepared", "applied"]:
+            raise CampaignError("operating migration is not applied")
+        if audit[-1][1].get("projects") != refs:
+            raise CampaignError("operating migration ledger identities differ")
+        # Phase 039 adds four calls to the retained twelve-call P01 envelope
+        # and three calls to the retained six-call P04 envelope.
+        p01_operation_reserve = 16
+        revalidation_applied = True
     p01_operation_rows = [
         row
         for row in attempts
         if row["project"] == "p01"
         and row["campaign"]
-        in {"local-operation-v1", "local-diagnostic-v1", "local-diagnostic-2-v1"}
+        in {
+            "local-operation-v1",
+            "local-diagnostic-v1",
+            "local-diagnostic-2-v1",
+            "local-reviewed-operation-027-v1",
+        }
     ]
     p01_operation_usage = {
         "requests": len(p01_operation_rows),
@@ -386,6 +408,8 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         operation_reserves[name] = (
             reserve if policy["projects"][name]["requests"] == migrated_total else 0
         )
+        if name == "p04" and revalidation_applied:
+            operation_reserves[name] = 9
         rows = [
             row
             for row in attempts

@@ -130,6 +130,17 @@ def test_existing_work_and_protected_capacity_stop_before_provider(operation, co
     assert state["calls"] == []
 
 
+def test_stale_policy_binding_denies_before_provider(operation):
+    project, state, options = operation
+    config_path = project / "evals/local-live-operation.json"
+    config = json.loads(config_path.read_text())
+    config["policy_sha256"] = "stale-policy"
+    config_path.write_text(json.dumps(config))
+    with pytest.raises(LocalLiveBlocked, match="operational_allocation_not_applied"):
+        run_operation(project, "request-1", "synthetic", **options)
+    assert state["calls"] == []
+
+
 def test_provider_failure_returns_no_fallback_or_replay(operation):
     project, state, options = operation
     state["response"] = {"status": "INCOMPLETE"}

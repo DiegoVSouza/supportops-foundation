@@ -72,6 +72,7 @@ def campaign(tmp_path, monkeypatch):
         "shared/policies/groq-free-campaign.json",
         "scripts/harness/live_free_account.py",
         "scripts/harness/live_provider_transport.py",
+        "scripts/harness/migrate_p01_p04_revalidation.py",
         ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json",
     ):
         target = project.parents[1] / name
