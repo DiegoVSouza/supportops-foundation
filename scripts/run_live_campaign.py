@@ -316,6 +316,16 @@ def applied_allocation(project: Path) -> dict[str, Any]:
                     p01_logical_reserved_calls = p01_db.execute(
                         "SELECT COALESCE(SUM(reserved_calls),0) FROM events WHERE event='reserved' AND campaign_id IN ('local-operation-v1','local-diagnostic-v1')"
                     ).fetchone()[0]
+            p04_logical_reserved_calls = 0
+            p04_logical_path = lab / "projects/p04/artifacts/evals/live/ledger.sqlite"
+            if p04_logical_path.exists():
+                _safe_account_path(lab, p04_logical_path)
+                with closing(
+                    sqlite3.connect(p04_logical_path.as_uri() + "?mode=ro", uri=True)
+                ) as p04_db:
+                    p04_logical_reserved_calls = p04_db.execute(
+                        "SELECT COALESCE(SUM(reserved_calls),0) FROM events WHERE event='reserved' AND campaign_id IN ('local-operation-v1','local-diagnostic-v1')"
+                    ).fetchone()[0]
             with closing(sqlite3.connect(logical_path.as_uri() + "?mode=ro", uri=True)) as db:
                 logical_rows = db.execute(
                     """SELECT e.reserved_calls,e.reserved_input_tokens,e.reserved_output_tokens,
@@ -366,14 +376,20 @@ def applied_allocation(project: Path) -> dict[str, Any]:
     }
     operation_reserves = {"p00": operation_reserve, "p01": p01_operation_reserve}
     other_operation_usage = {}
-    for name, migrated_total, reserve in (("p02", 310, 4), ("p03", 160, 4)):
+    for name, migrated_total, reserve in (
+        ("p02", 310, 4),
+        ("p03", 160, 4),
+        ("p04", 744, 6),
+        ("p05", 1712, 8),
+    ):
         operation_reserves[name] = (
             reserve if policy["projects"][name]["requests"] == migrated_total else 0
         )
         rows = [
             row
             for row in attempts
-            if row["project"] == name and row["campaign"] == "local-operation-v1"
+            if row["project"] == name
+            and row["campaign"] in {"local-operation-v1", "local-diagnostic-v1"}
         ]
         other_operation_usage[name] = {
             "requests": len(rows),
@@ -502,6 +518,16 @@ def applied_allocation(project: Path) -> dict[str, Any]:
                 "remaining": operation_reserves[name] - usage["requests"],
                 "input_tokens_used": usage["input_tokens"],
                 "output_tokens_used": usage["output_tokens"],
+                **(
+                    {
+                        "logical_reserved_calls_retained": p04_logical_reserved_calls,
+                        "logical_unreserved_calls": operation_reserves[name]
+                        - p04_logical_reserved_calls,
+                        "further_execution_authorized": False,
+                    }
+                    if name == "p04"
+                    else {}
+                ),
             }
             for name, usage in other_operation_usage.items()
         },

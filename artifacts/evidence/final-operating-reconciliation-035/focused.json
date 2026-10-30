@@ -1,0 +1,19 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-m",
+    "pytest",
+    "tests/test_live_campaign_preparation.py",
+    "tests/llm/test_local_live.py",
+    "tests/llm/test_review_ui.py",
+    "-q",
+    "--basetemp",
+    "artifacts\\evidence\\final-operating-reconciliation-035\\tmp-focused"
+  ],
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "output": ".........................................                                [100%]\n41 passed in 19.64s\n"
+}

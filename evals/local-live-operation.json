@@ -5,7 +5,7 @@
   "preexisting_p00_calls": 65,
   "protected_holdout_calls": 84,
   "protected_confirmation_calls": 60,
-  "policy_sha256": "417a3103d117f4329c2de4a9ca2b00c82296aa512ed544bf468160fe6f19d9b7",
+  "policy_sha256": "ac70138a8434a46900cdb68fa51e334df1983bafafa3130ecabb2c02a6bb20c6",
   "synthetic_only": true,
   "authorized_paid_spend_usd": "0.00"
 }

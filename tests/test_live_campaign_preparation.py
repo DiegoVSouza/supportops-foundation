@@ -134,13 +134,23 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
     assert report["candidate"]["p00_primary_allocation"]["requests"] == 149
     assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
-    for name, primary in (("p02", 246), ("p03", 96)):
-        assert allocation["other_operation_allocations"][name]["total"] == 4
+    for name, primary, operating in (
+        ("p02", 246, 4),
+        ("p03", 96, 4),
+        ("p04", 558, 6),
+        ("p05", 1464, 8),
+    ):
+        assert allocation["other_operation_allocations"][name]["total"] == operating
         assert allocation["remaining_capacity_by_project"][name]["primary_total"] == primary
         assert allocation["remaining_capacity_by_project"][name]["primary_consumed"] == 0
+    p04 = allocation["other_operation_allocations"]["p04"]
+    assert p04["used"] == 3
+    assert p04["logical_reserved_calls_retained"] == 6
+    assert p04["logical_unreserved_calls"] == 0
+    assert p04["further_execution_authorized"] is False
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4123 - accounted,
+        "requests": 4137 - accounted,
         "primary_requests": 3257
         - accounted
         + allocation["p00_operation_allocation"]["used"]
