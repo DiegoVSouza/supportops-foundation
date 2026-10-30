@@ -1,0 +1,94 @@
+{
+    "status": "PREPARED",
+    "gate_executed": false,
+    "provider_accessed": false,
+    "snapshot": "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\additional-validation-039\\.git\\snapshot\\lab",
+    "records": [
+        {
+            "command": [
+                "git",
+                "-c",
+                "safe.directory=C:/estudo/Golpe/lab/projects/p00/.git",
+                "clone",
+                "--no-hardlinks",
+                "--no-checkout",
+                "C:\\estudo\\Golpe\\lab\\projects\\p00",
+                "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\additional-validation-039\\.git\\snapshot\\lab\\projects\\p00"
+            ],
+            "exit_code": 0,
+            "output": "Cloning into 'C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\additional-validation-039\\.git\\snapshot\\lab\\projects\\p00'...\ndone.\n"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-local-operation.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-p01-operation.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-p01-p04-revalidation.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-p01-second-diagnostic.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-p02-operation.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-p03-operation.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-plus13.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations-service-operations.sqlite"
+        },
+        {
+            "sqlite_backup": ".runtime/llm-live-readiness/policy-migrations.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p00/artifacts/evals/live/ledger.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p00/artifacts/evals/live/provider-usage.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p01/artifacts/evals/live/ledger.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p01/artifacts/evals/live/provider-usage.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p02/artifacts/evals/live/operations.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p02/artifacts/evals/live/provider-usage.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p03/artifacts/evals/live/operations.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p03/artifacts/evals/live/provider-usage.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p04/artifacts/evals/live/diagnostic-operations.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p04/artifacts/evals/live/ledger.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p04/artifacts/evals/live/operations.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p04/artifacts/evals/live/provider-usage.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p05/artifacts/evals/live/ledger.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p05/artifacts/evals/live/operations.sqlite"
+        },
+        {
+            "sqlite_backup": "projects/p05/artifacts/evals/live/provider-usage.sqlite"
+        }
+    ]
+}
