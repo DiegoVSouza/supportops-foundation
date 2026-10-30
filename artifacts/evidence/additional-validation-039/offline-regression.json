@@ -1,0 +1,9 @@
+{
+  "command": "uv run --locked --no-sync --active python -m pytest -q --basetemp=artifacts/evidence/additional-validation-039/offline-regression/pytest tests/llm/test_campaign_execution.py tests/test_live_campaign_preparation.py",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "output": "63 passed in 27.62s",
+  "full_gate": false,
+  "provider_accessed": false,
+  "gate_counter_changed": false
+}
