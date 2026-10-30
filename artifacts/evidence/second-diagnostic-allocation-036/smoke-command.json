@@ -1,0 +1,12 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "artifacts/evidence/second-diagnostic-allocation-036/run-smoke.py"
+  ],
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "exit_code": 0,
+  "output": "{\"status\": \"ok\", \"model\": \"openai/gpt-oss-20b\", \"attempt_id\": \"0a6451f3a050459998aa02eb0029f575\", \"usage\": {\"input_tokens\": 354, \"output_tokens\": 112}, \"finish_reason\": \"stop\", \"candidate\": \"aa194beb30b2d1006efb0fbc45b76a37cd542648\", \"fingerprint\": \"6021179839d958d4fc548a54063f384cd7237ae6b2fafb67c0836131eb49fbc9\", \"request_id\": \"fixture-current-036\", \"raw_response_persisted\": false}\n"
+}
