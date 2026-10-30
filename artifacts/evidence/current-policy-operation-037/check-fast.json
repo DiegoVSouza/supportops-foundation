@@ -1,0 +1,8 @@
+{
+  "output": "check-fast: OK",
+  "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+  "provider_accessed": false,
+  "credentials_read": false,
+  "exit_code": 0,
+  "command": "uv run --locked python scripts/check_fast.py"
+}

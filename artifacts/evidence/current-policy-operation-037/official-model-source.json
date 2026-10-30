@@ -1,0 +1,28 @@
+{
+  "checked_on": "2026-10-30",
+  "provider": "Groq",
+  "sources": [
+    {
+      "title": "OpenAI GPT-OSS 20B model documentation",
+      "url": "https://console.groq.com/docs/model/openai/gpt-oss-20b",
+      "observed": {
+        "model_id": "openai/gpt-oss-20b",
+        "json_schema_mode": true,
+        "input_usd_per_million": "0.075",
+        "output_usd_per_million": "0.30"
+      }
+    },
+    {
+      "title": "Groq structured outputs documentation",
+      "url": "https://console.groq.com/docs/structured-outputs",
+      "observed": "The documentation names openai/gpt-oss-20b as supporting JSON Schema structured outputs."
+    },
+    {
+      "title": "Groq rate limits documentation",
+      "url": "https://console.groq.com/docs/rate-limits",
+      "observed": "Published model table gives base limits; it states account-specific exact limits belong to the account limits page and organization scope. This is not authenticated remaining-quota evidence."
+    }
+  ],
+  "provider_accessed": false,
+  "generation_calls": 0
+}
