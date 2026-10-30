@@ -1,0 +1,9 @@
+{
+  "command": "python -c 'import sqlite3; c=sqlite3.connect(\"file:projects/p01/artifacts/evals/live/ledger.sqlite?mode=ro\",uri=True); print(c.execute(\"select campaign_id,sum(reserved_calls) from events where event=? group by campaign_id\",(\"reserved\",)).fetchall())'",
+  "cwd": "C:\\estudo\\Golpe\\lab",
+  "exit_code": 0,
+  "output": [["local-diagnostic-2-v1", 4], ["local-diagnostic-v1", 4], ["local-operation-v1", 4]],
+  "mode": "read-only",
+  "provider_accessed": false,
+  "credentials_read": false
+}
