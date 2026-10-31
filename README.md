@@ -11,6 +11,29 @@
 - **Docs.** [Architecture](docs/architecture.md), [decisions](docs/decisions).
 <!-- case:end -->
 
+<!-- flow:start -->
+## How it works
+
+Generated from the same data as the diagram on the portfolio site (`projects/foundation/`), so the two cannot drift.
+
+```mermaid
+flowchart LR
+  dataset["Seeded dataset"]
+  factory["One client factory"]
+  fake["Fake"]
+  replay["Replay"]
+  live["Live with budget"]
+  campaign["Campaign"]
+  verdict["Verdict"]
+  dataset --> factory
+  factory --> fake
+  factory --> replay
+  factory --> live
+  live --> campaign
+  campaign --> verdict
+```
+<!-- flow:end -->
+
 SupportOps Foundation is a versioned Python library containing domain models, deterministic datasets, a testkit, and provider-neutral LLM contracts for the independent SupportOps projects.
 
 Current contract release: **1.0.1**. Consumers should record the source commit and wheel SHA-256 when installing a local artifact.
