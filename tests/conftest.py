@@ -15,7 +15,9 @@ def supportops_dataset():
 # printed by `pytest -rs`; inside the lab they run unchanged.
 _LAB = Path(__file__).resolve().parents[3]
 _LAB_MODULES = {"test_campaign_execution.py", "test_live_campaign_preparation.py"}
-_LAB_PRESENT = (_LAB / "shared/policies/groq-free-campaign.json").is_file() and (_LAB / "scripts/harness/live_free_account.py").is_file()
+_LAB_PRESENT = (_LAB / "shared/policies/groq-free-campaign.json").is_file() and (
+    _LAB / "scripts/harness/live_free_account.py"
+).is_file()
 
 
 def pytest_collection_modifyitems(config, items):
