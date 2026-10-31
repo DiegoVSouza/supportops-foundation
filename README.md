@@ -1,5 +1,16 @@
 # SupportOps Foundation
 
+<!-- case:start -->
+## The case
+
+- **Problem.** Independent services need one ticket, invoice and tool vocabulary, and an honest way to test a model against it.
+- **Decision.** Strict Pydantic contracts, a seeded dataset with a digest, and one budget ledger across `fake`, `replay` and `live`. Budget is reserved before any provider call.
+- **Measured.** A real-model development campaign: 27 of 36 trials passed, 9 of 12 unique cases passed all three trials (Wilson 95% interval 0.47 to 0.91). Verdict `FAIL_PROVISIONAL`. Source: `artifacts/evals/live/free-dev-c2r1/report.json`. The held-out budget (84 calls) and confirmation budget (60) were not touched.
+- **Run it.** `uv sync --locked && uv run --locked python scripts/check_fast.py`
+- **Limits.** The library gives contracts and fixtures. Fixtures are not model quality, and human review and promotion are still pending.
+- **Docs.** [Architecture](docs/architecture.md), [decisions](docs/decisions).
+<!-- case:end -->
+
 SupportOps Foundation is a versioned Python library containing domain models, deterministic datasets, a testkit, and provider-neutral LLM contracts for the independent SupportOps projects.
 
 Current contract release: **1.0.1**. Consumers should record the source commit and wheel SHA-256 when installing a local artifact.

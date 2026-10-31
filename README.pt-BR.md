@@ -1,5 +1,16 @@
 # SupportOps Foundation
 
+<!-- case:start -->
+## O case
+
+- **Problema.** Serviços independentes precisam do mesmo vocabulário de ticket, fatura e ferramenta, e de um jeito honesto de testar um modelo contra ele.
+- **Decisão.** Contratos Pydantic estritos, dataset com semente e digest, e um só ledger de orçamento entre `fake`, `replay` e `live`. O orçamento é reservado antes de qualquer chamada ao provedor.
+- **Medido.** Uma campanha de desenvolvimento com modelo real: 27 de 36 trials passaram, 9 de 12 casos únicos passaram nos três trials (intervalo de Wilson 95% de 0,47 a 0,91). Veredito `FAIL_PROVISIONAL`. Fonte: `artifacts/evals/live/free-dev-c2r1/report.json`. O orçamento de holdout (84 chamadas) e o de confirmação (60) não foram tocados.
+- **Como rodar.** `uv sync --locked && uv run --locked python scripts/check_fast.py`
+- **Limites.** A biblioteca entrega contratos e fixtures. Fixture não é qualidade de modelo, e revisão humana e promoção seguem pendentes.
+- **Docs.** [Arquitetura](docs/architecture.md), [decisões](docs/decisions).
+<!-- case:end -->
+
 SupportOps Foundation reúne o vocabulário que os projetos SupportOps precisam compartilhar: modelos de domínio, fixtures reproduzíveis, testkit e contratos de LLM independentes de provedor.
 
 Versão atual do contrato: **1.0.1**. Consumidores devem registrar o commit de origem e o SHA-256 do wheel local instalado.
