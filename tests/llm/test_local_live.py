@@ -4,8 +4,15 @@ import json
 
 import pytest
 
-from scripts import local_live
-from scripts.local_live import LocalLiveBlocked, run_operation
+local_live = pytest.importorskip(
+    "scripts.local_live",
+    reason=(
+        "lab integration test: scripts/local_live.py imports live_free_account from the ai-engineer-lab "
+        "scripts/harness directory, which is absent outside the lab"
+    ),
+    exc_type=ImportError,
+)
+LocalLiveBlocked, run_operation = local_live.LocalLiveBlocked, local_live.run_operation
 
 
 @pytest.fixture
