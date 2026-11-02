@@ -184,3 +184,4 @@ User attested all four distinct accounts Free. Candidate 7099cc5d0f4d576d14f28f7
 - The P00 policy-binding/test edits remain uncommitted, no current-037 binding was frozen, and no new live operation was dispatched. Do not call the provider without a full fake gate.
 
 2026-10-30 phase043: Git 128 of phase040 explained offline as the Windows 260-character path limit. No source change, no gate consumed.
+- 2026-11-02: `local-services-and-hosted-ci` split into hosted CI (green on `047eef5`) and a local service run, which was not repeated: host ports 5432, 6379 and 4566 were held by other projects' containers. No model call, no gate consumed.
