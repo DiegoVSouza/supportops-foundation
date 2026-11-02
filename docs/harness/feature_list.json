@@ -24,7 +24,7 @@
     {
       "id": "local-services-and-hosted-ci",
       "status": "PASS_HOSTED_CI_LINUX; LOCAL_SERVICE_E2E_PENDING",
-      "evidence": "artifacts/evidence/status-reconcile-hosted-ci.txt (hosted CI success on 047eef5); artifacts/evidence/doctor.md and artifacts/evidence/phase-003-environment.md (Postgres, Redis and LocalStack containers were not started)"
+      "evidence": "artifacts/evidence/status-reconcile-hosted-ci.txt (hosted CI success on 047eef5); artifacts/evidence/doctor.md and artifacts/evidence/phase-003-environment.md (Postgres, Redis and LocalStack containers were not started); 2026-11-02: not re-run. Docker Desktop was started, but the host ports 5432, 6379 and 4566 were held by containers of other projects (gossett, jarvis-fit, enferpro) that Docker restarted, so a doctor run would have observed their services, not P00's. Needs those ports free"
     }
   ]
 }
