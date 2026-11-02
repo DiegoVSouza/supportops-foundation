@@ -23,8 +23,8 @@
     },
     {
       "id": "local-services-and-hosted-ci",
-      "status": "incomplete",
-      "evidence": "artifacts/evidence/doctor.md and artifacts/evidence/phase-003-environment.md"
+      "status": "PASS_HOSTED_CI_LINUX; LOCAL_SERVICE_E2E_PENDING",
+      "evidence": "artifacts/evidence/status-reconcile-hosted-ci.txt (hosted CI success on 047eef5); artifacts/evidence/doctor.md and artifacts/evidence/phase-003-environment.md (Postgres, Redis and LocalStack containers were not started)"
     }
   ]
 }
