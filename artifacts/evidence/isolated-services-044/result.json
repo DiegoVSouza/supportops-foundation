@@ -1,0 +1,5 @@
+{
+  "service_operations_pass": false,
+  "cleanup_exit": 0,
+  "preexisting_running_containers_preserved": true
+}

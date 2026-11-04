@@ -1,5 +1,7 @@
 # Progress
 
+- 2026-11-04 phase 044: isolated Compose service attempt exited 1. PostgreSQL/pgvector and Redis operations passed; pinned LocalStack 2026.08.3 exited 55 because license authentication is required. Cleanup exited 0 and all preexisting running containers were preserved. Evidence: `artifacts/evidence/isolated-services-044/commands.json` and `result.json`. Local service E2E stays INCOMPLETE pending valid authentication for the configured image. Campaign state and reservations were untouched.
+
 ## 2026-10-30 — Phase 042 verified-scratch additional full gate
 
 - The explicitly funded, one-time additional P00 fake gate completed in a fresh Git-archived snapshot. `uv run --locked --no-sync --active python scripts/check_full.py` exited 0: fast check, Ruff lint/format, compilation, 161 tests, deterministic dataset contract, and quiet Compose configuration all passed.
