@@ -1,0 +1,22 @@
+{
+  "command": "presence-only LOCALSTACK_AUTH_TOKEN check in process/user/machine and known dotenv paths",
+  "exit_code": 0,
+  "environment": {
+    "process": false,
+    "user": false,
+    "machine": false
+  },
+  "files": [
+    {
+      "path": "../../.env",
+      "exists": true,
+      "entry_present": false
+    },
+    {
+      "path": ".env",
+      "exists": false,
+      "entry_present": false
+    }
+  ],
+  "secret_values_emitted": false
+}
