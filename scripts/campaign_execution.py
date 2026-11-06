@@ -88,8 +88,47 @@ ALLOCATIONS: dict[int, dict[str, Any]] = {
         "primary": ResourceCaps(231, 473088, 59136, Decimal("0.0532224")),
         "scope": ("development", "free-dev-c5"),
     },
+    # Phase 054: +192 calls fund one pass of the 64 live-v3 development cases x 3 trials.
+    493: {
+        "policy": {
+            "requests": 493,
+            "input_tokens": 1009664,
+            "output_tokens": 126208,
+            "estimated_cost_usd": "0.1135872",
+        },
+        "primary": ResourceCaps(423, 866304, 108288, Decimal("0.0974592")),
+        "scope": ("development", "free-dev-c6"),
+    },
 }
-IMMUTABLE_CAMPAIGNS = {"free-dev-c1", "free-dev-c2", "free-dev-c2r1", "free-dev-c3", "free-dev-c4"}
+IMMUTABLE_CAMPAIGNS = {
+    "free-dev-c1",
+    "free-dev-c2",
+    "free-dev-c2r1",
+    "free-dev-c3",
+    "free-dev-c4",
+    "free-dev-c5",
+}
+
+
+def stage_caps(policy_requests: int, stage: str) -> ResourceCaps:
+    """Cumulative ledger ceiling for a stage.
+
+    Development spends inside the primary ceiling. The final split (stage `holdout`)
+    additionally spends the protected 60-call confirmation reserve, so its ceiling is the
+    policy total minus the retained ten-call local operation (2,048 / 256 tokens per call).
+    """
+    entry = ALLOCATIONS.get(policy_requests)
+    if entry is None:
+        return PRIMARY_CAPS
+    if stage != "holdout":
+        return entry["primary"]
+    policy = entry["policy"]
+    return ResourceCaps(
+        policy["requests"] - 10,
+        policy["input_tokens"] - 20480,
+        policy["output_tokens"] - 2560,
+        Decimal(policy["estimated_cost_usd"]) - Decimal("0.002304"),
+    )
 
 
 def allocation_for(policy: dict[str, Any]) -> dict[str, Any]:
@@ -102,11 +141,11 @@ def allocation_for(policy: dict[str, Any]) -> dict[str, Any]:
     return allocation
 
 
-HOLDOUT_AUTHORIZATION = ".planning/llm-live-readiness/phases/052-p00-holdout-run/AUTHORIZATION.json"
+HOLDOUT_AUTHORIZATION = ".planning/llm-live-readiness/phases/053-p00-final-run/AUTHORIZATION.json"
 HOLDOUT_BOUND_FILES = {
     "prompt_sha256": "agent/prompts/live-campaign.md",
     "schema_sha256": "agent/schemas/live-decision.json",
-    "dataset_sha256": "evals/datasets/live-v2/cases.jsonl",
+    "dataset_sha256": "evals/datasets/live-v3/cases.jsonl",
     "rubric_sha256": "evals/rubrics/live-v1/rubric.md",
 }
 
@@ -114,7 +153,7 @@ HOLDOUT_BOUND_FILES = {
 def holdout_scope(project: Path, policy: dict[str, Any] | None = None) -> tuple[str, str] | None:
     """Return ("holdout", campaign) only for a valid, single-use owner authorization.
 
-    The authorization must name exactly the 84 protected holdout calls and be bound to
+    The authorization must name exactly the 60 protected confirmation calls and be bound to
     the current prompt, schema, dataset and rubric bytes, so an edited candidate can never
     spend the holdout. Anything missing or different returns None (scope not allocated).
     """
@@ -122,11 +161,11 @@ def holdout_scope(project: Path, policy: dict[str, Any] | None = None) -> tuple[
         path = project.parents[1] / HOLDOUT_AUTHORIZATION
         auth = json.loads(path.read_text(encoding="utf-8"))
         expected = {
-            "authorization_id": "p00-holdout-run-v1",
+            "authorization_id": "p00-final-run-v1",
             "authority": "explicit_user_reply",
             "project": "p00",
             "stage": "holdout",
-            "max_calls": 84,
+            "max_calls": 60,
             "trials_per_case": 3,
             "single_use": True,
             "authorized_paid_spend_usd": "0.00",
@@ -135,7 +174,7 @@ def holdout_scope(project: Path, policy: dict[str, Any] | None = None) -> tuple[
             return None
         campaign = auth.get("campaign")
         if not isinstance(campaign, str) or not re.fullmatch(
-            r"free-holdout-[a-z0-9]{1,20}", campaign
+            r"free-final-[a-z0-9]{1,20}", campaign
         ):
             return None
         if (
@@ -504,8 +543,8 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         project / "agent/schemas/live-decision.json",
         project / "evals/live-campaign.json",
         project / "evals/live-execution.json",
-        project / "evals/datasets/live-v2/cases.jsonl",
-        project / "evals/datasets/live-v2/manifest.json",
+        project / "evals/datasets/live-v3/cases.jsonl",
+        project / "evals/datasets/live-v3/manifest.json",
         project / "evals/rubrics/live-v1/rubric.md",
         project / "uv.lock",
         project / "pyproject.toml",
@@ -523,6 +562,8 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         lab / "scripts/harness/migrate_free_envelope_c4.py",
         lab / ".planning/llm-live-readiness/phases/051-dev-envelope-c5/AUTHORIZATION.json",
         lab / "scripts/harness/migrate_free_envelope_c5.py",
+        lab / ".planning/llm-live-readiness/phases/054-dev-envelope-c6/AUTHORIZATION.json",
+        lab / "scripts/harness/migrate_free_envelope_c6.py",
     ]
     return {
         str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -643,6 +684,34 @@ def verify_provider_usage(project: Path, campaign: str, rows: list[dict[str, Any
                     raise ExecutionBlocked("model_trial_without_verified_provider_usage")
     except sqlite3.Error:
         raise ExecutionBlocked("provider_usage_proof_unavailable") from None
+
+
+TOOL_FOR_CATEGORY = {
+    "billing": "lookup_invoice",
+    "shipping": "lookup_order",
+    "technical": "lookup_kb",
+    "account_access": "lookup_kb",
+}
+
+
+def complete_prediction(prediction: Any) -> Any:
+    """Add what code decides: the escalation flag and the read-only tool.
+
+    The model returns only category, action and rationale. A lookup is derived from the
+    category when the action is `answer`; no other action runs a tool and the refund tool
+    is never derived. Outputs that already carry extra fields (older fixtures) or that do
+    not match the model contract are returned unchanged so validation reports them.
+    """
+    if not isinstance(prediction, dict) or set(prediction) != {"decision"}:
+        return prediction
+    decision = prediction["decision"]
+    if not isinstance(decision, dict) or set(decision) != {"category", "action", "rationale"}:
+        return prediction
+    action, category = decision["action"], decision["category"]
+    return {
+        "decision": {**decision, "escalate": action == "escalate"},
+        "tool": TOOL_FOR_CATEGORY.get(category) if action == "answer" else None,
+    }
 
 
 def discrete_prediction(prediction: Any) -> dict[str, Any] | None:
@@ -777,10 +846,8 @@ def run_campaign(
         else [case for case in cases if case["split"] == stage]
     )
     trial_count = config["pilot_trials"] if stage == "pilot" else config["trials"]
-    if stage == "development" and (len(selected) != 12 or trial_count != 3):
-        raise ExecutionBlocked("development_scope_mismatch")
-    if stage == "holdout" and (len(selected) != 28 or trial_count != 3):
-        raise ExecutionBlocked("holdout_scope_mismatch")
+    if stage in {"development", "holdout"} and (not selected or trial_count != 3):
+        raise ExecutionBlocked(f"{stage}_scope_mismatch")
     prompt = (project / "agent/prompts/live-campaign.md").read_text(encoding="utf-8").strip()
     payloads = {
         case["case_id"]: build_payload(project, prompt, case["input"], config) for case in selected
@@ -891,7 +958,7 @@ def run_campaign(
         errors, prediction, issues = [], None, []
         if evaluated:
             try:
-                prediction = json.loads(result["content"])
+                prediction = complete_prediction(json.loads(result["content"]))
             except (ValueError, KeyError, TypeError):
                 errors = ["output_schema"]
             if not errors:
@@ -985,7 +1052,7 @@ def run_campaign(
         chunk = run_chunk(
             ledger,
             planned,
-            cumulative_caps=ALLOCATIONS.get(caps["requests"], {}).get("primary", PRIMARY_CAPS),
+            cumulative_caps=stage_caps(caps["requests"], stage),
             per_trial_caps=ResourceCaps(
                 1,
                 caps["input_tokens_per_call"],

@@ -372,17 +372,20 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "input_tokens": sum(account.usage(row)["input_tokens"] for row in operation_rows),
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in operation_rows),
     }
-    operation_reserve = 10 if policy["projects"]["p00"]["requests"] in {219, 255, 265, 301} else 0
+    operation_reserve = (
+        10 if policy["projects"]["p00"]["requests"] in {219, 255, 265, 301, 493} else 0
+    )
     p01_operation_reserve = {992: 8, 996: 12}.get(policy["projects"]["p01"]["requests"], 0)
     revalidation_applied = False
     policy_sha = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
     import migrate_free_envelope_c4 as c4
     import migrate_free_envelope_c5 as c5
+    import migrate_free_envelope_c6 as c6
     import migrate_free_envelope_plus36 as plus36
     from migrate_p01_p04_revalidation import NEW_SHA, MigrationBlocked, read_audit
 
     # Envelope migrations apply in order; a later policy hash needs every earlier audit applied.
-    chain = [plus36, c4, c5]
+    chain = [plus36, c4, c5, c6]
     hashes = [NEW_SHA, *(module.NEW_SHA for module in chain)]
     if policy_sha in hashes:
         applied_modules = chain[: hashes.index(policy_sha)]
@@ -752,6 +755,9 @@ def summarize(
     }
     if allocation is not None:
         active_campaign = funded_campaign(allocation)
+        dev_cases = sum(case["split"] == "development" for case in cases)
+        dev_calls = dev_cases * config["trials"]
+        final_calls = sum(case["split"] == "holdout" for case in cases) * config["trials"]
         result.update(
             campaign_id=campaign_id or (active_campaign if stage == "development" else None),
             candidate=allocation,
@@ -765,10 +771,11 @@ def summarize(
                     "results_reused": False,
                 },
                 "stage": "development",
-                "unique_cases": 12,
+                "unique_cases": dev_cases,
                 "trials_per_case": 3,
-                "maximum_new_calls": 36,
-                "batches_maximum": [10, 10, 10, 6],
+                "maximum_new_calls": dev_calls,
+                "batches_maximum": [10] * (dev_calls // 10)
+                + ([dev_calls % 10] if dev_calls % 10 else []),
                 "previous_candidate": "free-dev-c1",
                 "previous_candidate_commit": "b42a198246274db5f7feb17a247ef1fe90e662e6",
                 "previous_candidate_completed_trials": 12,
@@ -786,8 +793,11 @@ def summarize(
                 "pilot_quality_results_reused": False,
                 "control_evidence_reusable": True,
                 "quality_evidence_candidate_scoped": True,
-                "future_holdout_calls": 84,
-                "future_holdout_max_tokens": {"input": 172032, "output": 21504},
+                "future_holdout_calls": final_calls,
+                "future_holdout_max_tokens": {
+                    "input": final_calls * 2048,
+                    "output": final_calls * 256,
+                },
                 "p00_primary_remaining_after_existing_usage": allocation[
                     "remaining_capacity_by_project"
                 ]["p00"]["primary_remaining"],
@@ -803,7 +813,7 @@ def summarize(
                         "primary_output_tokens_remaining"
                     ],
                 },
-                "c2_development_max_tokens": {"input": 73728, "output": 9216},
+                "c2_development_max_tokens": {"input": dev_calls * 2048, "output": dev_calls * 256},
                 "other_project_primary_remaining": {
                     name: values["primary_remaining"]
                     for name, values in allocation["remaining_capacity_by_project"].items()

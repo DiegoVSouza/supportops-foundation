@@ -20,6 +20,10 @@ One rule decides lookup versus clarification for every case, so no two cases may
 
 Cases 025, 026 and 037 (`request_info`) and 002, 006 and 012 (`answer` with lookup) were checked against this rule on 2026-11-06 and agree with it.
 
+## Code-decided fields (live-v3)
+
+The model returns only `category`, `action` and `rationale`. Code derives `escalate` (true exactly when the action is `escalate`) and the read-only tool: `lookup_invoice` for billing, `lookup_order` for shipping and `lookup_kb` for technical and account_access, only when the action is `answer`; no other action runs a tool and the refund tool is never derived. A case's expected tool therefore follows from its expected category and action, and the grader still compares all four fields. Results measure the model's category and action decisions plus this fixed rule, not free tool selection by the model.
+
 ## Grader calibration
 
 `negative_grader_probe` values are deliberately malformed candidates. The offline test suite must prove that missing fields, invalid types/enums, forbidden extras, malformed JSON and an incorrect action are rejected. These probes are not model trials.

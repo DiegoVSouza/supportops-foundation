@@ -28,14 +28,16 @@ _ALLOCATION = _execution.allocation_for(_POLICY)
 PRIMARY = _ALLOCATION["primary"]
 FUNDED = _ALLOCATION["scope"][1]
 GLOBAL_REQUESTS = _POLICY["campaign_caps"]["requests"]
+DEV_CALLS = sum(case["split"] == "development" for case in CASES) * CONFIG["trials"]
+FINAL_CALLS = sum(case["split"] == "holdout" for case in CASES) * CONFIG["trials"]
 
 
 def test_live_dataset_has_frozen_split_language_and_family_counts() -> None:
-    assert len(CASES) == 40
-    assert sum(case["split"] == "development" for case in CASES) == 12
-    assert sum(case["split"] == "holdout" for case in CASES) == 28
-    assert sum(case["language"] == "en" for case in CASES) == 24
-    assert sum(case["language"] == "pt-BR" for case in CASES) == 16
+    assert len(CASES) == 84
+    assert sum(case["split"] == "development" for case in CASES) == 64
+    assert sum(case["split"] == "holdout" for case in CASES) == 20
+    assert sum(case["language"] == "en" for case in CASES) == 49
+    assert sum(case["language"] == "pt-BR" for case in CASES) == 35
     assert {case["family"] for case in CASES} == set(MANIFEST["families"])
 
 
@@ -48,7 +50,8 @@ def test_dataset_rejects_duplicate_semantic_input() -> None:
 
 def test_dataset_rejects_related_scenario_split_leakage() -> None:
     leaked = copy.deepcopy(CASES)
-    leaked[3]["source_group"] = leaked[0]["source_group"]
+    first_final = next(i for i, case in enumerate(leaked) if case["split"] == "holdout")
+    leaked[first_final]["source_group"] = leaked[0]["source_group"]
     with pytest.raises(CampaignError, match="crosses splits"):
         validate_cases(leaked, MANIFEST)
 
@@ -103,7 +106,7 @@ def test_dry_run_fails_closed_on_uncommitted_candidate_sources(monkeypatch, caps
 
 @pytest.mark.parametrize(
     ("stage", "case_count", "trial_count", "calls"),
-    [("development", 12, 3, 36), ("holdout", 28, 3, 84)],
+    [("development", 64, 3, 192), ("holdout", 20, 3, 60)],
 )
 def test_dry_run_reports_stage_reservations(stage, case_count, trial_count, calls) -> None:
     from scripts.run_live_campaign import summarize
@@ -212,15 +215,15 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
             "output_tokens": 256,
         }
     ]
-    assert report["c2_scope"]["maximum_new_calls"] == 36
+    assert report["c2_scope"]["maximum_new_calls"] == DEV_CALLS
     assert report["c2_scope"]["safe_start_command"] is None
     assert report["c2_scope"]["safe_resume_command"] is None
     assert (
         report["c2_scope"]["execution_guidance"]
         == "BLOCKED_PENDING_CANDIDATE_FREEZE_AND_EXECUTION_GATES"
     )
-    assert report["c2_scope"]["future_holdout_calls"] == 84
-    assert report["c2_scope"]["batches_maximum"] == [10, 10, 10, 6]
+    assert report["c2_scope"]["future_holdout_calls"] == FINAL_CALLS
+    assert report["c2_scope"]["batches_maximum"] == [10] * (DEV_CALLS // 10) + [DEV_CALLS % 10]
     assert report["c2_scope"]["previous_candidate_results_reused"] is False
     assert (
         report["c2_scope"]["previous_candidate_commit"]
@@ -251,12 +254,12 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
         + allocation["p00_operation_allocation"]["output_tokens_used"],
     }
     assert report["c2_scope"]["c2_development_max_tokens"] == {
-        "input": 73728,
-        "output": 9216,
+        "input": DEV_CALLS * 2048,
+        "output": DEV_CALLS * 256,
     }
     assert report["c2_scope"]["future_holdout_max_tokens"] == {
-        "input": 172032,
-        "output": 21504,
+        "input": FINAL_CALLS * 2048,
+        "output": FINAL_CALLS * 256,
     }
     assert report["c2_scope"]["other_project_primary_remaining"] == {
         "p01": 744,

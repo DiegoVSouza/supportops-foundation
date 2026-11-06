@@ -1,0 +1,26 @@
+{
+  "dataset_version": "p00-live-v3",
+  "case_path": "cases.jsonl",
+  "case_count": 84,
+  "split_counts": {
+    "development": 64,
+    "holdout": 20
+  },
+  "language_counts": {
+    "en": 49,
+    "pt-BR": 35
+  },
+  "minimum_cases_per_family": 3,
+  "families": [
+    "model_usage_identity",
+    "structured_output_valid",
+    "structured_output_invalid",
+    "read_only_tool_selection",
+    "ambiguous_input",
+    "unsupported_request",
+    "provider_failure_boundaries"
+  ],
+  "review_status": "APPROVED",
+  "review_provenance": "OWNER_APPROVED 2026-11-06: independent review waived by the owner; authored by the assistant under the rubric lookup eligibility rule; the final split was written once and kept out of prompt design",
+  "content_sha256": "6e23d694ac7e61fd093f80ebb1f635609b64b3d86fe2e8ed983e242f75468361"
+}

@@ -33,7 +33,7 @@ ANSWERS_DB = PROJECT / ".runtime/llm-review/answers.sqlite"
 ANNOTATION_DIR = PROJECT / ".runtime/llm-review-ui"
 ANNOTATION_DB = ANNOTATION_DIR / "annotations.sqlite"
 CAMPAIGNS_DIR = PROJECT / "artifacts/evals/live"
-DATASET_FILE = PROJECT / "evals/datasets/live-v2/cases.jsonl"
+DATASET_FILE = PROJECT / "evals/datasets/live-v3/cases.jsonl"
 RUBRIC_FILE = PROJECT / "evals/rubrics/live-v1/rubric.md"
 _LOCK = threading.RLock()
 
@@ -206,7 +206,7 @@ def _manifest_revisions(manifest: dict[str, Any]) -> dict[str, str]:
     for label, suffix in (
         ("prompt", "/agent/prompts/live-campaign.md"),
         ("schema", "/agent/schemas/live-decision.json"),
-        ("dataset", "/evals/datasets/live-v2/cases.jsonl"),
+        ("dataset", "/evals/datasets/live-v3/cases.jsonl"),
         ("rubric", "/evals/rubrics/live-v1/rubric.md"),
     ):
         matches = [v for k, v in files.items() if k.endswith(suffix)]

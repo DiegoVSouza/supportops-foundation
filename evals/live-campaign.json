@@ -1,21 +1,21 @@
 {
   "campaign_spec": "llm-live-readiness-v1",
   "project": "p00",
-  "dataset_version": "p00-live-v2",
-  "dataset_manifest": "evals/datasets/live-v2/manifest.json",
-  "cases_path": "evals/datasets/live-v2/cases.jsonl",
+  "dataset_version": "p00-live-v3",
+  "dataset_manifest": "evals/datasets/live-v3/manifest.json",
+  "cases_path": "evals/datasets/live-v3/cases.jsonl",
   "rubric_path": "evals/rubrics/live-v1/rubric.md",
   "model": "openai/gpt-oss-20b",
   "provider": "groq",
   "trials": 3,
   "pilot_trials": 1,
   "pilot_case_ids": [
-    "p00-live-001",
-    "p00-live-006",
-    "p00-live-012",
-    "p00-live-017",
-    "p00-live-025",
-    "p00-live-032"
+    "p00-v3-dev-001",
+    "p00-v3-dev-009",
+    "p00-v3-dev-017",
+    "p00-v3-dev-025",
+    "p00-v3-dev-037",
+    "p00-v3-dev-049"
   ],
   "max_calls_per_case_trial": 1,
   "per_case_caps": {
@@ -51,7 +51,7 @@
     "expanded_campaign_approval": "../../.planning/llm-live-readiness/AUTHORIZATION.md",
     "free_tier_quota_evidence": "../../shared/policies/groq-free-campaign.json",
     "model_catalog_preflight": "REQUIRED_BEFORE_GENERATION",
-    "dataset_review": "OWNER_APPROVED_2026-11-06: independent review waived by the owner; cases 025, 026 and 037 reviewed individually",
+    "dataset_review": "OWNER_APPROVED_2026-11-06: independent review waived by the owner; live-v3 authored by the assistant under the rubric lookup rule",
     "rubric_review": "OWNER_APPROVED_2026-11-06: independent review waived by the owner; rubric unchanged from live-v1",
     "approval_reference": "user-free-only-2026-10-26; owner budget cap USD 5.00 and review waiver 2026-11-06; phase 049"
   },

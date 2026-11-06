@@ -61,8 +61,8 @@ def campaign(tmp_path, monkeypatch):
         PROJECT / "agent/schemas/live-decision.json",
         PROJECT / "evals/live-campaign.json",
         PROJECT / "evals/live-execution.json",
-        PROJECT / "evals/datasets/live-v2/cases.jsonl",
-        PROJECT / "evals/datasets/live-v2/manifest.json",
+        PROJECT / "evals/datasets/live-v3/cases.jsonl",
+        PROJECT / "evals/datasets/live-v3/manifest.json",
         PROJECT / "evals/rubrics/live-v1/rubric.md",
         PROJECT / "uv.lock",
         PROJECT / "pyproject.toml",
@@ -83,6 +83,8 @@ def campaign(tmp_path, monkeypatch):
         "scripts/harness/migrate_free_envelope_c4.py",
         ".planning/llm-live-readiness/phases/051-dev-envelope-c5/AUTHORIZATION.json",
         "scripts/harness/migrate_free_envelope_c5.py",
+        ".planning/llm-live-readiness/phases/054-dev-envelope-c6/AUTHORIZATION.json",
+        "scripts/harness/migrate_free_envelope_c6.py",
     ):
         target = project.parents[1] / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -337,9 +339,11 @@ def test_live_scope_rejects_new_ids_and_stages_before_side_effects(tmp_path, sta
     assert list(tmp_path.iterdir()) == []
 
 
-def test_development_cannot_exceed_36_attempts_across_chunks_and_resume(campaign):
+def test_development_never_repeats_or_exceeds_its_planned_attempts_across_chunks_and_resume(
+    campaign,
+):
     project, config, cases = campaign
-    for _ in range(5):
+    for _ in range(25):
         execution.run_campaign(
             project,
             config,
@@ -350,7 +354,7 @@ def test_development_cannot_exceed_36_attempts_across_chunks_and_resume(campaign
             revision="a" * 40,
             max_trials=10,
         )
-    assert len(FixtureClient.calls) == len(set(FixtureClient.calls)) == 36
+    assert len(FixtureClient.calls) == len(set(FixtureClient.calls)) == 64 * 3
 
 
 def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(tmp_path):
@@ -557,7 +561,7 @@ def test_complete_input_bounds_match_actual_transport_for_development_cases(camp
         env={k: v for k, v in os.environ.items() if not k.startswith("GROQ_API_KEY")},
     )
     bounds = json.loads(result.stdout)
-    assert len(bounds) == 12
+    assert len(bounds) == 64
     assert max(bounds) <= 2048
     assert bounds == [execution.payload_input_bound(payload) for payload in payloads]
 

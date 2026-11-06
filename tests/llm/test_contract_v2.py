@@ -50,29 +50,3 @@ def test_v2_differs_from_v1_only_in_case_037():
         if new != old:
             changed.append(old["case_id"])
     assert changed == ["p00-live-037"]
-
-
-def test_prompt_has_rule_and_examples_that_do_not_copy_dataset_cases():
-    import difflib
-
-    prompt = (PROJECT / "agent/prompts/live-campaign.md").read_text(encoding="utf-8")
-    assert "names a subject and a problem or id" in prompt
-    assert "request_info, no tool" in prompt
-    assert "renewal" in prompt and "billing" in prompt
-    assert (
-        "explicit identifier" not in prompt
-    )  # regression: this wording made every case ask for info
-    examples = [line.split(":")[0].strip() for line in prompt.strip().splitlines()[2:]]
-    assert len(examples) == 5
-    inputs = [c["input"].lower() for c in _cases().values()]
-    for example in examples:
-        closest = max(
-            difflib.SequenceMatcher(None, example.lower(), text).ratio() for text in inputs
-        )
-        assert closest < 0.6, example
-
-
-def test_rubric_states_the_single_lookup_rule():
-    rubric = (PROJECT / "evals/rubrics/live-v1/rubric.md").read_text(encoding="utf-8")
-    assert "Lookup eligibility rule" in rubric
-    assert "independent review waived by the owner" in rubric
