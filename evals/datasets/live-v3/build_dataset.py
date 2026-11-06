@@ -551,7 +551,9 @@ def main():
         "content_sha256": hashlib.sha256(raw).hexdigest(),
     }
     (here / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     print(
         manifest["case_count"],
