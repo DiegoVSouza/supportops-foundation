@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision"],
+  "properties": {
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "action", "rationale"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["billing", "account_access", "technical", "shipping", "other"]
+        },
+        "action": {
+          "type": "string",
+          "enum": ["answer", "request_info", "escalate"]
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

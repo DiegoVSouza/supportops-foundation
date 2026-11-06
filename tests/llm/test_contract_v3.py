@@ -1,6 +1,5 @@
 """live-v3 dataset, the code-decided fields and the prompt contract."""
 
-import difflib
 import hashlib
 import json
 from pathlib import Path
