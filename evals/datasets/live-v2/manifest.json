@@ -14,7 +14,7 @@
     "unsupported_request",
     "provider_failure_boundaries"
   ],
-  "review_status": "PENDING",
-  "review_provenance": "PENDING: independent reviewer has not approved expected outcomes or rubric",
+  "review_status": "APPROVED",
+  "review_provenance": "OWNER_APPROVED 2026-11-06: independent review waived by the owner; cases 025, 026 and 037 reviewed individually, the other cases carry over from live-v1 unchanged",
   "content_sha256": "e26e643cf3e1def6ebc2c01687d765506c1401e26d557f81157f97c17827d5ff"
 }

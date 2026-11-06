@@ -43,7 +43,7 @@ def fixture_review(tmp_path: Path) -> tuple[Path, Path, Path, list[dict]]:
     revisions = {
         "projects/p00/agent/prompts/live-campaign.md": "1" * 64,
         "projects/p00/agent/schemas/live-decision.json": "2" * 64,
-        "projects/p00/evals/datasets/live-v1/cases.jsonl": "3" * 64,
+        "projects/p00/evals/datasets/live-v2/cases.jsonl": "3" * 64,
         "projects/p00/evals/rubrics/live-v1/rubric.md": "4" * 64,
     }
     for campaign, candidate in (("pilot", "a" * 40), ("candidate-two", "b" * 40)):
@@ -102,7 +102,7 @@ def fixture_review(tmp_path: Path) -> tuple[Path, Path, Path, list[dict]]:
     )
     for manifest_path in campaigns.glob("*/manifest.json"):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        manifest["files_sha256"]["projects/p00/evals/datasets/live-v1/cases.jsonl"] = (
+        manifest["files_sha256"]["projects/p00/evals/datasets/live-v2/cases.jsonl"] = (
             hashlib.sha256(dataset.read_bytes()).hexdigest()
         )
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")

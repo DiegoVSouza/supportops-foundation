@@ -58,8 +58,8 @@ def campaign(tmp_path, monkeypatch):
         PROJECT / "agent/schemas/live-decision.json",
         PROJECT / "evals/live-campaign.json",
         PROJECT / "evals/live-execution.json",
-        PROJECT / "evals/datasets/live-v1/cases.jsonl",
-        PROJECT / "evals/datasets/live-v1/manifest.json",
+        PROJECT / "evals/datasets/live-v2/cases.jsonl",
+        PROJECT / "evals/datasets/live-v2/manifest.json",
         PROJECT / "evals/rubrics/live-v1/rubric.md",
         PROJECT / "uv.lock",
         PROJECT / "pyproject.toml",
@@ -74,6 +74,8 @@ def campaign(tmp_path, monkeypatch):
         "scripts/harness/live_provider_transport.py",
         "scripts/harness/migrate_p01_p04_revalidation.py",
         ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json",
+        ".planning/llm-live-readiness/phases/049-dev-envelope-plus36/AUTHORIZATION.json",
+        "scripts/harness/migrate_free_envelope_plus36.py",
     ):
         target = project.parents[1] / name
         target.parent.mkdir(parents=True, exist_ok=True)

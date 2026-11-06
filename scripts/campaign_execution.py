@@ -420,8 +420,8 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         project / "agent/schemas/live-decision.json",
         project / "evals/live-campaign.json",
         project / "evals/live-execution.json",
-        project / "evals/datasets/live-v1/cases.jsonl",
-        project / "evals/datasets/live-v1/manifest.json",
+        project / "evals/datasets/live-v2/cases.jsonl",
+        project / "evals/datasets/live-v2/manifest.json",
         project / "evals/rubrics/live-v1/rubric.md",
         project / "uv.lock",
         project / "pyproject.toml",
@@ -433,6 +433,8 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         lab / "scripts/harness/live_provider_transport.py",
         lab / "scripts/harness/migrate_p01_p04_revalidation.py",
         lab / ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json",
+        lab / ".planning/llm-live-readiness/phases/049-dev-envelope-plus36/AUTHORIZATION.json",
+        lab / "scripts/harness/migrate_free_envelope_plus36.py",
     ]
     return {
         str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
