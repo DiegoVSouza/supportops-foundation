@@ -1,0 +1,26 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+F401 [*] `difflib` imported but unused
+ --> tests\llm\test_contract_v3.py:3:8
+  |
+1 | """live-v3 dataset, the code-decided fields and the prompt contract."""
+2 |
+3 | import difflib
+  |        ^^^^^^^
+4 | import hashlib
+5 | import json
+  |
+help: Remove unused import: `difflib`
+  |
+2 |
+  - import difflib
+3 | import hashlib
+  |
+
+Found 1 error.
+[*] 1 fixable with `--fix`.
+EXIT_CODE=1
