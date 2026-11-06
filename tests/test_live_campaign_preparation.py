@@ -156,7 +156,9 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
         campaign_id=FUNDED,
     )
     assert report["candidate"]["policy_registry_sha256_matches"] is True
-    assert report["planned_reservations"]["baseline_all_stages_max_calls_if_additive"] == 186
+    assert report["planned_reservations"]["baseline_all_stages_max_calls_if_additive"] == (
+        len(CASES) * CONFIG["trials"] + len(CONFIG["pilot_case_ids"]) + 60
+    )
     assert (
         report["planned_reservations"]["all_stages_max_calls_if_additive"] == PRIMARY.requests + 60
     )
