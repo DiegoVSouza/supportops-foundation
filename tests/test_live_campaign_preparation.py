@@ -142,16 +142,16 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
         MANIFEST,
         ROOT / CONFIG["cases_path"],
         allocation=allocation,
-        campaign_id="free-dev-c3",
+        campaign_id="free-dev-c4",
     )
     assert report["candidate"]["policy_registry_sha256_matches"] is True
     assert report["planned_reservations"]["baseline_all_stages_max_calls_if_additive"] == 186
-    assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 245
-    assert report["limits"]["cumulative"]["max_requests"] == 245
-    assert report["limits"]["cumulative"]["max_input_tokens"] == 501760
-    assert report["limits"]["cumulative"]["max_output_tokens"] == 62720
+    assert report["planned_reservations"]["all_stages_max_calls_if_additive"] == 255
+    assert report["limits"]["cumulative"]["max_requests"] == 255
+    assert report["limits"]["cumulative"]["max_input_tokens"] == 522240
+    assert report["limits"]["cumulative"]["max_output_tokens"] == 65280
     assert report["limits"]["cumulative"]["authorized_paid_spend_usd"] == "0.00"
-    assert report["candidate"]["p00_primary_allocation"]["requests"] == 185
+    assert report["candidate"]["p00_primary_allocation"]["requests"] == 195
     assert report["candidate"]["p00_confirmation_protected"]["requests"] == 60
     for name, primary, operating in (
         ("p02", 246, 4),
@@ -174,8 +174,8 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert p04["further_execution_authorized"] is False
     accounted = int(allocation["provider_ledger_usage"]["total_accounted"]["requests"])
     assert report["candidate"]["global_remaining"] == {
-        "requests": 4184 - accounted,
-        "primary_requests": 3318
+        "requests": 4194 - accounted,
+        "primary_requests": 3328
         - 16
         - 9
         - accounted
@@ -227,14 +227,14 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     }
     p00_usage = allocation["provider_ledger_usage"]["p00"]
     assert report["c2_scope"]["p00_primary_remaining_after_existing_usage"] == (
-        185 - p00_usage["requests"] + allocation["p00_operation_allocation"]["used"]
+        195 - p00_usage["requests"] + allocation["p00_operation_allocation"]["used"]
     )
     assert report["c2_scope"]["p00_primary_token_capacity_after_existing_usage"] == {
-        "provider_ledger_input_tokens": 378880
+        "provider_ledger_input_tokens": 399360
         - p00_usage["input_tokens"]
         + allocation["p00_operation_allocation"]["input_tokens_used"],
-        "logical_ledger_input_tokens": 378880 - allocation["logical_ledger_usage"]["input_tokens"],
-        "output_tokens": 47360
+        "logical_ledger_input_tokens": 399360 - allocation["logical_ledger_usage"]["input_tokens"],
+        "output_tokens": 49920
         - p00_usage["output_tokens"]
         + allocation["p00_operation_allocation"]["output_tokens_used"],
     }
@@ -264,7 +264,7 @@ def test_applied_dry_run_allocation_reconciles_ledgers_without_reusing_history(m
     assert report["candidate"]["credentials_read"] is False
     # Owner approval (independent review waived) recorded on 2026-11-06 clears the review blockers.
     assert report["blockers"] == []
-    assert report["campaign_id"] == "free-dev-c3"
+    assert report["campaign_id"] == "free-dev-c4"
     assert report["candidate"]["billing"].startswith("UNKNOWN")
 
 
@@ -287,7 +287,7 @@ def test_dry_run_rejects_unallocated_development_campaign_id() -> None:
     )
     assert result.returncode == 2
     report = json.loads(result.stdout)
-    assert report["error"] == "the applied allocation funds only free-dev-c3"
+    assert report["error"] == "the applied allocation funds only free-dev-c4"
     assert report["provider_accessed"] is False
     assert report["credentials_read"] is False
 

@@ -76,6 +76,8 @@ def campaign(tmp_path, monkeypatch):
         ".planning/llm-live-readiness/phases/027-free-envelope-plus13/AUTHORIZATION.json",
         ".planning/llm-live-readiness/phases/049-dev-envelope-plus36/AUTHORIZATION.json",
         "scripts/harness/migrate_free_envelope_plus36.py",
+        ".planning/llm-live-readiness/phases/050-dev-envelope-c4/AUTHORIZATION.json",
+        "scripts/harness/migrate_free_envelope_c4.py",
     ):
         target = project.parents[1] / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -302,7 +304,7 @@ def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campa
             config,
             cases,
             "development",
-            "free-dev-c3",
+            "free-dev-c4",
             client_factory=FixtureClient,
             revision="a" * 40,
             max_trials=1,
@@ -435,13 +437,13 @@ def test_pending_migration_preflight_denies_before_live_client_or_campaign_files
             config,
             cases,
             "development",
-            "free-dev-c3",
+            "free-dev-c4",
             client_factory=LiveProbe,
             revision="a" * 40,
             max_trials=1,
         )
     assert LiveProbe.initialized == 0
-    assert not (project / "artifacts/evals/live/free-dev-c3").exists()
+    assert not (project / "artifacts/evals/live/free-dev-c4").exists()
     assert FixtureClient.calls == []
 
 
@@ -516,7 +518,7 @@ def test_explicit_revision_cannot_bypass_live_source_check(campaign, monkeypatch
             config,
             cases,
             "development",
-            "free-dev-c3",
+            "free-dev-c4",
             revision="a" * 40,
         )
 

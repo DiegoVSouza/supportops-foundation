@@ -43,6 +43,9 @@ def test_unknown_policy_total_fails_closed():
         (255, "free-dev-c2r1", False),
         (255, "free-dev-c2", False),
         (255, "free-dev-c1", False),
+        (265, "free-dev-c4", True),
+        (265, "free-dev-c3", False),
+        (265, "free-dev-c2r1", False),
         (255, "renamed", False),
     ],
 )
@@ -56,7 +59,7 @@ def test_development_scope_follows_the_applied_policy(requests, campaign, allowe
 
 @pytest.mark.parametrize("stage", ["pilot", "holdout"])
 def test_other_stages_are_never_funded(stage):
-    for requests in (219, 255):
+    for requests in (219, 255, 265):
         with pytest.raises(execution.ExecutionBlocked, match="phase_028_live_scope_not_allocated"):
             execution.validate_live_scope(stage, "free-dev-c3", policy(requests))
 
@@ -87,7 +90,7 @@ def _full_policy(requests):
     }
 
 
-@pytest.mark.parametrize("requests", [219, 255])
+@pytest.mark.parametrize("requests", [219, 255, 265])
 def test_binding_accepts_each_applied_envelope_and_rejects_drift(tmp_path, requests):
     import hashlib
     import json
@@ -124,3 +127,18 @@ def test_binding_accepts_each_applied_envelope_and_rejects_drift(tmp_path, reque
     bind(paid)
     with pytest.raises(execution.ExecutionBlocked, match="p00_allocation_policy_mismatch"):
         execution.verify_applied_policy_binding(lab, paid)
+
+
+def test_replacement_envelope_adds_exactly_ten_calls_over_the_dev_envelope():
+    mid, top = execution.ALLOCATIONS[255], execution.ALLOCATIONS[265]
+    assert top["primary"].requests + 60 + 10 == 265
+    assert top["primary"].requests - mid["primary"].requests == 10
+    assert top["primary"].input_tokens - mid["primary"].input_tokens == 10 * 2048
+    assert top["primary"].output_tokens - mid["primary"].output_tokens == 10 * 256
+    assert top["primary"].estimated_cost_usd - mid["primary"].estimated_cost_usd == Decimal(
+        "0.002304"
+    )
+    assert top["policy"]["input_tokens"] - mid["policy"]["input_tokens"] == 10 * 2048
+    # Confirmation reserve is unchanged: policy total minus primary minus operation.
+    assert top["policy"]["input_tokens"] - top["primary"].input_tokens - 20480 == 122880
+    assert top["policy"]["output_tokens"] - top["primary"].output_tokens - 2560 == 15360

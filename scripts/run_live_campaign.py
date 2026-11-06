@@ -278,6 +278,17 @@ def pending_values(value: Any, prefix: str = "") -> list[str]:
     return pending
 
 
+def funded_campaign(allocation: dict[str, Any]) -> str:
+    """The single development campaign funded by the applied P00 envelope."""
+    from scripts.campaign_execution import ALLOCATIONS
+
+    primary = allocation["p00_primary_allocation"]["requests"]
+    for entry in ALLOCATIONS.values():
+        if entry["primary"].requests == primary:
+            return entry["scope"][1]
+    raise CampaignError("applied P00 allocation has no funded campaign")
+
+
 def applied_allocation(project: Path) -> dict[str, Any]:
     """Read the applied shared account and both P00 ledgers without credentials."""
     lab = project.parents[1]
@@ -361,17 +372,21 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "input_tokens": sum(account.usage(row)["input_tokens"] for row in operation_rows),
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in operation_rows),
     }
-    operation_reserve = 10 if policy["projects"]["p00"]["requests"] in {219, 255} else 0
+    operation_reserve = 10 if policy["projects"]["p00"]["requests"] in {219, 255, 265} else 0
     p01_operation_reserve = {992: 8, 996: 12}.get(policy["projects"]["p01"]["requests"], 0)
     revalidation_applied = False
     policy_sha = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
+    import migrate_free_envelope_c4 as c4
     import migrate_free_envelope_plus36 as plus36
     from migrate_p01_p04_revalidation import NEW_SHA, MigrationBlocked, read_audit
 
-    if policy_sha in {NEW_SHA, plus36.NEW_SHA}:
+    if policy_sha in {NEW_SHA, plus36.NEW_SHA, c4.NEW_SHA}:
         try:
             audit = read_audit(lab)
-            plus36_audit = plus36.read_audit(lab) if policy_sha == plus36.NEW_SHA else None
+            plus36_audit = (
+                plus36.read_audit(lab) if policy_sha in {plus36.NEW_SHA, c4.NEW_SHA} else None
+            )
+            c4_audit = c4.read_audit(lab) if policy_sha == c4.NEW_SHA else None
         except (MigrationBlocked, OSError, sqlite3.Error) as exc:
             raise CampaignError("operating migration audit is unavailable") from exc
         if [event for event, _ in audit] != ["prepared", "applied"]:
@@ -383,6 +398,11 @@ def applied_allocation(project: Path) -> dict[str, Any]:
                 raise CampaignError("development envelope migration is not applied")
             if plus36_audit[-1][1].get("projects") != refs:
                 raise CampaignError("development envelope ledger identities differ")
+        if c4_audit is not None:
+            if [event for event, _ in c4_audit] != ["prepared", "applied"]:
+                raise CampaignError("replacement envelope migration is not applied")
+            if c4_audit[-1][1].get("projects") != refs:
+                raise CampaignError("replacement envelope ledger identities differ")
         # Phase 039 adds four calls to the retained twelve-call P01 envelope
         # and three calls to the retained six-call P04 envelope.
         p01_operation_reserve = 16
@@ -734,11 +754,7 @@ def summarize(
         "docker_mutated": False,
     }
     if allocation is not None:
-        active_campaign = (
-            "free-dev-c3"
-            if allocation["p00_primary_allocation"]["requests"] == 185
-            else "free-dev-c2r1"
-        )
+        active_campaign = funded_campaign(allocation)
         result.update(
             campaign_id=campaign_id or (active_campaign if stage == "development" else None),
             candidate=allocation,
@@ -936,11 +952,7 @@ def main(argv: list[str] | None = None) -> int:
         cases = load_cases(data_path, manifest)
         validate_config(config, cases)
         allocation = applied_allocation(ROOT)
-        allocated_campaign = (
-            "free-dev-c3"
-            if allocation["p00_primary_allocation"]["requests"] == 185
-            else "free-dev-c2r1"
-        )
+        allocated_campaign = funded_campaign(allocation)
         if (
             args.stage == "development"
             and args.campaign_id is not None
