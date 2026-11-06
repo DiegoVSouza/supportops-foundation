@@ -73,7 +73,7 @@ To add a cassette, write one JSON object per line with exact `request` and `resp
 
 ## Local services
 
-`docker-compose.base.yml` describes Postgres with pgvector, Redis, and LocalStack for future integration exercises. Start them only when Docker is available and needed:
+`docker-compose.base.yml` describes Postgres with pgvector, Redis, and moto (self-hosted S3/SQS/SNS emulator, Apache-2.0) for future integration exercises. Start them only when Docker is available and needed:
 
 ```powershell
 docker compose -f docker-compose.base.yml up -d

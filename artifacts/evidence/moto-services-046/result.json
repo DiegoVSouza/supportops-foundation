@@ -1,0 +1,59 @@
+{
+  "image": "motoserver/moto:5.2.5",
+  "checks": {
+    "s3_put_get": true,
+    "sqs_send_receive": true,
+    "sns_create_topic": true
+  },
+  "all_passed": true,
+  "commands": [
+    {
+      "cmd": [
+        "docker",
+        "rm",
+        "-f",
+        "p00-moto-046-check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "p00-moto-046-check",
+        "-p",
+        "127.0.0.1::5000",
+        "motoserver/moto:5.2.5"
+      ],
+      "exit": 0,
+      "stdout": "5640baeac54d534baaa3745c899c2889af5918d579e846d78f95f520a5d926c6",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "docker",
+        "port",
+        "p00-moto-046-check",
+        "5000/tcp"
+      ],
+      "exit": 0,
+      "stdout": "127.0.0.1:54236",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "docker",
+        "rm",
+        "-f",
+        "p00-moto-046-check"
+      ],
+      "exit": 0,
+      "stdout": "p00-moto-046-check",
+      "stderr": ""
+    }
+  ]
+}

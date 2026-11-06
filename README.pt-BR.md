@@ -42,7 +42,7 @@ Para adicionar um cassette, use uma linha JSON por chamada com `request` e `resp
 
 ## Serviços locais
 
-`docker-compose.base.yml` define Postgres com pgvector, Redis e LocalStack para uso local. `scripts/doctor.py` informa o que realmente está disponível na máquina. A validação do Compose só verifica a configuração; não executa um teste E2E.
+`docker-compose.base.yml` define Postgres com pgvector, Redis e moto (emulador S3/SQS/SNS self-hosted, Apache-2.0) para uso local. `scripts/doctor.py` informa o que realmente está disponível na máquina. A validação do Compose só verifica a configuração; não executa um teste E2E.
 
 ## Desenvolvimento
 

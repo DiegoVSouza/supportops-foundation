@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-PORTS = {"postgres": 5432, "redis": 6379, "localstack": 4566}
+PORTS = {"postgres": 5432, "redis": 6379, "moto": 5000}
 
 
 def command_version(name: str, args: list[str]) -> str:

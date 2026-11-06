@@ -44,8 +44,8 @@
     "note": "Pinned as a development dependency and used by check_full.py and CI."
   },
   "docker-compose-images": {
-    "version": "pgvector/pgvector:0.8.7-pg16; redis:7.4.11; localstack/localstack:2026.08.3",
-    "source": "https://hub.docker.com/r/pgvector/pgvector/tags; https://hub.docker.com/_/redis/tags; https://docs.localstack.cloud/aws/customization/other-installations/docker-images/",
+    "version": "pgvector/pgvector:0.8.7-pg16; redis:7.4.11; motoserver/moto:5.2.5",
+    "source": "https://hub.docker.com/r/pgvector/pgvector/tags; https://hub.docker.com/_/redis/tags; https://hub.docker.com/r/motoserver/moto/tags",
     "checked": "2026-10-15",
     "note": "Tags are pinned in the optional local Compose file; container runtime was not assumed."
   },
