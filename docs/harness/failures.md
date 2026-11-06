@@ -61,3 +61,9 @@ The first P00 allocation dry-run still displayed the historical config ceiling (
 ## 2026-10-30 — Fixture `git add` exit 128 in deep snapshots
 
 Windows path limit, not a product defect. A snapshot whose fixture repository path nears 220 characters makes Git fail with `Filename too long`. Keep gate scratch paths short, as phase042 does. See phase043 VERIFY.
+
+## 2026-11-06 — free-dev-c3 batch 1: explicit-identifier prompt rule regressed every case
+
+- Campaign `free-dev-c3` (dataset p00-live-v2, prompt requiring an "explicit identifier" before any lookup) ran 10 of 36 planned trials: 0 passes, 10 of 10 predictions were `request_info` with no tool, error classes routing and tool_selection on all 10, zero critical or operational failures. Evidence: `artifacts/evals/live/free-dev-c3/` and `artifacts/evidence/dev-c3-049/batch-01.json`.
+- Root cause (mine): the rule contradicted the dataset. Cases 001, 002, 006 and 007 describe a concrete issue with no order or invoice number and expect `answer` + lookup; 025/026/037 are bare references ("it", "stop it", a generic status check). The distinction is a concrete issue versus no concrete subject, not the presence of an identifier. The earlier "owner rule" wording ("no identifier means no lookup") was too coarse.
+- Stop: the campaign is not resumed. The frozen manifest covers the prompt, so a corrected prompt cannot continue `free-dev-c3`, and a new ID would bypass an allocation gate. 26 of its 36 funded trials stay unused. The ten calls count against the cap (10 provider attempts recorded). Corrected prompt is committed for a future, separately authorized pass; no quality number is claimed.

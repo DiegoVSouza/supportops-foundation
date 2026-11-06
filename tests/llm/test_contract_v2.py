@@ -52,8 +52,14 @@ def test_v2_differs_from_v1_only_in_case_037():
     assert changed == ["p00-live-037"]
 
 
-def test_prompt_states_identifier_rule_and_billing_scope():
+def test_prompt_separates_concrete_issues_from_bare_references():
     prompt = (PROJECT / "agent/prompts/live-campaign.md").read_text(encoding="utf-8")
-    assert "has an explicit identifier" in prompt
+    # A concrete issue is looked up without asking for an identifier (cases 001/002 style);
+    # a bare pronoun or generic status check asks for detail first (cases 025/026/037 style).
+    assert "for a concrete issue" in prompt
+    assert "names no concrete subject" in prompt
     assert "select no tool" in prompt
     assert "renewal" in prompt and "billing" in prompt
+    assert (
+        "explicit identifier" not in prompt
+    )  # regression: this wording made every case ask for info
