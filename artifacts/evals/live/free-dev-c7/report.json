@@ -13,7 +13,7 @@
     "status": "INCOMPLETE"
   },
   "critical_failures": 0,
-  "elapsed_seconds": 3.009,
+  "elapsed_seconds": 2.926,
   "errors": {
     "routing": 15,
     "tool_selection": 15
