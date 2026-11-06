@@ -1,0 +1,30 @@
+batch 02 exit=2
+CHUNK_COMPLETE 10 172 20 11 0 0 None
+batch 03 exit=2
+CHUNK_COMPLETE 10 162 30 18 0 0 None
+batch 04 exit=2
+CHUNK_COMPLETE 10 152 40 26 0 0 None
+batch 05 exit=2
+CHUNK_COMPLETE 10 142 50 35 0 0 None
+batch 06 exit=2
+CHUNK_COMPLETE 10 132 60 45 0 0 None
+batch 07 exit=2
+CHUNK_COMPLETE 10 122 70 55 0 0 None
+batch 08 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 09 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 10 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 11 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 12 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 13 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 14 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 15 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint
+batch 16 exit=2
+INCOMPLETE 0 122 70 55 0 0 free_token_day_checkpoint

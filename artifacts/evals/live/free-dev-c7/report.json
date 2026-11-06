@@ -1,0 +1,195 @@
+{
+  "all_three_wilson95": [
+    0.5352999516257462,
+    0.8745138395501366
+  ],
+  "campaign_id": "free-dev-c7",
+  "candidate_commit": "5bb16ebf09b879b2fc051834a2002a5b3d901e4d",
+  "chunk": {
+    "attempted": 0,
+    "reason": "account_guard_rejected",
+    "remaining": 122,
+    "skipped": 70,
+    "status": "INCOMPLETE"
+  },
+  "critical_failures": 0,
+  "elapsed_seconds": 3.009,
+  "errors": {
+    "routing": 15,
+    "tool_selection": 15
+  },
+  "grounding_review_status": "PENDING",
+  "human_review_status": "PENDING",
+  "model_evaluated_trials": 70,
+  "operational_failures": 0,
+  "passed_trials": 55,
+  "planned_trials": 192,
+  "planned_unique_cases": 64,
+  "promotion_status": "INCOMPLETE",
+  "provider_preflight": {
+    "account_billing_tier_verified": false,
+    "authenticated_rate_limits": {},
+    "credentials_read": true,
+    "failures": {},
+    "generation_calls": 0,
+    "model": "openai/gpt-oss-20b",
+    "model_access_count": 5,
+    "provider_accessed": true,
+    "rate_limit_headers_observed": [],
+    "remaining_daily_tokens": "PENDING",
+    "status": "PASS",
+    "unique_credentials_checked": 5,
+    "unique_credentials_selected": 5
+  },
+  "provider_stop": "free_token_day_checkpoint",
+  "provider_usage_ledger": "../provider-usage.sqlite",
+  "real_model_trials": 70,
+  "recorded_trials": 70,
+  "resume_command": null,
+  "slices": {
+    "domain": {
+      "account_access": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      },
+      "billing": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 9,
+          "tool_selection": 9
+        },
+        "model_evaluated_trials": 24,
+        "operational_failures": 0,
+        "passed_trials": 15,
+        "recorded_trials": 24
+      },
+      "other": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      },
+      "shipping": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 6,
+          "tool_selection": 6
+        },
+        "model_evaluated_trials": 24,
+        "operational_failures": 0,
+        "passed_trials": 18,
+        "recorded_trials": 24
+      },
+      "technical": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 22,
+        "operational_failures": 0,
+        "passed_trials": 22,
+        "recorded_trials": 22
+      }
+    },
+    "family": {
+      "ambiguous_input": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      },
+      "model_usage_identity": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 6,
+          "tool_selection": 6
+        },
+        "model_evaluated_trials": 27,
+        "operational_failures": 0,
+        "passed_trials": 21,
+        "recorded_trials": 27
+      },
+      "provider_failure_boundaries": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      },
+      "read_only_tool_selection": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 5,
+          "tool_selection": 5
+        },
+        "model_evaluated_trials": 21,
+        "operational_failures": 0,
+        "passed_trials": 16,
+        "recorded_trials": 21
+      },
+      "structured_output_invalid": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      },
+      "structured_output_valid": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 4,
+          "tool_selection": 4
+        },
+        "model_evaluated_trials": 22,
+        "operational_failures": 0,
+        "passed_trials": 18,
+        "recorded_trials": 22
+      },
+      "unsupported_request": {
+        "critical_failures": 0,
+        "errors": {},
+        "model_evaluated_trials": 0,
+        "operational_failures": 0,
+        "passed_trials": 0,
+        "recorded_trials": 0
+      }
+    },
+    "language": {
+      "en": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 12,
+          "tool_selection": 12
+        },
+        "model_evaluated_trials": 39,
+        "operational_failures": 0,
+        "passed_trials": 27,
+        "recorded_trials": 39
+      },
+      "pt-BR": {
+        "critical_failures": 0,
+        "errors": {
+          "routing": 3,
+          "tool_selection": 3
+        },
+        "model_evaluated_trials": 31,
+        "operational_failures": 0,
+        "passed_trials": 28,
+        "recorded_trials": 31
+      }
+    }
+  },
+  "stage": "development",
+  "status": "INCOMPLETE",
+  "unfinalized_trial_artifacts": 0,
+  "unique_cases_all_three_pass": 17,
+  "unique_cases_with_three_model_results": 23
+}
