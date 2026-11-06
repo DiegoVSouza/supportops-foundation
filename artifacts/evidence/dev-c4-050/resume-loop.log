@@ -1,0 +1,7 @@
+batch 05 exit=2
+CHUNK_COMPLETE 10 13 23 11 0 0 None
+batch 06 exit=2
+CHUNK_COMPLETE 10 3 33 18 0 0 None
+batch 07 exit=1
+CHUNK_COMPLETE 3 0 36 21 0 0 None
+DONE
