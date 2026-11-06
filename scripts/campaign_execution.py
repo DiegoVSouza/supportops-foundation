@@ -708,18 +708,39 @@ TOOL_FOR_CATEGORY = {
 }
 
 
-def complete_prediction(prediction: Any) -> Any:
-    """Add what code decides: the escalation flag and the read-only tool.
+def decide_action(risky: bool, specific: bool) -> str:
+    """Policy in code: a risky goal escalates, a specific request is answered, else ask."""
+    if risky:
+        return "escalate"
+    return "answer" if specific else "request_info"
 
-    The model returns only category, action and rationale. A lookup is derived from the
-    category when the action is `answer`; no other action runs a tool and the refund tool
-    is never derived. Outputs that already carry extra fields (older fixtures) or that do
-    not match the model contract are returned unchanged so validation reports them.
+
+def complete_prediction(prediction: Any) -> Any:
+    """Add what code decides: the action, the escalation flag and the read-only tool.
+
+    The model reports features only: `category`, `specific` (a concrete problem or question
+    about something named), `risky` (the user's main goal needs a human) and a rationale.
+    Code derives the action, sets `escalate` for escalations and picks the lookup that
+    belongs to the category when the action is `answer`; no other action runs a tool and
+    the refund tool is never derived. A `category, action, rationale` shape is also
+    completed. Outputs with other or extra fields, or wrong types, are returned unchanged
+    so validation reports them.
     """
     if not isinstance(prediction, dict) or set(prediction) != {"decision"}:
         return prediction
     decision = prediction["decision"]
-    if not isinstance(decision, dict) or set(decision) != {"category", "action", "rationale"}:
+    if not isinstance(decision, dict):
+        return prediction
+    if set(decision) == {"category", "specific", "risky", "rationale"}:
+        if not isinstance(decision["specific"], bool) or not isinstance(decision["risky"], bool):
+            return prediction
+        action = decide_action(decision["risky"], decision["specific"])
+        decision = {
+            "category": decision["category"],
+            "action": action,
+            "rationale": decision["rationale"],
+        }
+    elif set(decision) != {"category", "action", "rationale"}:
         return prediction
     action, category = decision["action"], decision["category"]
     return {

@@ -1,0 +1,6 @@
+c6-s8 48 / 64 {'answer': '39/42', 'escalate': '6/10', 'request_info': '3/12'} neurons 447.6
+c6-s9 50 / 64 {'answer': '39/42', 'escalate': '7/10', 'request_info': '4/12'} neurons 452.9
+v1-s7 34 / 64 {'answer': '18/42', 'escalate': '6/10', 'request_info': '10/12'} neurons 461.9
+v2-s7 44 / 64 {'answer': '32/42', 'escalate': '7/10', 'request_info': '5/12'} neurons 440.9
+v3-s7 38 / 64 {'answer': '27/42', 'escalate': '7/10', 'request_info': '4/12'} neurons 460.7
+DONE

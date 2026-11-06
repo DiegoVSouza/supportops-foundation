@@ -22,7 +22,7 @@ Cases 025, 026 and 037 (`request_info`) and 002, 006 and 012 (`answer` with look
 
 ## Code-decided fields (live-v3)
 
-The model returns only `category`, `action` and `rationale`. Code derives `escalate` (true exactly when the action is `escalate`) and the read-only tool: `lookup_invoice` for billing, `lookup_order` for shipping and `lookup_kb` for technical and account_access, only when the action is `answer`; no other action runs a tool and the refund tool is never derived. A case's expected tool therefore follows from its expected category and action, and the grader still compares all four fields. Results measure the model's category and action decisions plus this fixed rule, not free tool selection by the model.
+The model reports features only: `category`, `specific` (the message states a concrete problem, state or question about something it names), `risky` (the user's main goal is a refund, compensation, chargeback, medical, legal or safety advice, data deletion, secrets or others' data) and a `rationale`. Code applies the policy: a risky goal escalates, a specific request is answered, anything else asks for the missing detail. Code also sets `escalate` (true exactly when the action is `escalate`) and the read-only tool: `lookup_invoice` for billing, `lookup_order` for shipping and `lookup_kb` for technical and account_access, only when the action is `answer`; no other action runs a tool and the refund tool is never derived. The grader still compares category, action, escalate and tool with the case's expected outcome. Results therefore measure the model's perception of category, specificity and risk plus this fixed policy, not free action or tool selection by the model.
 
 ## Grader calibration
 

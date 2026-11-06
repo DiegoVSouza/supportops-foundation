@@ -64,62 +64,94 @@ def test_a_perfect_model_passes_every_case(case):
     model_output = {
         "decision": {
             "category": expected["category"],
-            "action": expected["action"],
+            "specific": expected["action"] == "answer",
+            "risky": expected["action"] == "escalate",
             "rationale": "ok",
         }
     }
     assert validate_prediction(case, execution.complete_prediction(model_output)) == []
 
 
-def test_code_decides_tool_and_escalation_and_never_the_refund_tool():
-    def run(category, action):
-        return execution.complete_prediction(
-            {"decision": {"category": category, "action": action, "rationale": "r"}}
-        )
+def features(category, specific, risky):
+    return {
+        "decision": {
+            "category": category,
+            "specific": specific,
+            "risky": risky,
+            "rationale": "r",
+        }
+    }
 
-    assert run("billing", "answer")["tool"] == "lookup_invoice"
-    assert run("shipping", "answer")["tool"] == "lookup_order"
-    assert run("technical", "answer")["tool"] == "lookup_kb"
-    assert run("account_access", "answer")["tool"] == "lookup_kb"
-    assert run("other", "answer")["tool"] is None
-    assert run("billing", "request_info")["tool"] is None
-    assert run("billing", "escalate")["tool"] is None
-    assert run("billing", "escalate")["decision"]["escalate"] is True
-    assert run("billing", "answer")["decision"]["escalate"] is False
+
+def test_code_derives_action_tool_and_escalation_from_the_reported_features():
+    run = execution.complete_prediction
+    assert run(features("billing", True, False))["decision"]["action"] == "answer"
+    assert run(features("billing", True, False))["tool"] == "lookup_invoice"
+    assert run(features("shipping", True, False))["tool"] == "lookup_order"
+    assert run(features("technical", True, False))["tool"] == "lookup_kb"
+    assert run(features("account_access", True, False))["tool"] == "lookup_kb"
+    assert run(features("other", True, False))["tool"] is None
+    assert run(features("billing", False, False))["decision"]["action"] == "request_info"
+    assert run(features("billing", False, False))["tool"] is None
+    # A risky goal wins over a specific request and never runs a tool.
+    escalated = run(features("billing", True, True))
+    assert escalated["decision"]["action"] == "escalate"
+    assert escalated["decision"]["escalate"] is True
+    assert escalated["tool"] is None
+    assert run(features("billing", True, False))["decision"]["escalate"] is False
+
+
+def test_action_policy_covers_every_combination_and_never_derives_the_refund_tool():
+    for risky in (True, False):
+        for specific in (True, False):
+            action = execution.decide_action(risky, specific)
+            assert action == ("escalate" if risky else ("answer" if specific else "request_info"))
     assert all(
-        run(category, action)["tool"] != "issue_refund"
+        execution.complete_prediction(features(category, specific, risky))["tool"] != "issue_refund"
         for category in ("billing", "shipping", "technical", "account_access", "other")
-        for action in ("answer", "request_info", "escalate", "refund")
+        for specific in (True, False)
+        for risky in (True, False)
     )
 
 
+def test_the_category_and_action_shape_is_still_completed():
+    out = execution.complete_prediction(
+        {"decision": {"category": "billing", "action": "escalate", "rationale": "r"}}
+    )
+    assert out["decision"]["escalate"] is True and out["tool"] is None
+
+
 def test_malformed_or_extended_outputs_are_left_for_validation_to_reject():
-    extended = {
-        "decision": {"category": "billing", "action": "answer", "rationale": "r", "tool": "x"}
-    }
-    assert execution.complete_prediction(extended) == extended
-    missing = {"decision": {"category": "billing", "action": "answer"}}
+    bad_type = features("billing", "yes", False)
+    assert execution.complete_prediction(bad_type) == bad_type
+    extra = {"decision": {**features("billing", True, False)["decision"], "tool": "x"}}
+    assert execution.complete_prediction(extra) == extra
+    missing = {"decision": {"category": "billing", "specific": True}}
     assert execution.complete_prediction(missing) == missing
     assert execution.complete_prediction("text") == "text"
     with pytest.raises(TypeError):
-        execution.complete_prediction(
-            {"decision": {"category": [], "action": "answer", "rationale": "r"}}
-        )
+        execution.complete_prediction(features([], True, False))
 
 
-def test_prompt_states_the_rule_and_examples_do_not_copy_the_dataset():
+def test_prompt_names_every_reported_feature_and_stays_within_the_input_bound():
     prompt = (PROJECT / "agent/prompts/live-campaign.md").read_text(encoding="utf-8").strip()
-    for fragment in ("answer:", "request_info:", "escalate:", "untrusted"):
+    for fragment in ("category:", "specific:", "risky:", "untrusted"):
         assert fragment in prompt
-    examples = [
-        line.split(":")[0].strip()
-        for line in prompt.splitlines()[prompt.splitlines().index("E.g.") + 1 :]
-    ]
-    assert len(examples) >= 4
-    for example in examples:
-        for case in CASES:
-            ratio = difflib.SequenceMatcher(None, example.lower(), case["input"].lower()).ratio()
-            assert ratio < (0.5 if case["split"] == "holdout" else 0.6), (example, case["case_id"])
+    schema = json.loads((PROJECT / "agent/schemas/live-decision.json").read_text(encoding="utf-8"))
+    assert set(schema["properties"]["decision"]["required"]) == {
+        "category",
+        "specific",
+        "risky",
+        "rationale",
+    }
+    longest = max(CASES, key=lambda case: len(case["input"].encode()))["input"]
+    payload = execution.build_payload(
+        PROJECT,
+        prompt,
+        longest,
+        json.loads((PROJECT / "evals/live-campaign.json").read_text(encoding="utf-8")),
+    )
+    assert execution.payload_input_bound(payload) <= 2048
 
 
 def test_rubric_states_the_single_lookup_rule():

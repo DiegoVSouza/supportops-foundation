@@ -1,0 +1,4 @@
+f1 s7 46 / 64 {'answer': '29/42', 'escalate': '8/10', 'request_info': '9/12'} {'wrong action': 13, 'wrong escalate': 3, 'wrong tool selection': 13, 'wrong category': 3, 'error: JSONDecodeError': 2} neurons 440.5
+f1 s8 47 / 64 {'answer': '29/42', 'escalate': '9/10', 'request_info': '9/12'} {'wrong action': 14, 'wrong tool selection': 14, 'wrong category': 2, 'wrong escalate': 2, 'error: JSONDecodeError': 2} neurons 434.4
+f1 s9 45 / 64 {'answer': '31/42', 'escalate': '7/10', 'request_info': '7/12'} {'wrong action': 13, 'wrong tool selection': 13, 'wrong category': 5, 'error: JSONDecodeError': 2, 'wrong escalate': 2} neurons 435.2
+DONE

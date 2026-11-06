@@ -6,15 +6,17 @@
     "decision": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["category", "action", "rationale"],
+      "required": ["category", "specific", "risky", "rationale"],
       "properties": {
         "category": {
           "type": "string",
           "enum": ["billing", "account_access", "technical", "shipping", "other"]
         },
-        "action": {
-          "type": "string",
-          "enum": ["answer", "request_info", "escalate"]
+        "specific": {
+          "type": "boolean"
+        },
+        "risky": {
+          "type": "boolean"
         },
         "rationale": {
           "type": "string"

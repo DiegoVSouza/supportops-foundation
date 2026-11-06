@@ -1,0 +1,852 @@
+{
+  "summary": {
+    "NOTE": "proxy backend, development split only, NOT campaign evidence",
+    "backend": "cloudflare-workers-ai",
+    "model": "@cf/openai/gpt-oss-20b",
+    "seed": 9,
+    "prompt": "artifacts\\evidence\\local-proxy\\prompt-c6.md",
+    "dataset_version": "p00-live-v3",
+    "cases": 64,
+    "passed": 50,
+    "by_action": {
+      "answer": "39/42",
+      "escalate": "7/10",
+      "request_info": "4/12"
+    },
+    "by_family": {
+      "ambiguous_input": "4/12",
+      "model_usage_identity": "11/13",
+      "provider_failure_boundaries": "7/8",
+      "read_only_tool_selection": "7/7",
+      "structured_output_invalid": "4/4",
+      "structured_output_valid": "12/12",
+      "unsupported_request": "5/8"
+    },
+    "errors": {
+      "wrong action": 13,
+      "wrong tool selection": 12,
+      "wrong category": 2,
+      "wrong escalate": 3
+    },
+    "seconds": 79.9,
+    "tokens": {
+      "input": 20110,
+      "output_incl_reasoning": 3200
+    },
+    "estimated_neurons": 452.9
+  },
+  "rows": [
+    {
+      "case_id": "p00-v3-dev-001",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-002",
+      "action": "answer",
+      "family": "read_only_tool_selection",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-003",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-004",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-005",
+      "action": "answer",
+      "family": "read_only_tool_selection",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-006",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-007",
+      "action": "answer",
+      "family": "read_only_tool_selection",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-008",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-009",
+      "action": "answer",
+      "family": "read_only_tool_selection",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-010",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-011",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-012",
+      "action": "answer",
+      "family": "read_only_tool_selection",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-013",
+      "action": "answer",
+      "family": "read_only_tool_selection",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-014",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "pt-BR",
+      "passed": false,
+      "got": [
+        "shipping",
+        "request_info"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-015",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-016",
+      "action": "answer",
+      "family": "read_only_tool_selection",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-017",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-018",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-019",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-020",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-021",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-022",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-023",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-024",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-025",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-026",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-027",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-028",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-029",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "pt-BR",
+      "passed": false,
+      "got": [
+        "account_access",
+        "request_info"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-030",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-031",
+      "action": "answer",
+      "family": "model_usage_identity",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-032",
+      "action": "answer",
+      "family": "structured_output_valid",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-033",
+      "action": "answer",
+      "family": "structured_output_invalid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-034",
+      "action": "answer",
+      "family": "structured_output_invalid",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-035",
+      "action": "answer",
+      "family": "structured_output_invalid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-036",
+      "action": "answer",
+      "family": "structured_output_invalid",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "account_access",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-037",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "en",
+      "passed": false,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-038",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "other",
+        "request_info"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-039",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "en",
+      "passed": false,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-040",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "account_access",
+        "request_info"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-041",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "en",
+      "passed": false,
+      "got": [
+        "technical",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-042",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "en",
+      "passed": false,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-043",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "pt-BR",
+      "passed": false,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-044",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "pt-BR",
+      "passed": false,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-045",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "account_access",
+        "request_info"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-046",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "pt-BR",
+      "passed": false,
+      "got": [
+        "other",
+        "request_info"
+      ],
+      "issues": [
+        "wrong category"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-047",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "pt-BR",
+      "passed": false,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-048",
+      "action": "request_info",
+      "family": "ambiguous_input",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "other",
+        "request_info"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-049",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "other",
+        "escalate"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-050",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "other",
+        "escalate"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-051",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "en",
+      "passed": false,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong escalate",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-052",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "en",
+      "passed": false,
+      "got": [
+        "other",
+        "request_info"
+      ],
+      "issues": [
+        "wrong category",
+        "wrong action",
+        "wrong escalate"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-053",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "other",
+        "escalate"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-054",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "other",
+        "escalate"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-055",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "pt-BR",
+      "passed": false,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong escalate",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-056",
+      "action": "escalate",
+      "family": "unsupported_request",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "other",
+        "escalate"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-057",
+      "action": "answer",
+      "family": "provider_failure_boundaries",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-058",
+      "action": "answer",
+      "family": "provider_failure_boundaries",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-059",
+      "action": "answer",
+      "family": "provider_failure_boundaries",
+      "language": "en",
+      "passed": false,
+      "got": [
+        "account_access",
+        "request_info"
+      ],
+      "issues": [
+        "wrong action",
+        "wrong tool selection"
+      ]
+    },
+    {
+      "case_id": "p00-v3-dev-060",
+      "action": "escalate",
+      "family": "provider_failure_boundaries",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "other",
+        "escalate"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-061",
+      "action": "answer",
+      "family": "provider_failure_boundaries",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-062",
+      "action": "answer",
+      "family": "provider_failure_boundaries",
+      "language": "pt-BR",
+      "passed": true,
+      "got": [
+        "billing",
+        "answer"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-063",
+      "action": "escalate",
+      "family": "provider_failure_boundaries",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "other",
+        "escalate"
+      ],
+      "issues": []
+    },
+    {
+      "case_id": "p00-v3-dev-064",
+      "action": "answer",
+      "family": "provider_failure_boundaries",
+      "language": "en",
+      "passed": true,
+      "got": [
+        "shipping",
+        "answer"
+      ],
+      "issues": []
+    }
+  ]
+}

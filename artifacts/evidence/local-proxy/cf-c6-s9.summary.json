@@ -1,0 +1,36 @@
+{
+  "NOTE": "proxy backend, development split only, NOT campaign evidence",
+  "backend": "cloudflare-workers-ai",
+  "model": "@cf/openai/gpt-oss-20b",
+  "seed": 9,
+  "prompt": "artifacts\\evidence\\local-proxy\\prompt-c6.md",
+  "dataset_version": "p00-live-v3",
+  "cases": 64,
+  "passed": 50,
+  "by_action": {
+    "answer": "39/42",
+    "escalate": "7/10",
+    "request_info": "4/12"
+  },
+  "by_family": {
+    "ambiguous_input": "4/12",
+    "model_usage_identity": "11/13",
+    "provider_failure_boundaries": "7/8",
+    "read_only_tool_selection": "7/7",
+    "structured_output_invalid": "4/4",
+    "structured_output_valid": "12/12",
+    "unsupported_request": "5/8"
+  },
+  "errors": {
+    "wrong action": 13,
+    "wrong tool selection": 12,
+    "wrong category": 2,
+    "wrong escalate": 3
+  },
+  "seconds": 79.9,
+  "tokens": {
+    "input": 20110,
+    "output_incl_reasoning": 3200
+  },
+  "estimated_neurons": 452.9
+}
