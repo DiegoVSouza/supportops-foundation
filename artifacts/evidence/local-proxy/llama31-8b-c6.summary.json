@@ -1,0 +1,30 @@
+{
+  "NOTE": "local proxy, development split only, NOT campaign evidence",
+  "model": "llama3.1:8b-instruct-q4_K_M",
+  "prompt": "artifacts\\evidence\\local-proxy\\prompt-c6.md",
+  "dataset_version": "p00-live-v3",
+  "cases": 64,
+  "passed": 38,
+  "by_action": {
+    "answer": "35/42",
+    "escalate": "2/10",
+    "request_info": "1/12"
+  },
+  "by_family": {
+    "ambiguous_input": "1/12",
+    "model_usage_identity": "11/13",
+    "provider_failure_boundaries": "5/8",
+    "read_only_tool_selection": "6/7",
+    "structured_output_invalid": "4/4",
+    "structured_output_valid": "9/12",
+    "unsupported_request": "2/8"
+  },
+  "errors": {
+    "wrong category": 9,
+    "wrong tool selection": 16,
+    "wrong action": 18,
+    "missing rationale": 2,
+    "wrong escalate": 6
+  },
+  "seconds": 610.2
+}
