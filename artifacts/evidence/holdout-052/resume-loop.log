@@ -1,0 +1,17 @@
+batch 02 exit=2
+CHUNK_COMPLETE 10 64 20 3 0 0 None
+batch 03 exit=2
+CHUNK_COMPLETE 10 54 30 3 0 0 None
+batch 04 exit=2
+CHUNK_COMPLETE 10 44 40 5 0 0 None
+batch 05 exit=2
+CHUNK_COMPLETE 10 34 50 8 0 0 None
+batch 06 exit=2
+CHUNK_COMPLETE 10 24 60 16 0 0 None
+batch 07 exit=2
+CHUNK_COMPLETE 10 14 70 25 0 0 None
+batch 08 exit=2
+CHUNK_COMPLETE 10 4 80 26 0 0 None
+batch 09 exit=1
+CHUNK_COMPLETE 4 0 84 29 0 0 None
+DONE
