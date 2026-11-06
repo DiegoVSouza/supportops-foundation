@@ -24,6 +24,9 @@ from scripts.run_live_campaign import load_cases, load_json
 
 PROJECT = Path(__file__).resolve().parents[2]
 LAB = PROJECT.parents[1]
+FUNDED_CAMPAIGN = execution.allocation_for(
+    load_json(LAB / "shared/policies/groq-free-campaign.json")
+)["scope"][1]
 
 
 class FixtureClient:
@@ -78,6 +81,8 @@ def campaign(tmp_path, monkeypatch):
         "scripts/harness/migrate_free_envelope_plus36.py",
         ".planning/llm-live-readiness/phases/050-dev-envelope-c4/AUTHORIZATION.json",
         "scripts/harness/migrate_free_envelope_c4.py",
+        ".planning/llm-live-readiness/phases/051-dev-envelope-c5/AUTHORIZATION.json",
+        "scripts/harness/migrate_free_envelope_c5.py",
     ):
         target = project.parents[1] / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -304,7 +309,7 @@ def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campa
             config,
             cases,
             "development",
-            "free-dev-c4",
+            FUNDED_CAMPAIGN,
             client_factory=FixtureClient,
             revision="a" * 40,
             max_trials=1,
@@ -437,13 +442,13 @@ def test_pending_migration_preflight_denies_before_live_client_or_campaign_files
             config,
             cases,
             "development",
-            "free-dev-c4",
+            FUNDED_CAMPAIGN,
             client_factory=LiveProbe,
             revision="a" * 40,
             max_trials=1,
         )
     assert LiveProbe.initialized == 0
-    assert not (project / "artifacts/evals/live/free-dev-c4").exists()
+    assert not (project / "artifacts/evals/live" / FUNDED_CAMPAIGN).exists()
     assert FixtureClient.calls == []
 
 
@@ -518,7 +523,7 @@ def test_explicit_revision_cannot_bypass_live_source_check(campaign, monkeypatch
             config,
             cases,
             "development",
-            "free-dev-c4",
+            FUNDED_CAMPAIGN,
             revision="a" * 40,
         )
 

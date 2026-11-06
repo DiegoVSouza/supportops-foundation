@@ -372,37 +372,34 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "input_tokens": sum(account.usage(row)["input_tokens"] for row in operation_rows),
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in operation_rows),
     }
-    operation_reserve = 10 if policy["projects"]["p00"]["requests"] in {219, 255, 265} else 0
+    operation_reserve = 10 if policy["projects"]["p00"]["requests"] in {219, 255, 265, 301} else 0
     p01_operation_reserve = {992: 8, 996: 12}.get(policy["projects"]["p01"]["requests"], 0)
     revalidation_applied = False
     policy_sha = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
     import migrate_free_envelope_c4 as c4
+    import migrate_free_envelope_c5 as c5
     import migrate_free_envelope_plus36 as plus36
     from migrate_p01_p04_revalidation import NEW_SHA, MigrationBlocked, read_audit
 
-    if policy_sha in {NEW_SHA, plus36.NEW_SHA, c4.NEW_SHA}:
+    # Envelope migrations apply in order; a later policy hash needs every earlier audit applied.
+    chain = [plus36, c4, c5]
+    hashes = [NEW_SHA, *(module.NEW_SHA for module in chain)]
+    if policy_sha in hashes:
+        applied_modules = chain[: hashes.index(policy_sha)]
         try:
             audit = read_audit(lab)
-            plus36_audit = (
-                plus36.read_audit(lab) if policy_sha in {plus36.NEW_SHA, c4.NEW_SHA} else None
-            )
-            c4_audit = c4.read_audit(lab) if policy_sha == c4.NEW_SHA else None
+            audits = [(module, module.read_audit(lab)) for module in applied_modules]
         except (MigrationBlocked, OSError, sqlite3.Error) as exc:
             raise CampaignError("operating migration audit is unavailable") from exc
         if [event for event, _ in audit] != ["prepared", "applied"]:
             raise CampaignError("operating migration is not applied")
         if audit[-1][1].get("projects") != refs:
             raise CampaignError("operating migration ledger identities differ")
-        if plus36_audit is not None:
-            if [event for event, _ in plus36_audit] != ["prepared", "applied"]:
+        for module, records in audits:
+            if [event for event, _ in records] != ["prepared", "applied"]:
                 raise CampaignError("development envelope migration is not applied")
-            if plus36_audit[-1][1].get("projects") != refs:
+            if records[-1][1].get("projects") != refs:
                 raise CampaignError("development envelope ledger identities differ")
-        if c4_audit is not None:
-            if [event for event, _ in c4_audit] != ["prepared", "applied"]:
-                raise CampaignError("replacement envelope migration is not applied")
-            if c4_audit[-1][1].get("projects") != refs:
-                raise CampaignError("replacement envelope ledger identities differ")
         # Phase 039 adds four calls to the retained twelve-call P01 envelope
         # and three calls to the retained six-call P04 envelope.
         p01_operation_reserve = 16

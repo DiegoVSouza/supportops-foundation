@@ -46,6 +46,9 @@ def test_unknown_policy_total_fails_closed():
         (265, "free-dev-c4", True),
         (265, "free-dev-c3", False),
         (265, "free-dev-c2r1", False),
+        (301, "free-dev-c5", True),
+        (301, "free-dev-c4", False),
+        (301, "free-dev-c3", False),
         (255, "renamed", False),
     ],
 )
@@ -59,7 +62,7 @@ def test_development_scope_follows_the_applied_policy(requests, campaign, allowe
 
 @pytest.mark.parametrize("stage", ["pilot", "holdout"])
 def test_other_stages_are_never_funded(stage):
-    for requests in (219, 255, 265):
+    for requests in (219, 255, 265, 301):
         with pytest.raises(execution.ExecutionBlocked, match="phase_028_live_scope_not_allocated"):
             execution.validate_live_scope(stage, "free-dev-c3", policy(requests))
 
@@ -90,7 +93,7 @@ def _full_policy(requests):
     }
 
 
-@pytest.mark.parametrize("requests", [219, 255, 265])
+@pytest.mark.parametrize("requests", [219, 255, 265, 301])
 def test_binding_accepts_each_applied_envelope_and_rejects_drift(tmp_path, requests):
     import hashlib
     import json
@@ -142,3 +145,17 @@ def test_replacement_envelope_adds_exactly_ten_calls_over_the_dev_envelope():
     # Confirmation reserve is unchanged: policy total minus primary minus operation.
     assert top["policy"]["input_tokens"] - top["primary"].input_tokens - 20480 == 122880
     assert top["policy"]["output_tokens"] - top["primary"].output_tokens - 2560 == 15360
+
+
+def test_every_envelope_keeps_the_confirmation_reserve_and_holdout_arithmetic():
+    for total, entry in execution.ALLOCATIONS.items():
+        primary, policy = entry["primary"], entry["policy"]
+        assert policy["requests"] == total
+        assert primary.requests + 60 + 10 == total
+        assert policy["input_tokens"] - primary.input_tokens - 20480 == 122880
+        assert policy["output_tokens"] - primary.output_tokens - 2560 == 15360
+        assert Decimal(policy["estimated_cost_usd"]) - primary.estimated_cost_usd - Decimal(
+            "0.002304"
+        ) == Decimal("0.013824")
+        assert policy["input_tokens"] == total * 2048
+        assert policy["output_tokens"] == total * 256

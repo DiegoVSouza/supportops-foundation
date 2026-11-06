@@ -77,8 +77,19 @@ ALLOCATIONS: dict[int, dict[str, Any]] = {
         "primary": ResourceCaps(195, 399360, 49920, Decimal("0.044928")),
         "scope": ("development", "free-dev-c4"),
     },
+    # Phase 051: +36 calls fund one fresh pass of free-dev-c5 with the few-shot prompt.
+    301: {
+        "policy": {
+            "requests": 301,
+            "input_tokens": 616448,
+            "output_tokens": 77056,
+            "estimated_cost_usd": "0.0693504",
+        },
+        "primary": ResourceCaps(231, 473088, 59136, Decimal("0.0532224")),
+        "scope": ("development", "free-dev-c5"),
+    },
 }
-IMMUTABLE_CAMPAIGNS = {"free-dev-c1", "free-dev-c2", "free-dev-c2r1", "free-dev-c3"}
+IMMUTABLE_CAMPAIGNS = {"free-dev-c1", "free-dev-c2", "free-dev-c2r1", "free-dev-c3", "free-dev-c4"}
 
 
 def allocation_for(policy: dict[str, Any]) -> dict[str, Any]:
@@ -449,6 +460,8 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         lab / "scripts/harness/migrate_free_envelope_plus36.py",
         lab / ".planning/llm-live-readiness/phases/050-dev-envelope-c4/AUTHORIZATION.json",
         lab / "scripts/harness/migrate_free_envelope_c4.py",
+        lab / ".planning/llm-live-readiness/phases/051-dev-envelope-c5/AUTHORIZATION.json",
+        lab / "scripts/harness/migrate_free_envelope_c5.py",
     ]
     return {
         str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
