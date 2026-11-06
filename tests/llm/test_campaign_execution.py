@@ -302,7 +302,7 @@ def test_unverifiable_live_claim_cannot_count_fixture_as_provider_evidence(campa
             config,
             cases,
             "development",
-            "free-dev-c2r1",
+            "free-dev-c3",
             client_factory=FixtureClient,
             revision="a" * 40,
             max_trials=1,
@@ -375,6 +375,7 @@ def test_primary_ceiling_counts_historical_pilot_once_and_protects_confirmation(
             caps=caps,
         )
     policy = load_json(LAB / "shared/policies/groq-free-campaign.json")["projects"]["p00"]
+    caps = vars(execution.ALLOCATIONS[policy["requests"]]["primary"])
     assert policy["requests"] - caps["requests"] - 10 == 60
     assert policy["input_tokens"] - caps["input_tokens"] - 20480 == 122880
     assert policy["output_tokens"] - caps["output_tokens"] - 2560 == 15360
@@ -434,13 +435,13 @@ def test_pending_migration_preflight_denies_before_live_client_or_campaign_files
             config,
             cases,
             "development",
-            "free-dev-c2r1",
+            "free-dev-c3",
             client_factory=LiveProbe,
             revision="a" * 40,
             max_trials=1,
         )
     assert LiveProbe.initialized == 0
-    assert not (project / "artifacts/evals/live/free-dev-c2r1").exists()
+    assert not (project / "artifacts/evals/live/free-dev-c3").exists()
     assert FixtureClient.calls == []
 
 
@@ -515,7 +516,7 @@ def test_explicit_revision_cannot_bypass_live_source_check(campaign, monkeypatch
             config,
             cases,
             "development",
-            "free-dev-c2r1",
+            "free-dev-c3",
             revision="a" * 40,
         )
 
