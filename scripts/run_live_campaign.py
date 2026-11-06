@@ -361,21 +361,28 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "input_tokens": sum(account.usage(row)["input_tokens"] for row in operation_rows),
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in operation_rows),
     }
-    operation_reserve = 10 if policy["projects"]["p00"]["requests"] == 219 else 0
+    operation_reserve = 10 if policy["projects"]["p00"]["requests"] in {219, 255} else 0
     p01_operation_reserve = {992: 8, 996: 12}.get(policy["projects"]["p01"]["requests"], 0)
     revalidation_applied = False
     policy_sha = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
+    import migrate_free_envelope_plus36 as plus36
     from migrate_p01_p04_revalidation import NEW_SHA, MigrationBlocked, read_audit
 
-    if policy_sha == NEW_SHA:
+    if policy_sha in {NEW_SHA, plus36.NEW_SHA}:
         try:
             audit = read_audit(lab)
+            plus36_audit = plus36.read_audit(lab) if policy_sha == plus36.NEW_SHA else None
         except (MigrationBlocked, OSError, sqlite3.Error) as exc:
             raise CampaignError("operating migration audit is unavailable") from exc
         if [event for event, _ in audit] != ["prepared", "applied"]:
             raise CampaignError("operating migration is not applied")
         if audit[-1][1].get("projects") != refs:
             raise CampaignError("operating migration ledger identities differ")
+        if plus36_audit is not None:
+            if [event for event, _ in plus36_audit] != ["prepared", "applied"]:
+                raise CampaignError("development envelope migration is not applied")
+            if plus36_audit[-1][1].get("projects") != refs:
+                raise CampaignError("development envelope ledger identities differ")
         # Phase 039 adds four calls to the retained twelve-call P01 envelope
         # and three calls to the retained six-call P04 envelope.
         p01_operation_reserve = 16
@@ -727,11 +734,16 @@ def summarize(
         "docker_mutated": False,
     }
     if allocation is not None:
+        active_campaign = (
+            "free-dev-c3"
+            if allocation["p00_primary_allocation"]["requests"] == 185
+            else "free-dev-c2r1"
+        )
         result.update(
-            campaign_id=campaign_id or ("free-dev-c2r1" if stage == "development" else None),
+            campaign_id=campaign_id or (active_campaign if stage == "development" else None),
             candidate=allocation,
             c2_scope={
-                "replacement_campaign": "free-dev-c2r1",
+                "replacement_campaign": active_campaign,
                 "historical_c2": {
                     "campaign_id": "free-dev-c2",
                     "candidate_commit": "7099cc5d0f4d576d14f28f7dab4648b074b59740",
@@ -923,13 +935,18 @@ def main(argv: list[str] | None = None) -> int:
         manifest = load_json(manifest_path)
         cases = load_cases(data_path, manifest)
         validate_config(config, cases)
+        allocation = applied_allocation(ROOT)
+        allocated_campaign = (
+            "free-dev-c3"
+            if allocation["p00_primary_allocation"]["requests"] == 185
+            else "free-dev-c2r1"
+        )
         if (
             args.stage == "development"
             and args.campaign_id is not None
-            and args.campaign_id != "free-dev-c2r1"
+            and args.campaign_id != allocated_campaign
         ):
-            raise CampaignError("phase 028 allocates only free-dev-c2r1")
-        allocation = applied_allocation(ROOT)
+            raise CampaignError(f"the applied allocation funds only {allocated_campaign}")
         summary = summarize(
             args.stage,
             cases,

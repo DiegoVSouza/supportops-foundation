@@ -39,12 +39,61 @@ PRIMARY_CAPS = ResourceCaps(
     Decimal("0.0343296"),
 )
 
+# Applied P00 envelopes keyed by the shared-policy P00 request total. Each adds a
+# primary ceiling (full cumulative, across campaign IDs) on top of the protected
+# 60-call confirmation reserve and the retained ten-call local operation reserve.
+ALLOCATIONS: dict[int, dict[str, Any]] = {
+    # Phase 028: one funded replacement (36 trials) after +13 calls.
+    219: {
+        "policy": {
+            "requests": 219,
+            "input_tokens": 448512,
+            "output_tokens": 56064,
+            "estimated_cost_usd": "0.0504576",
+        },
+        "primary": PRIMARY_CAPS,
+        "scope": ("development", "free-dev-c2r1"),
+    },
+    # Phase 049: +36 calls fund one fresh development pass of dataset p00-live-v2.
+    255: {
+        "policy": {
+            "requests": 255,
+            "input_tokens": 522240,
+            "output_tokens": 65280,
+            "estimated_cost_usd": "0.0587520",
+        },
+        "primary": ResourceCaps(185, 378880, 47360, Decimal("0.042624")),
+        "scope": ("development", "free-dev-c3"),
+    },
+}
+IMMUTABLE_CAMPAIGNS = {"free-dev-c1", "free-dev-c2", "free-dev-c2r1"}
 
-def validate_live_scope(stage: str, campaign: str) -> None:
-    """Phase 028 funds one replacement; historical campaigns never resume."""
+
+def allocation_for(policy: dict[str, Any]) -> dict[str, Any]:
+    """Return the applied allocation matching the shared policy, or fail closed."""
+    projects = policy.get("projects") if isinstance(policy, dict) else None
+    p00 = projects.get("p00") if isinstance(projects, dict) else None
+    allocation = ALLOCATIONS.get(p00.get("requests")) if isinstance(p00, dict) else None
+    if allocation is None:
+        raise ExecutionBlocked("p00_allocation_policy_mismatch")
+    return allocation
+
+
+def validate_live_scope(stage: str, campaign: str, policy: dict[str, Any] | None = None) -> None:
+    """Each funded envelope allows exactly one new campaign; historical ones never resume.
+
+    Without a policy only the union of funded scopes is checked, so unknown IDs fail
+    before any side effect; with the applied policy the exact scope is enforced.
+    """
     if stage == "development" and campaign in {"free-dev-c1", "free-dev-c2"}:
         raise ExecutionBlocked("immutable_campaign_provenance_mismatch")
-    if (stage, campaign) != ("development", "free-dev-c2r1"):
+    if policy is None:
+        scopes = {allocation["scope"] for allocation in ALLOCATIONS.values()}
+    else:
+        scopes = {allocation_for(policy)["scope"]}
+    if (stage, campaign) not in scopes:
+        if stage == "development" and campaign in IMMUTABLE_CAMPAIGNS:
+            raise ExecutionBlocked("immutable_campaign_provenance_mismatch")
         raise ExecutionBlocked("phase_028_live_scope_not_allocated")
 
 
@@ -67,12 +116,9 @@ def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
     marker = _safe_account_path(lab, runtime / "policy-migration.pending")
     if marker.exists() or marker.is_symlink() or marker.is_junction():
         raise ExecutionBlocked("policy_migration_pending")
-    expected = {
-        "requests": 219,
-        "input_tokens": 448512,
-        "output_tokens": 56064,
-        "estimated_cost_usd": "0.0504576",
-    }
+    allocation = allocation_for(policy)
+    expected = allocation["policy"]
+    primary_caps = allocation["primary"]
     projects = policy.get("projects")
     p00 = projects.get("p00") if isinstance(projects, dict) else None
     if (
@@ -92,14 +138,14 @@ def verify_applied_policy_binding(lab: Path, policy: dict[str, Any]) -> str:
         "estimated_cost_usd": "0.013824",
     }
     remaining = {
-        "requests": p00.get("requests", 0) - PRIMARY_CAPS.requests - 10,
-        "input_tokens": p00.get("input_tokens", 0) - PRIMARY_CAPS.input_tokens - 20480,
-        "output_tokens": p00.get("output_tokens", 0) - PRIMARY_CAPS.output_tokens - 2560,
+        "requests": p00.get("requests", 0) - primary_caps.requests - 10,
+        "input_tokens": p00.get("input_tokens", 0) - primary_caps.input_tokens - 20480,
+        "output_tokens": p00.get("output_tokens", 0) - primary_caps.output_tokens - 2560,
     }
     try:
         remaining_cost = (
             Decimal(p00.get("estimated_cost_usd", "-1"))
-            - PRIMARY_CAPS.estimated_cost_usd
+            - primary_caps.estimated_cost_usd
             - Decimal("0.002304")
         )
     except (ArithmeticError, TypeError, ValueError):
@@ -619,13 +665,16 @@ def run_campaign(
 
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}", campaign):
         raise ExecutionBlocked("invalid_campaign_id")
-    if client_factory is ProviderClient or getattr(client_factory, "provenance", None) == "live":
+    live = client_factory is ProviderClient or getattr(client_factory, "provenance", None) == "live"
+    if live:
         validate_live_scope(stage, campaign)
     started = time.monotonic()
     deadline = started + config["execution"]["max_wall_clock_seconds"]
     lab = project.parents[1]
     policy_path = lab / "shared/policies/groq-free-campaign.json"
     policy = json.loads(policy_path.read_text())
+    if live:
+        validate_live_scope(stage, campaign, policy)
     caps = policy["projects"]["p00"]
     source_files = fingerprint(project, policy_path)
     if revision is None or client_factory is ProviderClient:
@@ -844,7 +893,7 @@ def run_campaign(
         chunk = run_chunk(
             ledger,
             planned,
-            cumulative_caps=PRIMARY_CAPS,
+            cumulative_caps=ALLOCATIONS.get(caps["requests"], {}).get("primary", PRIMARY_CAPS),
             per_trial_caps=ResourceCaps(
                 1,
                 caps["input_tokens_per_call"],

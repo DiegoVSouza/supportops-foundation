@@ -1,4 +1,5 @@
 """Regression for the 2026-11-06 owner contract decisions (phase 045)."""
+
 import hashlib
 import json
 from pathlib import Path
@@ -8,12 +9,18 @@ V2 = PROJECT / "evals/datasets/live-v2"
 
 
 def _cases():
-    return {json.loads(l)["case_id"]: json.loads(l) for l in (V2 / "cases.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()}
+    return {
+        json.loads(l)["case_id"]: json.loads(l)
+        for l in (V2 / "cases.jsonl").read_text(encoding="utf-8").splitlines()
+        if l.strip()
+    }
 
 
 def test_v2_manifest_hash_matches_cases():
     manifest = json.loads((V2 / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["content_sha256"] == hashlib.sha256((V2 / "cases.jsonl").read_bytes()).hexdigest()
+    assert (
+        manifest["content_sha256"] == hashlib.sha256((V2 / "cases.jsonl").read_bytes()).hexdigest()
+    )
     assert manifest["dataset_version"] == "p00-live-v2"
     assert all(c["dataset_version"] == "p00-live-v2" for c in _cases().values())
 
@@ -28,7 +35,13 @@ def test_no_identifier_means_no_lookup():
 
 
 def test_v2_differs_from_v1_only_in_case_037():
-    v1 = [json.loads(l) for l in (PROJECT / "evals/datasets/live-v1/cases.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+    v1 = [
+        json.loads(l)
+        for l in (PROJECT / "evals/datasets/live-v1/cases.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if l.strip()
+    ]
     v2 = _cases()
     changed = []
     for old in v1:
