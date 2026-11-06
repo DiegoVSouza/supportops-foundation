@@ -1,0 +1,103 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+All checks passed!
+EXIT_CODE=0
+
+== format: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff format --check supportops_foundation demo scripts tests ==
+36 files already formatted
+EXIT_CODE=0
+
+== compile: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m compileall -q supportops_foundation demo scripts tests ==
+
+EXIT_CODE=0
+
+== tests: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m pytest -q --basetemp=artifacts/tmp/pytest ==
+...................................................................F.... [ 39%]
+........................................................................ [ 78%]
+........................................                                 [100%]
+================================== FAILURES ===================================
+_______ test_tampering_result_to_pass_cannot_override_immutable_ledger ________
+
+campaign = (WindowsPath('C:/estudo/Golpe/lab/projects/p00/artifacts/tmp/pytest/test_tampering_result_to_pass_0/lab/projects/p00')...e-006', 'dataset_version': 'p00-live-v2', 'split': 'development', 'source_group': 'shipping-address-en-04', ...}, ...])
+
+    def test_tampering_result_to_pass_cannot_override_immutable_ledger(campaign):
+        project, _, _ = campaign
+        FixtureClient.response["content"] = "invalid json"
+>       run(campaign)
+
+tests\llm\test_campaign_execution.py:288: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\llm\test_campaign_execution.py:119: in run
+    return execution.run_campaign(
+scripts\campaign_execution.py:769: in run_campaign
+    review = ReviewStore(project)
+             ^^^^^^^^^^^^^^^^^^^^
+scripts\campaign_execution.py:319: in __init__
+    private_directory(directory, project)
+scripts\campaign_execution.py:302: in private_directory
+    result = subprocess.run(
+C:\Users\dvsdi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dvsdi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py:1222: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Popen: returncode: 1 args: ['C:\\Program Files\\PowerShell\\7\\pwsh.exe', '...>
+input = None, endtime = 11017.5421056, orig_timeout = 15
+
+    def _communicate(self, input, endtime, orig_timeout):
+        # Start reader threads feeding into a list hanging off of this
+        # object, unless they've already been started.
+        if self.stdout and not hasattr(self, "_stdout_buff"):
+            self._stdout_buff = []
+            self.stdout_thread = \
+                    threading.Thread(target=self._readerthread,
+                                     args=(self.stdout, self._stdout_buff))
+            self.stdout_thread.daemon = True
+            self.stdout_thread.start()
+        if self.stderr and not hasattr(self, "_stderr_buff"):
+            self._stderr_buff = []
+            self.stderr_thread = \
+                    threading.Thread(target=self._readerthread,
+                                     args=(self.stderr, self._stderr_buff))
+            self.stderr_thread.daemon = True
+            self.stderr_thread.start()
+    
+        # Start writer thread to send input to stdin, unless already
+        # started.  The thread writes input and closes stdin when done,
+        # or continues in the background on timeout.
+        if self.stdin and not hasattr(self, "_stdin_thread"):
+            self._stdin_thread = \
+                    threading.Thread(target=self._writerthread,
+                                     args=(input,))
+            self._stdin_thread.daemon = True
+            self._stdin_thread.start()
+    
+        # Wait for the writer thread, or time out.  If we time out, the
+        # thread remains writing and the fd left open in case the user
+        # calls communicate again.
+        if hasattr(self, "_stdin_thread"):
+            self._stdin_thread.join(self._remaining_time(endtime))
+            if self._stdin_thread.is_alive():
+                raise TimeoutExpired(self.args, orig_timeout)
+    
+        # Wait for the reader threads, or time out.  If we time out, the
+        # threads remain reading and the fds left open in case the user
+        # calls communicate again.
+        if self.stdout is not None:
+            self.stdout_thread.join(self._remaining_time(endtime))
+            if self.stdout_thread.is_alive():
+>               raise TimeoutExpired(self.args, orig_timeout)
+E               subprocess.TimeoutExpired: Command '['C:\\Program Files\\PowerShell\\7\\pwsh.exe', '-NoProfile', '-NonInteractive', '-Command', "\n$ErrorActionPreference='Stop'\n$directory=Get-Item -LiteralPath $env:P00_REVIEW_PATH\n$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User\nif($directory.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'review reparse point'}\n$children=@(Get-ChildItem -LiteralPath $directory.FullName -Force)\n$allowed=@('answers.sqlite','answers.sqlite-wal','answers.sqlite-shm','answers.sqlite-journal')\nforeach($child in $children){\n  if($child.PSIsContainer -or $child.Name -notin $allowed -or ($child.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'unexpected review file'}\n}\nforeach($item in @($directory)+$children){\n  $check=Get-Acl -LiteralPath $item.FullName\n  $entries=@($check.Access)\n  if(($item.PSIsContainer -and -not $check.AreAccessRulesProtected) -or $entries.Count -ne 1 -or $entries[0].AccessControlType -ne 'Allow' -or $entries[0].IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -ne $sid.Value -or $check.GetOwner([Security.Principal.SecurityIdentifier]).Value -ne $sid.Value){throw 'review ACL verification'}\n}\nWrite-Output 'owner_only=true'\n"]' timed out after 15 seconds
+
+C:\Users\dvsdi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py:1665: TimeoutExpired
+=========================== short test summary info ===========================
+FAILED tests/llm/test_campaign_execution.py::test_tampering_result_to_pass_cannot_override_immutable_ledger
+1 failed, 183 passed in 103.28s (0:01:43)
+EXIT_CODE=1
