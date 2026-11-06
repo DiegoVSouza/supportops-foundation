@@ -38,3 +38,15 @@ Apply the exact user-authorized free-only addition recorded as `p00-free-envelop
 # 2026-10-27 — Phase 019 C2 allocation and evidence separation
 
 Use only `free-dev-c2`, stage `development`, after the exact root migration is applied, candidate fingerprint is clean/committed, and current free-only preflight is verified. Preserve the failed `free-pilot-v1` and old `free-dev-c1` 12/36 checkpoint including its 24 unexecuted trials. Do not transfer prior quality evidence or replay a semantic failure. Offline control regressions are reusable as control evidence only. Candidate quality evidence stays scoped to its own candidate. Exactly 120 P00 primary calls remain after sixteen historic calls: 36 fresh C2 calls and 84 later holdout; the separate 60-call confirmation remains protected. No correction/judge/canary budget is available. Human, independent, dataset/rubric and promotion review remain PENDING.
+
+## 2026-11-06 — Owner contract decisions for cases 025/026/037
+
+Owner decided: 025 keeps `billing`/`request_info` (model error); 026 keeps `shipping`/`request_info` with no lookup, asking for order details; 037 changes to `shipping`/`request_info`, no tool, `allowed_tools: []`. Rule: no order identifier means no `lookup_order`. Dataset, prompt and grader are not edited in place because `content_sha256` b1e3f779... is bound into historical manifests and bindings; a versioned dataset and a prompt phase follow under phase 045. No new budget is authorized; holdout and confirmation reservations are untouched. Independent review remains PENDING.
+
+## 2026-11-06 — LocalStack replaced by moto; budget request not yet executable
+
+LocalStack needed a license token, so the Compose service is now `motoserver/moto:5.2.5` (S3/SQS/SNS, no token). Isolated check passed (`artifacts/evidence/moto-services-046/result.json`). The owner also asked to raise the development budget "as much as possible"; that is not a finite authorization, so no budget changed. A concrete cap is required, and holdout (84) and confirmation (60) reservations stay protected.
+
+## 2026-11-06 — Owner budget authorization for the next development campaign
+
+Owner authorizes the new development campaign to use the free-plan keys up to the provider limits, with a hard maximum of USD 5.00 total across everything (any paid spend included). Holdout (84 primary) and confirmation (60) reservations remain protected and may not fund this campaign. Not yet executed: dataset v2 switch, prompt reconciliation, allocation and ledger entries, and a dry-run must be done first; no provider request has been made under this authorization. Unknown usage stays charged conservatively against the USD 5.00 cap.
