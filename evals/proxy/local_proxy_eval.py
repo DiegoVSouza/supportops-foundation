@@ -26,16 +26,22 @@ from scripts.run_live_campaign import validate_prediction  # noqa: E402
 HOST = "http://127.0.0.1:11434"
 
 
-def chat(model, system, user, schema, timeout):
-    body = json.dumps(
-        {
-            "model": model,
-            "stream": False,
-            "format": schema,
-            "options": {"temperature": 0, "seed": 7, "num_predict": 200},
-            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-        }
-    ).encode()
+def chat(model, system, user, schema, timeout, cpu=False):
+    payload = {
+        "model": model,
+        "stream": False,
+        "format": schema,
+        "options": {"temperature": 0, "seed": 7, "num_predict": 200},
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+    }
+    if "gpt-oss" in model:
+        # Same reasoning effort as the campaign (low); reasoning tokens count toward the limit.
+        payload["think"] = "low"
+        payload["options"]["num_predict"] = 1500
+    if cpu:
+        # The CUDA runner of this Ollama build crashes on an RTX 5060 Ti (Blackwell); CPU is stable.
+        payload["options"]["num_gpu"] = 0
+    body = json.dumps(payload).encode()
     request = urllib.request.Request(
         HOST + "/api/chat", data=body, headers={"Content-Type": "application/json"}
     )
@@ -49,15 +55,20 @@ def main():
     parser.add_argument("--prompt", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--timeout", type=int, default=120)
+    parser.add_argument("--cpu", action="store_true", help="force CPU inference (num_gpu=0)")
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
 
     schema = json.loads((PROJECT / "agent/schemas/live-decision.json").read_text(encoding="utf-8"))
     system = args.prompt.read_text(encoding="utf-8").strip()
-    manifest = json.loads((PROJECT / "evals/datasets/live-v3/manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (PROJECT / "evals/datasets/live-v3/manifest.json").read_text(encoding="utf-8")
+    )
     cases = [
         json.loads(line)
-        for line in (PROJECT / "evals/datasets/live-v3/cases.jsonl").read_text(encoding="utf-8").splitlines()
+        for line in (PROJECT / "evals/datasets/live-v3/cases.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
         if line.strip()
     ]
     cases = [case for case in cases if case["split"] == "development"]
@@ -68,7 +79,7 @@ def main():
     started = time.time()
     for case in cases:
         try:
-            content = chat(args.model, system, case["input"], schema, args.timeout)
+            content = chat(args.model, system, case["input"], schema, args.timeout, args.cpu)
             prediction = complete_prediction(json.loads(content))
             issues = validate_prediction(case, prediction)
             decision = prediction.get("decision", {}) if isinstance(prediction, dict) else {}
@@ -110,7 +121,9 @@ def main():
     print(json.dumps(summary, indent=2))
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(json.dumps({"summary": summary, "rows": rows}, indent=2), encoding="utf-8")
+        args.out.write_text(
+            json.dumps({"summary": summary, "rows": rows}, indent=2), encoding="utf-8"
+        )
 
 
 if __name__ == "__main__":
