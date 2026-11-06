@@ -102,11 +102,68 @@ def allocation_for(policy: dict[str, Any]) -> dict[str, Any]:
     return allocation
 
 
-def validate_live_scope(stage: str, campaign: str, policy: dict[str, Any] | None = None) -> None:
+HOLDOUT_AUTHORIZATION = ".planning/llm-live-readiness/phases/052-p00-holdout-run/AUTHORIZATION.json"
+HOLDOUT_BOUND_FILES = {
+    "prompt_sha256": "agent/prompts/live-campaign.md",
+    "schema_sha256": "agent/schemas/live-decision.json",
+    "dataset_sha256": "evals/datasets/live-v2/cases.jsonl",
+    "rubric_sha256": "evals/rubrics/live-v1/rubric.md",
+}
+
+
+def holdout_scope(project: Path, policy: dict[str, Any] | None = None) -> tuple[str, str] | None:
+    """Return ("holdout", campaign) only for a valid, single-use owner authorization.
+
+    The authorization must name exactly the 84 protected holdout calls and be bound to
+    the current prompt, schema, dataset and rubric bytes, so an edited candidate can never
+    spend the holdout. Anything missing or different returns None (scope not allocated).
+    """
+    try:
+        path = project.parents[1] / HOLDOUT_AUTHORIZATION
+        auth = json.loads(path.read_text(encoding="utf-8"))
+        expected = {
+            "authorization_id": "p00-holdout-run-v1",
+            "authority": "explicit_user_reply",
+            "project": "p00",
+            "stage": "holdout",
+            "max_calls": 84,
+            "trials_per_case": 3,
+            "single_use": True,
+            "authorized_paid_spend_usd": "0.00",
+        }
+        if any(auth.get(key) != value for key, value in expected.items()):
+            return None
+        campaign = auth.get("campaign")
+        if not isinstance(campaign, str) or not re.fullmatch(
+            r"free-holdout-[a-z0-9]{1,20}", campaign
+        ):
+            return None
+        if (
+            policy is not None
+            and auth.get("policy_requests") != allocation_for(policy)["policy"]["requests"]
+        ):
+            return None
+        for field, relative in HOLDOUT_BOUND_FILES.items():
+            digest = hashlib.sha256((project / relative).read_bytes()).hexdigest()
+            if auth.get(field) != digest:
+                return None
+    except (OSError, ValueError, AttributeError, IndexError, ExecutionBlocked):
+        return None
+    return ("holdout", campaign)
+
+
+def validate_live_scope(
+    stage: str,
+    campaign: str,
+    policy: dict[str, Any] | None = None,
+    project: Path | None = None,
+) -> None:
     """Each funded envelope allows exactly one new campaign; historical ones never resume.
 
     Without a policy only the union of funded scopes is checked, so unknown IDs fail
-    before any side effect; with the applied policy the exact scope is enforced.
+    before any side effect; with the applied policy the exact scope is enforced. A
+    holdout run is allowed only through a valid single-use authorization (see
+    `holdout_scope`).
     """
     if stage == "development" and campaign in {"free-dev-c1", "free-dev-c2"}:
         raise ExecutionBlocked("immutable_campaign_provenance_mismatch")
@@ -114,6 +171,10 @@ def validate_live_scope(stage: str, campaign: str, policy: dict[str, Any] | None
         scopes = {allocation["scope"] for allocation in ALLOCATIONS.values()}
     else:
         scopes = {allocation_for(policy)["scope"]}
+    if project is not None:
+        holdout = holdout_scope(project, policy)
+        if holdout is not None:
+            scopes.add(holdout)
     if (stage, campaign) not in scopes:
         if stage == "development" and campaign in IMMUTABLE_CAMPAIGNS:
             raise ExecutionBlocked("immutable_campaign_provenance_mismatch")
@@ -696,14 +757,14 @@ def run_campaign(
         raise ExecutionBlocked("invalid_campaign_id")
     live = client_factory is ProviderClient or getattr(client_factory, "provenance", None) == "live"
     if live:
-        validate_live_scope(stage, campaign)
+        validate_live_scope(stage, campaign, None, project)
     started = time.monotonic()
     deadline = started + config["execution"]["max_wall_clock_seconds"]
     lab = project.parents[1]
     policy_path = lab / "shared/policies/groq-free-campaign.json"
     policy = json.loads(policy_path.read_text())
     if live:
-        validate_live_scope(stage, campaign, policy)
+        validate_live_scope(stage, campaign, policy, project)
     caps = policy["projects"]["p00"]
     source_files = fingerprint(project, policy_path)
     if revision is None or client_factory is ProviderClient:
@@ -718,6 +779,8 @@ def run_campaign(
     trial_count = config["pilot_trials"] if stage == "pilot" else config["trials"]
     if stage == "development" and (len(selected) != 12 or trial_count != 3):
         raise ExecutionBlocked("development_scope_mismatch")
+    if stage == "holdout" and (len(selected) != 28 or trial_count != 3):
+        raise ExecutionBlocked("holdout_scope_mismatch")
     prompt = (project / "agent/prompts/live-campaign.md").read_text(encoding="utf-8").strip()
     payloads = {
         case["case_id"]: build_payload(project, prompt, case["input"], config) for case in selected
