@@ -51,6 +51,8 @@ def test_unknown_policy_total_fails_closed():
         (301, "free-dev-c3", False),
         (493, "free-dev-c6", True),
         (493, "free-dev-c5", False),
+        (685, "free-dev-c7", True),
+        (685, "free-dev-c6", False),
         (255, "renamed", False),
     ],
 )
@@ -64,7 +66,7 @@ def test_development_scope_follows_the_applied_policy(requests, campaign, allowe
 
 @pytest.mark.parametrize("stage", ["pilot", "holdout"])
 def test_other_stages_are_never_funded(stage):
-    for requests in (219, 255, 265, 301, 493):
+    for requests in (219, 255, 265, 301, 493, 685):
         with pytest.raises(execution.ExecutionBlocked, match="phase_028_live_scope_not_allocated"):
             execution.validate_live_scope(stage, "free-dev-c3", policy(requests))
 
@@ -95,7 +97,7 @@ def _full_policy(requests):
     }
 
 
-@pytest.mark.parametrize("requests", [219, 255, 265, 301, 493])
+@pytest.mark.parametrize("requests", [219, 255, 265, 301, 493, 685])
 def test_binding_accepts_each_applied_envelope_and_rejects_drift(tmp_path, requests):
     import hashlib
     import json

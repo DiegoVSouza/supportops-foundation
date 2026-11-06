@@ -99,6 +99,17 @@ ALLOCATIONS: dict[int, dict[str, Any]] = {
         "primary": ResourceCaps(423, 866304, 108288, Decimal("0.0974592")),
         "scope": ("development", "free-dev-c6"),
     },
+    # Phase 055: +192 calls fund a second live-v3 development pass for the revised prompt.
+    685: {
+        "policy": {
+            "requests": 685,
+            "input_tokens": 1402880,
+            "output_tokens": 175360,
+            "estimated_cost_usd": "0.1578240",
+        },
+        "primary": ResourceCaps(615, 1259520, 157440, Decimal("0.141696")),
+        "scope": ("development", "free-dev-c7"),
+    },
 }
 IMMUTABLE_CAMPAIGNS = {
     "free-dev-c1",
@@ -107,6 +118,7 @@ IMMUTABLE_CAMPAIGNS = {
     "free-dev-c3",
     "free-dev-c4",
     "free-dev-c5",
+    "free-dev-c6",
 }
 
 
@@ -564,6 +576,8 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         lab / "scripts/harness/migrate_free_envelope_c5.py",
         lab / ".planning/llm-live-readiness/phases/054-dev-envelope-c6/AUTHORIZATION.json",
         lab / "scripts/harness/migrate_free_envelope_c6.py",
+        lab / ".planning/llm-live-readiness/phases/055-dev-envelope-c7/AUTHORIZATION.json",
+        lab / "scripts/harness/migrate_free_envelope_c7.py",
     ]
     return {
         str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()

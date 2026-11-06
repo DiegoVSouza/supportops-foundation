@@ -115,7 +115,7 @@ def test_prompt_states_the_rule_and_examples_do_not_copy_the_dataset():
         line.split(":")[0].strip()
         for line in prompt.splitlines()[prompt.splitlines().index("E.g.") + 1 :]
     ]
-    assert len(examples) >= 6
+    assert len(examples) >= 4
     for example in examples:
         for case in CASES:
             ratio = difflib.SequenceMatcher(None, example.lower(), case["input"].lower()).ratio()

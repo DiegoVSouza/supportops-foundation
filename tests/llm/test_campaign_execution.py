@@ -85,6 +85,8 @@ def campaign(tmp_path, monkeypatch):
         "scripts/harness/migrate_free_envelope_c5.py",
         ".planning/llm-live-readiness/phases/054-dev-envelope-c6/AUTHORIZATION.json",
         "scripts/harness/migrate_free_envelope_c6.py",
+        ".planning/llm-live-readiness/phases/055-dev-envelope-c7/AUTHORIZATION.json",
+        "scripts/harness/migrate_free_envelope_c7.py",
     ):
         target = project.parents[1] / name
         target.parent.mkdir(parents=True, exist_ok=True)

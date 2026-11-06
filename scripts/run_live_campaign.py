@@ -373,7 +373,7 @@ def applied_allocation(project: Path) -> dict[str, Any]:
         "output_tokens": sum(account.usage(row)["output_tokens"] for row in operation_rows),
     }
     operation_reserve = (
-        10 if policy["projects"]["p00"]["requests"] in {219, 255, 265, 301, 493} else 0
+        10 if policy["projects"]["p00"]["requests"] in {219, 255, 265, 301, 493, 685} else 0
     )
     p01_operation_reserve = {992: 8, 996: 12}.get(policy["projects"]["p01"]["requests"], 0)
     revalidation_applied = False
@@ -381,11 +381,12 @@ def applied_allocation(project: Path) -> dict[str, Any]:
     import migrate_free_envelope_c4 as c4
     import migrate_free_envelope_c5 as c5
     import migrate_free_envelope_c6 as c6
+    import migrate_free_envelope_c7 as c7
     import migrate_free_envelope_plus36 as plus36
     from migrate_p01_p04_revalidation import NEW_SHA, MigrationBlocked, read_audit
 
     # Envelope migrations apply in order; a later policy hash needs every earlier audit applied.
-    chain = [plus36, c4, c5, c6]
+    chain = [plus36, c4, c5, c6, c7]
     hashes = [NEW_SHA, *(module.NEW_SHA for module in chain)]
     if policy_sha in hashes:
         applied_modules = chain[: hashes.index(policy_sha)]
