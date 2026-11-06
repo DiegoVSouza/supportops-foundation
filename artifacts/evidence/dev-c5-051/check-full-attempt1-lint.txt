@@ -1,0 +1,27 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+RUF100 [*] Unused `noqa` directive (non-enabled: `E402`)
+  --> tests\test_live_campaign_preparation.py:24:55
+   |
+22 | CASES = load_cases(ROOT / CONFIG["cases_path"], MANIFEST)
+23 |
+24 | from scripts import campaign_execution as _execution  # noqa: E402
+   |                                                       ^^^^^^^^^^^^
+25 |
+26 | _POLICY = load_json(ROOT.parents[1] / "shared/policies/groq-free-campaign.json")
+   |
+help: Remove unused `noqa` directive
+   |
+23 |
+   - from scripts import campaign_execution as _execution  # noqa: E402
+24 + from scripts import campaign_execution as _execution
+25 |
+   |
+
+Found 1 error.
+[*] 1 fixable with `--fix`.
+EXIT_CODE=1
