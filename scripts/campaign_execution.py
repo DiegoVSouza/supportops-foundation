@@ -110,6 +110,18 @@ ALLOCATIONS: dict[int, dict[str, Any]] = {
         "primary": ResourceCaps(615, 1259520, 157440, Decimal("0.141696")),
         "scope": ("development", "free-dev-c7"),
     },
+    # Phase 056: +70 calls restore a full 192-trial pass after the stopped c7, for the
+    # feature-report candidate.
+    755: {
+        "policy": {
+            "requests": 755,
+            "input_tokens": 1546240,
+            "output_tokens": 193280,
+            "estimated_cost_usd": "0.1739520",
+        },
+        "primary": ResourceCaps(685, 1402880, 175360, Decimal("0.157824")),
+        "scope": ("development", "free-dev-c8"),
+    },
 }
 IMMUTABLE_CAMPAIGNS = {
     "free-dev-c1",
@@ -119,6 +131,7 @@ IMMUTABLE_CAMPAIGNS = {
     "free-dev-c4",
     "free-dev-c5",
     "free-dev-c6",
+    "free-dev-c7",
 }
 
 
@@ -578,6 +591,8 @@ def fingerprint(project: Path, policy_path: Path) -> dict[str, str]:
         lab / "scripts/harness/migrate_free_envelope_c6.py",
         lab / ".planning/llm-live-readiness/phases/055-dev-envelope-c7/AUTHORIZATION.json",
         lab / "scripts/harness/migrate_free_envelope_c7.py",
+        lab / ".planning/llm-live-readiness/phases/056-dev-envelope-c8/AUTHORIZATION.json",
+        lab / "scripts/harness/migrate_free_envelope_c8.py",
     ]
     return {
         str(path.relative_to(lab)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
