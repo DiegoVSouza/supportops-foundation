@@ -21,7 +21,7 @@ CONFIG = load_json(ROOT / "evals/live-campaign.json")
 MANIFEST = load_json(ROOT / CONFIG["dataset_manifest"])
 CASES = load_cases(ROOT / CONFIG["cases_path"], MANIFEST)
 
-from scripts import campaign_execution as _execution  # noqa: E402
+from scripts import campaign_execution as _execution
 
 _POLICY = load_json(ROOT.parents[1] / "shared/policies/groq-free-campaign.json")
 _ALLOCATION = _execution.allocation_for(_POLICY)
