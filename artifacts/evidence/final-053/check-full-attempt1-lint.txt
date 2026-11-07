@@ -1,0 +1,195 @@
+
+== fast: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe scripts/check_fast.py ==
+check-fast: OK
+EXIT_CODE=0
+
+== lint: C:\estudo\Golpe\lab\projects\p00\.venv\Scripts\python.exe -m ruff check supportops_foundation demo scripts tests ==
+B033 [*] Sets should not contain duplicate item `"as"`
+  --> scripts\director.py:38:16
+   |
+36 |     "why", "very", "too", "also", "now", "then", "than", "get", "got", "go", "going",
+37 |     # portuguese
+38 |     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+   |                ^^^^
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+   |
+  ::: scripts\director.py:30:27
+   |
+28 |     # english
+29 |     "a", "an", "the", "and", "or", "but", "so", "if", "of", "to", "in", "on", "at", "for",
+30 |     "from", "with", "by", "as", "up", "out", "off", "into", "about", "over", "again",
+   |                           ---- Previous occurrence here
+31 |     "i", "me", "my", "mine", "we", "us", "our", "you", "your", "they", "them", "their",
+32 |     "is", "are", "was", "were", "be", "been", "am", "do", "does", "did", "has", "have",
+   |
+help: Remove duplicate item
+   |
+37 |     # portuguese
+   -     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+38 +     "o", "os", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+   |
+
+B033 [*] Sets should not contain duplicate item `"do"`
+  --> scripts\director.py:38:56
+   |
+36 |     "why", "very", "too", "also", "now", "then", "than", "get", "got", "go", "going",
+37 |     # portuguese
+38 |     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+   |                                                        ^^^^
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+   |
+  ::: scripts\director.py:32:53
+   |
+30 |     "from", "with", "by", "as", "up", "out", "off", "into", "about", "over", "again",
+31 |     "i", "me", "my", "mine", "we", "us", "our", "you", "your", "they", "them", "their",
+32 |     "is", "are", "was", "were", "be", "been", "am", "do", "does", "did", "has", "have",
+   |                                                     ---- Previous occurrence here
+33 |     "had", "can", "could", "will", "would", "shall", "should", "may", "might", "must",
+34 |     "not", "no", "cannot", "cant", "dont", "doesnt", "didnt", "wont", "just", "still",
+   |
+help: Remove duplicate item
+   |
+37 |     # portuguese
+   -     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+38 +     "o", "os", "as", "um", "uma", "uns", "umas", "de", "da", "dos", "das", "em",
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+   |
+
+B033 [*] Sets should not contain duplicate item `"no"`
+  --> scripts\director.py:39:5
+   |
+32 |     "is", "are", "was", "were", "be", "been", "am", "do", "does", "did", "has", "have",
+33 |     "had", "can", "could", "will", "would", "shall", "should", "may", "might", "must",
+34 |     "not", "no", "cannot", "cant", "dont", "doesnt", "didnt", "wont", "just", "still",
+   |            ---- Previous occurrence here
+35 |     "yet", "already", "there", "here", "what", "which", "who", "when", "where", "how",
+36 |     "why", "very", "too", "also", "now", "then", "than", "get", "got", "go", "going",
+37 |     # portuguese
+38 |     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+   |     ^^^^
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+41 |     "voces", "nos", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
+   |
+help: Remove duplicate item
+   |
+38 |     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+   -     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+39 +     "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+   |
+
+B033 [*] Sets should not contain duplicate item `"me"`
+  --> scripts\director.py:40:37
+   |
+38 |     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+   |                                     ^^^^
+41 |     "voces", "nos", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
+42 |     "estou", "tem", "tinha", "ter", "ja", "ainda", "nao", "mais", "muito", "ai", "la",
+   |
+  ::: scripts\director.py:31:10
+   |
+29 |     "a", "an", "the", "and", "or", "but", "so", "if", "of", "to", "in", "on", "at", "for",
+30 |     "from", "with", "by", "as", "up", "out", "off", "into", "about", "over", "again",
+31 |     "i", "me", "my", "mine", "we", "us", "our", "you", "your", "they", "them", "their",
+   |          ---- Previous occurrence here
+32 |     "is", "are", "was", "were", "be", "been", "am", "do", "does", "did", "has", "have",
+33 |     "had", "can", "could", "will", "would", "shall", "should", "may", "might", "must",
+   |
+help: Remove duplicate item
+   |
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+   -     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+40 +     "ou", "mas", "que", "se", "eu", "meu", "minha", "meus", "minhas", "voce",
+41 |     "voces", "nos", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
+   |
+
+B033 [*] Sets should not contain duplicate item `"nos"`
+  --> scripts\director.py:41:14
+   |
+37 |     # portuguese
+38 |     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+   |                 ----- Previous occurrence here
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+41 |     "voces", "nos", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
+   |              ^^^^^
+42 |     "estou", "tem", "tinha", "ter", "ja", "ainda", "nao", "mais", "muito", "ai", "la",
+43 |     "aqui", "como", "quando", "onde", "quanto", "pode", "podem", "poderia", "consigo",
+   |
+help: Remove duplicate item
+   |
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+   -     "voces", "nos", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
+41 +     "voces", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
+42 |     "estou", "tem", "tinha", "ter", "ja", "ainda", "nao", "mais", "muito", "ai", "la",
+   |
+
+B033 [*] Sets should not contain duplicate item `"de"`
+  --> scripts\director.py:44:41
+   |
+42 |     "estou", "tem", "tinha", "ter", "ja", "ainda", "nao", "mais", "muito", "ai", "la",
+43 |     "aqui", "como", "quando", "onde", "quanto", "pode", "podem", "poderia", "consigo",
+44 |     "vai", "vou", "foram", "fui", "ha", "de", "novo", "vez", "vezes",
+   |                                         ^^^^
+45 | }  # fmt: skip
+   |
+  ::: scripts\director.py:38:50
+   |
+36 |     "why", "very", "too", "also", "now", "then", "than", "get", "got", "go", "going",
+37 |     # portuguese
+38 |     "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
+   |                                                  ---- Previous occurrence here
+39 |     "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+40 |     "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
+   |
+help: Remove duplicate item
+   |
+43 |     "aqui", "como", "quando", "onde", "quanto", "pode", "podem", "poderia", "consigo",
+   -     "vai", "vou", "foram", "fui", "ha", "de", "novo", "vez", "vezes",
+44 +     "vai", "vou", "foram", "fui", "ha", "novo", "vez", "vezes",
+45 | }  # fmt: skip
+   |
+
+FURB167 [*] Use of regular expression alias `re.I`
+  --> scripts\director.py:69:93
+   |
+67 |     r"estorne|reembolse|indenize)\b"
+68 | )
+69 | PLANTED_NOTE = re.compile(r"^\s*(system|admin|note|nota|aviso)\b|nota anexa|customer note", re.I)
+   |                                                                                             ^^^^
+help: Replace with `re.IGNORECASE`
+   |
+68 | )
+   - PLANTED_NOTE = re.compile(r"^\s*(system|admin|note|nota|aviso)\b|nota anexa|customer note", re.I)
+69 + PLANTED_NOTE = re.compile(r"^\s*(system|admin|note|nota|aviso)\b|nota anexa|customer note", re.IGNORECASE)
+70 |
+   |
+
+RUF059 Unpacked variable `risky` is never used
+  --> tests\llm\test_director.py:78:19
+   |
+76 | def test_the_director_never_removes_an_escalation_or_creates_an_answer():
+77 |     for ticket in BARE + SPECIFIC:
+78 |         specific, risky, _ = director.direct(ticket, False, False)
+   |                   ^^^^^
+79 |         assert specific is False
+80 |         _, risky_kept, _ = director.direct(ticket, False, True)
+   |
+help: Prefix it with an underscore or any other dummy variable pattern
+   |
+77 |     for ticket in BARE + SPECIFIC:
+   -         specific, risky, _ = director.direct(ticket, False, False)
+78 +         specific, _risky, _ = director.direct(ticket, False, False)
+79 |         assert specific is False
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+Found 8 errors.
+[*] 7 fixable with `--fix` (1 unsafe fix available with `--fix --unsafe-fixes`).
+EXIT_CODE=1
