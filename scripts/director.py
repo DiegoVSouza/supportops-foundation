@@ -35,13 +35,13 @@ FUNCTION = {
     "yet", "already", "there", "here", "what", "which", "who", "when", "where", "how",
     "why", "very", "too", "also", "now", "then", "than", "get", "got", "go", "going",
     # portuguese
-    "o", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em",
-    "no", "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
-    "ou", "mas", "que", "se", "eu", "me", "meu", "minha", "meus", "minhas", "voce",
-    "voces", "nos", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
+    "o", "os", "um", "uma", "uns", "umas", "de", "da", "dos", "das", "em",
+    "na", "nos", "nas", "por", "pelo", "pela", "para", "pra", "com", "sem", "e",
+    "ou", "mas", "que", "se", "eu", "meu", "minha", "meus", "minhas", "voce",
+    "voces", "seu", "sua", "foi", "ser", "sao", "era", "estar", "esta", "estao",
     "estou", "tem", "tinha", "ter", "ja", "ainda", "nao", "mais", "muito", "ai", "la",
     "aqui", "como", "quando", "onde", "quanto", "pode", "podem", "poderia", "consigo",
-    "vai", "vou", "foram", "fui", "ha", "de", "novo", "vez", "vezes",
+    "vai", "vou", "foram", "fui", "ha", "novo", "vez", "vezes",
 }  # fmt: skip
 
 GENERIC_VERBS = {
@@ -66,7 +66,9 @@ OWN_DEMAND = re.compile(
     r"quero|exijo|me\s+(pague|devolv\w*|reembols\w*|indeniz\w*|ressarc\w*)|"
     r"estorne|reembolse|indenize)\b"
 )
-PLANTED_NOTE = re.compile(r"^\s*(system|admin|note|nota|aviso)\b|nota anexa|customer note", re.I)
+PLANTED_NOTE = re.compile(
+    r"^\s*(system|admin|note|nota|aviso)\b|nota anexa|customer note", re.IGNORECASE
+)
 
 
 def normalize(text):
