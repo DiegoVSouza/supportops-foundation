@@ -1,10 +1,10 @@
 {
   "features": [
     {
-      "id": "funded-replacement-development",
-      "status": "FAIL_PROVISIONAL; LOCAL_CONTROLS_PASS; REVIEW_AND_PROMOTION_PENDING",
-      "evidence": ".planning/phases/028-funded-replacement/VERIFY.md; artifacts/evidence/funded-replacement-028/final-analysis.md",
-      "detail": "148-test offline gate passes. Frozen candidate completed 36 live development trials with 27 passes and nine semantic failures. 84 holdout and 60 confirmation calls remain protected; no correction budget or human approval is inferred."
+      "id": "live-model-evaluation",
+      "status": "FINAL_SPLIT_MEASURED; REVIEW_AND_PROMOTION_PENDING",
+      "evidence": "artifacts/evals/live/free-final-c1/report.json; artifacts/evidence/summaries/free-final-c1.json; docs/harness/failures.md",
+      "detail": "Single-use final split of 20 unseen synthetic cases: 54 of 60 trials passed (90.0%, Wilson 95% 0.799 to 0.953) for the c6 prompt plus a deterministic ticket director; the number measures that system, not the bare model. Development set (64 cases x 3 trials): 157 of 192 for the prompt alone, 182 of 192 with the director replayed over the recorded trials (in-sample: the rules were written after reading those tickets). An earlier sealed holdout on an older 28-case dataset scored 29 of 84 and is not comparable. The final split and the confirmation reserve are consumed; no further tuning on them. Independent review is waived by the owner; human review and promotion stay pending."
     },
     {
       "id": "domain-contracts",

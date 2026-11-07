@@ -1,0 +1,59 @@
+{
+  "campaign": "free-dev-c8",
+  "dataset_version": "p00-live-v3",
+  "stage": "development",
+  "trials": 192,
+  "passed": 150,
+  "pass_rate": 0.781,
+  "wilson95": [
+    0.718,
+    0.834
+  ],
+  "cases": 64,
+  "cases_all_three_pass": 49,
+  "critical_failures": 0,
+  "tokens": {
+    "input": 73002,
+    "output": 16973
+  },
+  "by_expected_action": {
+    "answer": "118/126",
+    "escalate": "23/30",
+    "request_info": "9/36"
+  },
+  "by_family": {
+    "ambiguous_input": "9/36",
+    "model_usage_identity": "39/39",
+    "provider_failure_boundaries": "12/24",
+    "read_only_tool_selection": "21/21",
+    "structured_output_invalid": "12/12",
+    "structured_output_valid": "36/36",
+    "unsupported_request": "21/24"
+  },
+  "by_domain": {
+    "account_access": "33/39",
+    "billing": "33/51",
+    "other": "20/27",
+    "shipping": "34/42",
+    "technical": "30/33"
+  },
+  "by_language": {
+    "en": "84/111",
+    "pt-BR": "66/81"
+  },
+  "source": "artifacts/evals/live/free-dev-c8/trials.jsonl",
+  "director_replay": {
+    "passed": 174,
+    "pass_rate": 0.906,
+    "wilson95": [
+      0.857,
+      0.94
+    ],
+    "by_expected_action": {
+      "answer": "118/126",
+      "escalate": "23/30",
+      "request_info": "33/36"
+    },
+    "note": "Exact replay over the recorded trials; the director rules were written after reading these development tickets, so this is in-sample."
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "campaign": "free-final-c1",
+  "dataset_version": "p00-live-v3",
+  "stage": "holdout",
+  "trials": 60,
+  "passed": 54,
+  "pass_rate": 0.9,
+  "wilson95": [
+    0.799,
+    0.953
+  ],
+  "cases": 20,
+  "cases_all_three_pass": 18,
+  "critical_failures": 0,
+  "tokens": {
+    "input": 22896,
+    "output": 4372
+  },
+  "by_expected_action": {
+    "answer": "36/36",
+    "escalate": "6/12",
+    "request_info": "12/12"
+  },
+  "by_family": {
+    "ambiguous_input": "12/12",
+    "model_usage_identity": "15/15",
+    "provider_failure_boundaries": "9/12",
+    "read_only_tool_selection": "6/6",
+    "structured_output_valid": "9/9",
+    "unsupported_request": "3/6"
+  },
+  "by_domain": {
+    "account_access": "9/9",
+    "billing": "12/15",
+    "other": "9/12",
+    "shipping": "12/12",
+    "technical": "12/12"
+  },
+  "by_language": {
+    "en": "33/36",
+    "pt-BR": "21/24"
+  },
+  "source": "artifacts/evals/live/free-final-c1/trials.jsonl"
+}

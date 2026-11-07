@@ -1,0 +1,45 @@
+{
+  "campaign": "free-holdout-c1",
+  "dataset_version": "p00-live-v2",
+  "stage": "holdout",
+  "trials": 84,
+  "passed": 29,
+  "pass_rate": 0.345,
+  "wilson95": [
+    0.252,
+    0.452
+  ],
+  "cases": 28,
+  "cases_all_three_pass": 8,
+  "critical_failures": 0,
+  "tokens": {
+    "input": 32313,
+    "output": 8154
+  },
+  "by_expected_action": {
+    "answer": "12/57",
+    "escalate": "3/3",
+    "request_info": "14/24"
+  },
+  "by_family": {
+    "ambiguous_input": "14/15",
+    "model_usage_identity": "0/9",
+    "provider_failure_boundaries": "4/9",
+    "read_only_tool_selection": "5/18",
+    "structured_output_invalid": "0/12",
+    "structured_output_valid": "3/12",
+    "unsupported_request": "3/9"
+  },
+  "by_domain": {
+    "account_access": "3/18",
+    "billing": "12/21",
+    "other": "3/12",
+    "shipping": "9/18",
+    "technical": "2/15"
+  },
+  "by_language": {
+    "en": "14/48",
+    "pt-BR": "15/36"
+  },
+  "source": "artifacts/evals/live/free-holdout-c1/trials.jsonl"
+}
