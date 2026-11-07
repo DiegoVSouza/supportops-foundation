@@ -65,3 +65,13 @@ uv run --locked python scripts/run_live_campaign.py --resume free-pilot-v1 --exe
 ```
 
 Cada lote tem até dez novas tentativas. Falhas concluídas não são repetidas; tentativas incertas exigem reconciliação. Resultados sanitizados e comandos de retomada ficam em `artifacts/evals/live/<campaign-id>/`. Respostas sintéticas para revisão posterior ficam somente no banco privado da aplicação, fora do Git/artifacts. Exit 0/1 indica aprovação/falha provisória de engenharia; exit 2 indica bloqueio, interrupção ou checkpoint de consumo. Revisão humana e promoção continuam pendentes.
+
+## Qualidade medida (execuções reais registradas)
+
+Todos os números abaixo vêm de execuções registradas em `artifacts/evals/live/` e `docs/harness/failures.md`; o modelo é o Groq `openai/gpt-oss-20b` com chaves do plano gratuito, só tickets sintéticos.
+
+- **Rodada final, casos não vistos (uso único):** 54 de 60 trials = **90,0%** (Wilson 95%: 79,9% a 95,3%); 18 de 20 casos acertaram nos 3 trials; zero falhas críticas ou operacionais. Respostas 36/36, pedir detalhe 12/12, escalações 6/12. Campanha `free-final-c1`.
+- **O que é o sistema:** o modelo devolve categoria, ação (responder, pedir informação ou escalar) e justificativa. O código define o sinal de escalação, escolhe a consulta somente leitura da categoria e um diretor determinístico de tickets (`scripts/director.py`, sem chamada de IA) corrige dois casos: referência vazia ("isso", "it", "that") não pode ser respondida, e o pedido de reembolso do próprio usuário escala. O número mede o sistema inteiro, não o modelo sozinho.
+- **Desenvolvimento (64 casos x 3 trials):** 157/192 (81,8%) só com o prompt; 182/192 (94,8%) com o diretor, reproduzido exatamente sobre os trials gravados. As regras do diretor foram escritas depois de ler esses tickets, então esse valor é dentro da amostra.
+- **Holdout selado anterior (dataset antigo de 28 casos, prompt few-shot):** 29/84 (34,5%). Cobria domínios que o prompt nunca tinha visto e não é comparável com os números acima; fica registrado porque é o que o primeiro desenho realmente fez.
+- **Limites:** 20 casos finais e 60 trials dão um intervalo largo; o dataset foi escrito pelo assistente sob uma regra documentada e revisado só pelo dono (revisão independente dispensada); revisão humana e promoção seguem pendentes. A rodada final foi consumida: qualquer mudança de prompt, regra ou dataset exige casos novos.

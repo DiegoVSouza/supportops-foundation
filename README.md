@@ -90,7 +90,7 @@ uv run --locked python scripts/check_full.py
 uv run --locked python scripts/doctor.py
 ```
 
-Do not change golden-set expectations to make tests pass. Update the dataset seed, expected behavior, and digest together, then review the diff. Model quality, provider cost, and live latency remain **PENDING** until real authorized runs are recorded.
+Do not change golden-set expectations to make tests pass. Update the dataset seed, expected behavior, and digest together, then review the diff. Model quality is recorded in "Measured quality" below; provider cost and live latency remain **PENDING** until measured.
 
 ## Results
 
@@ -116,3 +116,13 @@ uv run --locked python scripts/run_live_campaign.py --resume free-pilot-v1 --exe
 ```
 
 Chunks contain at most ten new trials. Completed failures never replay; uncertain work requires reconciliation. Reports and immutable manifests live under `artifacts/evals/live/<campaign-id>/`. Sanitized artifacts reference provider usage receipts and private synthetic review-application state outside Git/artifacts. Exit 0/1 describes provisional engineering pass/fail; exit 2 means missing prerequisites, interrupted work or resource checkpoint. Human review and promotion remain separate pending gates; fake stays default.
+
+## Measured quality (live, recorded runs)
+
+Every number below comes from a recorded run under `artifacts/evals/live/` and `docs/harness/failures.md`; the model is Groq `openai/gpt-oss-20b` on free-plan keys, synthetic tickets only.
+
+- **Final, unseen split (single use):** 54 of 60 trials = **90.0%** (Wilson 95%: 79.9% to 95.3%); 18 of 20 cases passed all three trials; zero critical or operational failures. Answers 36/36, asks-for-detail 12/12, escalations 6/12. Campaign `free-final-c1`.
+- **What the system is:** the model returns a category, an action (answer, request_info or escalate) and a rationale. Code then sets the escalation flag, picks the read-only lookup that belongs to the category, and a deterministic ticket director (`scripts/director.py`, no model call) corrects two cases: a bare reference ("it", "that", "isso") cannot be answered, and the user's own refund demand escalates. The number measures this whole system, not the bare model.
+- **Development split (64 cases x 3 trials):** 157/192 (81.8%) for the prompt alone; 182/192 (94.8%) with the director, replayed exactly over the recorded trials. The director's rules were written after reading these tickets, so that figure is in-sample.
+- **Earlier sealed holdout (older 28-case dataset, few-shot prompt):** 29/84 (34.5%). It covered domains the prompt had never seen and is not comparable with the numbers above; it is kept because it is what the first design really scored.
+- **Limits:** 20 final cases and 60 trials give a wide interval; the dataset was written by the assistant under one documented rule and reviewed only by the owner (independent review waived); human review and promotion remain pending. The final split is consumed: any new prompt, rule or dataset change needs fresh cases.
