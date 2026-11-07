@@ -75,7 +75,7 @@ def test_an_identifier_always_keeps_the_ticket_specific():
 
 def test_the_director_never_removes_an_escalation_or_creates_an_answer():
     for ticket in BARE + SPECIFIC:
-        specific, risky, _ = director.direct(ticket, False, False)
+        specific, _, _ = director.direct(ticket, False, False)
         assert specific is False
         _, risky_kept, _ = director.direct(ticket, False, True)
         assert risky_kept is True
