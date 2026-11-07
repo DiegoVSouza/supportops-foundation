@@ -1,0 +1,6 @@
+free-dev-c6: recorded 157/192 -> with director 182/192 (0.907, 0.971)
+  by expected action (recorded -> director / total): {'answer': '122->122/126', 'escalate': '21->27/30', 'request_info': '14->33/36'}
+  rules fired: {'bare_reference': 19, 'own_demand': 6} | trials made worse: []
+free-dev-c8: recorded 150/192 -> with director 174/192 (0.857, 0.94)
+  by expected action (recorded -> director / total): {'answer': '118->118/126', 'escalate': '23->23/30', 'request_info': '9->33/36'}
+  rules fired: {'bare_reference': 24} | trials made worse: []

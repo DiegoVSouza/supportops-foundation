@@ -1,14 +1,8 @@
 """Behaviour of the deterministic ticket director on tickets that are not in the dataset."""
 
-import importlib.util
-from pathlib import Path
-
 import pytest
 
-PROJECT = Path(__file__).resolve().parents[2]
-spec = importlib.util.spec_from_file_location("director", PROJECT / "evals/director/director.py")
-director = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(director)
+from scripts import director
 
 # Concrete requests: an item plus a problem or question. The director must never downgrade these.
 SPECIFIC = [

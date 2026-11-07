@@ -24,6 +24,7 @@ from typing import Any
 
 from scripts.campaign_batch import ResourceCaps, TrialOutcome, TrialReservation, run_chunk
 from scripts.campaign_runtime import CampaignLedger
+from scripts.director import decide_action, direct
 
 
 class ExecutionBlocked(RuntimeError):
@@ -172,6 +173,7 @@ HOLDOUT_BOUND_FILES = {
     "schema_sha256": "agent/schemas/live-decision.json",
     "dataset_sha256": "evals/datasets/live-v3/cases.jsonl",
     "rubric_sha256": "evals/rubrics/live-v1/rubric.md",
+    "director_sha256": "scripts/director.py",
 }
 
 
@@ -723,23 +725,19 @@ TOOL_FOR_CATEGORY = {
 }
 
 
-def decide_action(risky: bool, specific: bool) -> str:
-    """Policy in code: a risky goal escalates, a specific request is answered, else ask."""
-    if risky:
-        return "escalate"
-    return "answer" if specific else "request_info"
-
-
-def complete_prediction(prediction: Any) -> Any:
+def complete_prediction(prediction: Any, ticket: str | None = None) -> Any:
     """Add what code decides: the action, the escalation flag and the read-only tool.
 
-    The model reports features only: `category`, `specific` (a concrete problem or question
-    about something named), `risky` (the user's main goal needs a human) and a rationale.
-    Code derives the action, sets `escalate` for escalations and picks the lookup that
-    belongs to the category when the action is `answer`; no other action runs a tool and
-    the refund tool is never derived. A `category, action, rationale` shape is also
-    completed. Outputs with other or extra fields, or wrong types, are returned unchanged
-    so validation reports them.
+    Two model shapes are accepted: `category, action, rationale`, or the feature report
+    `category, specific, risky, rationale` (code applies `decide_action`). When the raw
+    ticket is given, the deterministic director (`scripts/director.py`) may first correct the
+    features: a bare reference is not specific, and the user's own money demand is risky. The
+    director never turns a model escalation into an answer.
+
+    Code then sets `escalate` (true exactly for an escalation) and picks the lookup that
+    belongs to the category only when the action is `answer`; no other action runs a tool and
+    the refund tool is never derived. Outputs with other or extra fields, or wrong types, are
+    returned unchanged so validation reports them.
     """
     if not isinstance(prediction, dict) or set(prediction) != {"decision"}:
         return prediction
@@ -749,17 +747,24 @@ def complete_prediction(prediction: Any) -> Any:
     if set(decision) == {"category", "specific", "risky", "rationale"}:
         if not isinstance(decision["specific"], bool) or not isinstance(decision["risky"], bool):
             return prediction
-        action = decide_action(decision["risky"], decision["specific"])
-        decision = {
-            "category": decision["category"],
+        specific, risky = decision["specific"], decision["risky"]
+        action = decide_action(risky, specific)
+    elif set(decision) == {"category", "action", "rationale"}:
+        action = decision["action"]
+        specific, risky = action == "answer", action == "escalate"
+    else:
+        return prediction
+    if ticket is not None and action in {"answer", "request_info", "escalate"}:
+        specific, risky, _ = direct(ticket, specific, risky)
+        action = decide_action(risky, specific)
+    category = decision["category"]
+    return {
+        "decision": {
+            "category": category,
             "action": action,
             "rationale": decision["rationale"],
-        }
-    elif set(decision) != {"category", "action", "rationale"}:
-        return prediction
-    action, category = decision["action"], decision["category"]
-    return {
-        "decision": {**decision, "escalate": action == "escalate"},
+            "escalate": action == "escalate",
+        },
         "tool": TOOL_FOR_CATEGORY.get(category) if action == "answer" else None,
     }
 
@@ -1008,7 +1013,7 @@ def run_campaign(
         errors, prediction, issues = [], None, []
         if evaluated:
             try:
-                prediction = complete_prediction(json.loads(result["content"]))
+                prediction = complete_prediction(json.loads(result["content"]), case["input"])
             except (ValueError, KeyError, TypeError):
                 errors = ["output_schema"]
             if not errors:

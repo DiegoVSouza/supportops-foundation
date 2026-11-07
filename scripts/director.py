@@ -81,7 +81,9 @@ def tokens(text):
 def analyze(ticket):
     """Return the facts the rules use; kept separate so tests and tables can print them."""
     words = tokens(ticket)
-    content = [w for w in words if w not in FUNCTION and w not in GENERIC_VERBS and w not in POINTERS]
+    content = [
+        w for w in words if w not in FUNCTION and w not in GENERIC_VERBS and w not in POINTERS
+    ]
     return {
         "words": len(words),
         "pointers": [w for w in words if w in POINTERS],
@@ -106,6 +108,13 @@ def is_own_demand(ticket):
     if PLANTED_NOTE.search(ticket) and not OWN_DEMAND.search(text):
         return False
     return bool(DEMAND_VERBS.search(text)) and bool(OWN_DEMAND.search(text))
+
+
+def decide_action(risky, specific):
+    """Policy in code: a risky goal escalates, a specific request is answered, else ask."""
+    if risky:
+        return "escalate"
+    return "answer" if specific else "request_info"
 
 
 def direct(ticket, specific, risky):

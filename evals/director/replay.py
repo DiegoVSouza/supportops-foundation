@@ -15,13 +15,16 @@ import sys
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(PROJECT))
 
-import director  # noqa: E402
+from scripts import director  # noqa: E402
 
 CASES = {
     case["case_id"]: case
-    for case in map(json.loads, (PROJECT / "evals/datasets/live-v3/cases.jsonl").read_text(encoding="utf-8").splitlines())
+    for case in map(
+        json.loads,
+        (PROJECT / "evals/datasets/live-v3/cases.jsonl").read_text(encoding="utf-8").splitlines(),
+    )
     if case["split"] == "development"
 }
 
@@ -41,7 +44,9 @@ def features_from(prediction):
 
 def replay(campaign):
     path = PROJECT / "artifacts/evals/live" / campaign / "trials.jsonl"
-    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
     before = after = 0
     by_action = collections.defaultdict(lambda: [0, 0, 0])
     fired = collections.Counter()
@@ -54,7 +59,9 @@ def replay(campaign):
         new_specific, new_risky, reasons = director.direct(case["input"], specific, risky)
         new_action = director.decide_action(new_risky, new_specific)
         ok_before = row["passed"]
-        ok_after = prediction["category"] == expected["category"] and new_action == expected["action"]
+        ok_after = (
+            prediction["category"] == expected["category"] and new_action == expected["action"]
+        )
         before += ok_before
         after += ok_after
         by_action[expected["action"]][0] += ok_before
@@ -67,19 +74,15 @@ def replay(campaign):
     return rows, before, after, by_action, fired, harmed
 
 
-def decide_action_proxy(risky, specific):
-    return "escalate" if risky else ("answer" if specific else "request_info")
-
-
-director.decide_action = decide_action_proxy
-
-
 def main():
     for campaign in sys.argv[1:]:
         rows, before, after, by_action, fired, harmed = replay(campaign)
         n = len(rows)
         print(f"{campaign}: recorded {before}/{n} -> with director {after}/{n} {wilson(after, n)}")
-        print("  by expected action (recorded -> director / total):", {k: f"{v[0]}->{v[1]}/{v[2]}" for k, v in sorted(by_action.items())})
+        print(
+            "  by expected action (recorded -> director / total):",
+            {k: f"{v[0]}->{v[1]}/{v[2]}" for k, v in sorted(by_action.items())},
+        )
         print("  rules fired:", dict(fired), "| trials made worse:", harmed)
 
 
