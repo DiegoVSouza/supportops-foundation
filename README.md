@@ -7,7 +7,7 @@
 - **Decision.** Strict Pydantic contracts, a seeded dataset with a digest, and one budget ledger across `fake`, `replay` and `live`. Budget is reserved before any provider call.
 - **Measured.** A real-model development campaign: 27 of 36 trials passed, 9 of 12 unique cases passed all three trials (Wilson 95% interval 0.47 to 0.91). Verdict `FAIL_PROVISIONAL`. Source: `artifacts/evals/live/free-dev-c2r1/report.json`. The held-out budget (84 calls) and confirmation budget (60) were not touched.
 - **Run it.** `uv sync --locked && uv run --locked python scripts/check_fast.py`
-- **Limits.** The library gives contracts and fixtures. Fixtures are not model quality, and human review and promotion are still pending.
+- **Limits.** The library gives contracts and fixtures. Fixtures are not model quality; the owner reviewed the work on 2026-11-09.
 - **Docs.** [Architecture](docs/architecture.md), [decisions](docs/decisions).
 <!-- case:end -->
 
@@ -94,7 +94,7 @@ Do not change golden-set expectations to make tests pass. Update the dataset see
 
 ## Results
 
-Current offline gate evidence is in `artifacts/evidence/live-campaign-execution/check-full.txt`. Broad model quality and human review remain **INCOMPLETE**; historical small provider smoke tests do not establish broad readiness.
+Current offline gate evidence is in `artifacts/evidence/live-campaign-execution/check-full.txt`. Broad model quality remains **INCOMPLETE** (human review was done by the owner on 2026-11-09); historical small provider smoke tests do not establish broad readiness.
 
 ## Design decisions
 
@@ -115,7 +115,7 @@ uv run --locked python scripts/run_live_campaign.py --stage pilot --campaign-id 
 uv run --locked python scripts/run_live_campaign.py --resume free-pilot-v1 --execute-free
 ```
 
-Chunks contain at most ten new trials. Completed failures never replay; uncertain work requires reconciliation. Reports and immutable manifests live under `artifacts/evals/live/<campaign-id>/`. Sanitized artifacts reference provider usage receipts and private synthetic review-application state outside Git/artifacts. Exit 0/1 describes provisional engineering pass/fail; exit 2 means missing prerequisites, interrupted work or resource checkpoint. Human review and promotion remain separate pending gates; fake stays default.
+Chunks contain at most ten new trials. Completed failures never replay; uncertain work requires reconciliation. Reports and immutable manifests live under `artifacts/evals/live/<campaign-id>/`. Sanitized artifacts reference provider usage receipts and private synthetic review-application state outside Git/artifacts. Exit 0/1 describes provisional engineering pass/fail; exit 2 means missing prerequisites, interrupted work or resource checkpoint. Human review was done by the owner on 2026-11-09; fake stays default.
 
 ## Measured quality (live, recorded runs)
 
@@ -126,4 +126,4 @@ Every number below comes from a recorded run under `artifacts/evals/live/` and `
 - **Development split (64 cases x 3 trials):** 157/192 (81.8%) for the prompt alone; 182/192 (94.8%) with the director, replayed exactly over the recorded trials. The director's rules were written after reading these tickets, so that figure is in-sample.
 - **Earlier sealed holdout (older 28-case dataset, few-shot prompt):** 29/84 (34.5%). It covered domains the prompt had never seen and is not comparable with the numbers above; it is kept because it is what the first design really scored.
 - **Overlap:** the final cases are new texts, but they share the six families, five categories and two languages of the development cases and were written by the same author; the director rules were written after reading the development tickets. The result shows generalization within this kind of ticket, not to other formats.
-- **Limits:** 20 final cases and 60 trials give a wide interval; the dataset was written by the assistant under one documented rule and reviewed only by the owner (independent review waived); human review and promotion remain pending. The final split is consumed: any new prompt, rule or dataset change needs fresh cases.
+- **Limits:** 20 final cases and 60 trials give a wide interval; the dataset was written by the assistant under one documented rule and reviewed only by the owner (independent review waived); human review was done by the owner on 2026-11-09. The final split is consumed: any new prompt, rule or dataset change needs fresh cases.
