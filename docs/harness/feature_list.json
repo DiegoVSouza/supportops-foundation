@@ -23,8 +23,8 @@
     },
     {
       "id": "local-services-and-hosted-ci",
-      "status": "PASS_HOSTED_CI_LINUX; LOCAL_SERVICE_E2E_PENDING",
-      "evidence": "Hosted CI: artifacts/evidence/status-reconcile-hosted-ci.txt. Isolated local service attempt: artifacts/evidence/isolated-services-044/commands.json and result.json; runner exit 1, PostgreSQL/pgvector and Redis operations passed, pinned LocalStack requires license authentication (startup exit 55). Cleanup exit 0; preexisting running containers preserved. Fixed host ports are no longer the prerequisite for this isolated approach."
+      "status": "PASS_HOSTED_CI_LINUX; PASS_LOCAL_SERVICES_MOTO",
+      "evidence": "Hosted CI: artifacts/evidence/status-reconcile-hosted-ci.txt. LocalStack needed a license (startup exit 55), so the emulator was replaced by motoserver/moto:5.2.5. Isolated run on 2026-11-20 (artifacts/evidence/local-services-e2e-20261120/run.py, exit 0, result.json): PostgreSQL/pgvector, Redis and moto S3 put/get, SQS send/receive and SNS create-topic passed, cleanup exit 0, preexisting containers preserved. check_fast exit 0. doctor.py observes ports only and starts nothing, so it reports moto UNAVAILABLE when the stack is down."
     }
   ]
 }

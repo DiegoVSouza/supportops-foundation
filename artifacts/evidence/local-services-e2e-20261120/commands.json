@@ -1,0 +1,228 @@
+[
+  {
+    "command": [
+      "docker",
+      "ps",
+      "-q"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "1169b035b087\ndcfbc02ac00d\n0217c514313f\n95b2c8c2cb1c\nf20efa7837fd\n453dcdd31c5c\nfb4b9132a3e6\nd70d0173c9c8\naf66f3941aca\n8432fd2017ca\n209a55dd028d\n50a9062eee58\n52f2a3b6e050\n93828f75d410\n82e807456137\nc7b9d1a11242\n604b0ade2e35\nf9c0fce7b93d\nc0142aa616f8\n41a831825583\n92eab6273ae2\n14028846ef5e\n5cb909a3d6a3\n78da7355f3eb\n5a32b787dab9\nc39f65ed8d39\n2b6551ac517b\nd48bcee1f8c5\n10a670df9699\n910fb419edc8\n6f8812381363\n79110949610a\n12dc14020e7a\n2d1dd98c4f3b\nf21037a104b0\n89fd03a0855d\n760c87d0eead\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "ps",
+      "-aq"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "pull"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Image motoserver/moto:5.2.5 Pulling \n Image redis:7.4.11 Pulling \n Image pgvector/pgvector:0.8.7-pg16 Pulling \n a22ecdbf29cb Pulling fs layer 0B\n 7b229517ed22 Pulling fs layer 0B\n 09a0787ca8c6 Pulling fs layer 0B\n 53a2a9572bd3 Pulling fs layer 0B\n 932709760b04 Pulling fs layer 0B\n b189745bef75 Pulling fs layer 0B\n 2220e3c15749 Pulling fs layer 0B\n 4f4fb700ef54 Pulling fs layer 0B\n 4f4fb700ef54 Already exists 0B\n 7b229517ed22 Already exists 0B\n 11422d7ca1a4 Pulling fs layer 0B\n 33eae4cc1a36 Pulling fs layer 0B\n 6b2f4b3ff830 Pulling fs layer 0B\n 9d5d7c9fabc5 Pulling fs layer 0B\n aa7891908097 Pulling fs layer 0B\n 4f4fb700ef54 Pulling fs layer 0B\n 4b603876a035 Pulling fs layer 0B\n 4f4fb700ef54 Already exists 0B\n 7b229517ed22 Extracting 1B\n c8474e93cf43 Pulling fs layer 0B\n 53b079a925c4 Pulling fs layer 0B\n 03a9acd43566 Pulling fs layer 0B\n bbc81ca93e43 Pulling fs layer 0B\n ae3b39dd856e Pulling fs layer 0B\n 85320d1bc048 Pulling fs layer 0B\n a0c21698d159 Pulling fs layer 0B\n dacdcfbc697e Pulling fs layer 0B\n d66fa994cd3b Pulling fs layer 0B\n 85a95895b814 Pulling fs layer 0B\n dd051e1b8c92 Pulling fs layer 0B\n eee1703e0e36 Pulling fs layer 0B\n 88d6e4059ddb Pulling fs layer 0B\n 40a1c034d098 Pulling fs layer 0B\n 705db54eb6f9 Pulling fs layer 0B\n 02082338f6fc Pulling fs layer 0B\n dd051e1b8c92 Already exists 0B\n 7b229517ed22 Pull complete 0B\n b189745bef75 Downloading 1.049MB\n b189745bef75 Downloading 2.097MB\n b189745bef75 Downloading 3.146MB\n 09a0787ca8c6 Download complete 0B\n b189745bef75 Downloading 5.243MB\n 53a2a9572bd3 Download complete 0B\n 09a0787ca8c6 Extracting 1B\n b189745bef75 Downloading 6.291MB\n 09a0787ca8c6 Extracting 1B\n b189745bef75 Downloading 7.34MB\n 09a0787ca8c6 Extracting 1B\n b189745bef75 Downloading 8.389MB\n a22ecdbf29cb Downloading 1.049MB\n 09a0787ca8c6 Extracting 1B\n b189745bef75 Downloading 9.437MB\n a22ecdbf29cb Downloading 1.049MB\n 09a0787ca8c6 Extracting 1B\n 932709760b04 Downloading 1.049MB\n b189745bef75 Download complete 0B\n a22ecdbf29cb Download complete 0B\n 09a0787ca8c6 Extracting 1B\n 932709760b04 Downloading 2.097MB\n 09a0787ca8c6 Extracting 1B\n 44136fa355b3 Already exists 0B\n 932709760b04 Downloading 3.146MB\n 09a0787ca8c6 Extracting 1B\n 932709760b04 Downloading 4.194MB\n 2220e3c15749 Downloading 1.049MB\n 09a0787ca8c6 Extracting 1B\n 932709760b04 Downloading 5.243MB\n 2220e3c15749 Downloading 1.049MB\n 09a0787ca8c6 Extracting 1B\n 2220e3c15749 Downloading 2.097MB\n 932709760b04 Downloading 6.291MB\n 33eae4cc1a36 Download complete 0B\n 09a0787ca8c6 Pull complete 0B\n 932709760b04 Downloading 7.34MB\n 2220e3c15749 Downloading 3.146MB\n 932709760b04 Downloading 8.389MB\n 2220e3c15749 Downloading 3.146MB\n 932709760b04 Downloading 9.437MB\n 2220e3c15749 Downloading 4.194MB\n 6b2f4b3ff830 Download complete 0B\n 932709760b04 Downloading 10.49MB\n 2220e3c15749 Downloading 4.194MB\n 932709760b04 Downloading 11.53MB\n 2220e3c15749 Downloading 5.243MB\n 2220e3c15749 Downloading 6.291MB\n 932709760b04 Downloading 12.67MB\n 932709760b04 Download complete 0B\n 2220e3c15749 Downloading 7.34MB\n 932709760b04 Extracting 1B\n 2220e3c15749 Downloading 7.34MB\n 11422d7ca1a4 Downloading 1.049MB\n 932709760b04 Extracting 1B\n 2220e3c15749 Downloading 8.389MB\n 11422d7ca1a4 Downloading 2.097MB\n 932709760b04 Extracting 1B\n 2220e3c15749 Downloading 8.389MB\n 11422d7ca1a4 Downloading 3.146MB\n 932709760b04 Extracting 1B\n 2220e3c15749 Downloading 9.437MB\n 11422d7ca1a4 Downloading 4.194MB\n 932709760b04 Extracting 1B\n 2220e3c15749 Downloading 10.49MB\n 11422d7ca1a4 Downloading 5.243MB\n 932709760b04 Extracting 1B\n 2220e3c15749 Downloading 10.49MB\n 11422d7ca1a4 Downloading 6.291MB\n 932709760b04 Extracting 1B\n 2220e3c15749 Downloading 11.53MB\n 11422d7ca1a4 Downloading 7.34MB\n 53a2a9572bd3 Pull complete 0B\n b189745bef75 Extracting 1B\n 932709760b04 Pull complete 0B\n 2220e3c15749 Downloading 11.53MB\n 11422d7ca1a4 Downloading 8.389MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 12.58MB\n 11422d7ca1a4 Downloading 9.437MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 12.58MB\n 9d5d7c9fabc5 Downloading 1.049MB\n 11422d7ca1a4 Downloading 9.437MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 12.58MB\n 11422d7ca1a4 Downloading 10.49MB\n 9d5d7c9fabc5 Downloading 1.049MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 13.63MB\n 9d5d7c9fabc5 Downloading 2.097MB\n 11422d7ca1a4 Downloading 10.49MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 13.63MB\n 11422d7ca1a4 Downloading 11.53MB\n 9d5d7c9fabc5 Downloading 3.146MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 13.63MB\n 9d5d7c9fabc5 Downloading 4.194MB\n 11422d7ca1a4 Downloading 11.53MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 13.63MB\n 11422d7ca1a4 Downloading 11.53MB\n 9d5d7c9fabc5 Downloading 5.243MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 14.68MB\n 9d5d7c9fabc5 Downloading 6.291MB\n 11422d7ca1a4 Downloading 12.58MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 14.68MB\n 9d5d7c9fabc5 Downloading 7.34MB\n 11422d7ca1a4 Downloading 12.58MB\n b189745bef75 Extracting 1B\n 2220e3c15749 Downloading 14.68MB\n 11422d7ca1a4 Downloading 12.58MB\n 9d5d7c9fabc5 Downloading 7.34MB\n b189745bef75 Extracting 2B\n 2220e3c15749 Downloading 14.68MB\n 9d5d7c9fabc5 Downloading 7.34MB\n 11422d7ca1a4 Downloading 12.58MB\n b189745bef75 Extracting 2B\n 2220e3c15749 Downloading 14.68MB\n 11422d7ca1a4 Downloading 12.58MB\n 9d5d7c9fabc5 Downloading 8.389MB\n b189745bef75 Extracting 2B\n 2220e3c15749 Downloading 14.68MB\n 11422d7ca1a4 Downloading 13.63MB\n 9d5d7c9fabc5 Downloading 9.437MB\n b189745bef75 Extracting 2B\n 2220e3c15749 Downloading 14.68MB\n 11422d7ca1a4 Downloading 13.63MB\n 9d5d7c9fabc5 Downloading 11.53MB\n 4f4fb700ef54 Pull complete 0B\n b189745bef75 Pull complete 0B\n 2220e3c15749 Downloading 15.73MB\n 11422d7ca1a4 Downloading 13.63MB\n 9d5d7c9fabc5 Downloading 12.58MB\n 2220e3c15749 Downloading 15.73MB\n 11422d7ca1a4 Downloading 14.68MB\n 9d5d7c9fabc5 Downloading 13.63MB\n 2220e3c15749 Downloading 15.73MB\n 11422d7ca1a4 Downloading 14.68MB\n 9d5d7c9fabc5 Downloading 15.36MB\n 2220e3c15749 Downloading 15.73MB\n 11422d7ca1a4 Downloading 15.73MB\n 9d5d7c9fabc5 Download complete 0B\n 2220e3c15749 Downloading 16.78MB\n 11422d7ca1a4 Downloading 15.73MB\n aa7891908097 Download complete 0B\n 2220e3c15749 Downloading 16.78MB\n 11422d7ca1a4 Downloading 16.78MB\n 2220e3c15749 Downloading 17.83MB\n 4b603876a035 Download complete 0B\n 11422d7ca1a4 Downloading 17.83MB\n 2220e3c15749 Downloading 18.87MB\n 11422d7ca1a4 Downloading 17.83MB\n 2220e3c15749 Downloading 18.87MB\n 11422d7ca1a4 Downloading 18.87MB\n 2220e3c15749 Downloading 19.92MB\n 11422d7ca1a4 Downloading 19.92MB\n 53b079a925c4 Download complete 0B\n 2220e3c15749 Downloading 20.97MB\n 11422d7ca1a4 Downloading 20.97MB\n 2220e3c15749 Downloading 20.97MB\n 11422d7ca1a4 Downloading 22.02MB\n 2220e3c15749 Downloading 22.02MB\n 11422d7ca1a4 Downloading 23.07MB\n 2220e3c15749 Downloading 23.07MB\n 11422d7ca1a4 Downloading 24.12MB\n 2220e3c15749 Downloading 23.07MB\n 11422d7ca1a4 Downloading 24.12MB\n 2220e3c15749 Downloading 24.12MB\n 11422d7ca1a4 Downloading 25.17MB\n 2220e3c15749 Downloading 25.17MB\n 11422d7ca1a4 Downloading 26.21MB\n c8474e93cf43 Download complete 0B\n 2220e3c15749 Downloading 25.17MB\n 11422d7ca1a4 Downloading 27.26MB\n 2220e3c15749 Downloading 26.21MB\n 11422d7ca1a4 Downloading 27.26MB\n 2220e3c15749 Downloading 27.26MB\n 11422d7ca1a4 Download complete 0B\n 11422d7ca1a4 Extracting 1B\n 2220e3c15749 Downloading 28.31MB\n 11422d7ca1a4 Extracting 1B\n ae3b39dd856e Download complete 0B\n 2220e3c15749 Downloading 29.36MB\n 11422d7ca1a4 Extracting 1B\n 03a9acd43566 Downloading 1.049MB\n 2220e3c15749 Downloading 30.41MB\n 11422d7ca1a4 Extracting 1B\n 03a9acd43566 Downloading 1.049MB\n bbc81ca93e43 Download complete 0B\n 2220e3c15749 Downloading 31.46MB\n 11422d7ca1a4 Extracting 1B\n 03a9acd43566 Downloading 1.049MB\n 2220e3c15749 Downloading 32.51MB\n 11422d7ca1a4 Extracting 1B\n 03a9acd43566 Downloading 2.097MB\n 2220e3c15749 Downloading 33.55MB\n 11422d7ca1a4 Extracting 1B\n 03a9acd43566 Downloading 2.097MB\n 2220e3c15749 Downloading 34.6MB\n 11422d7ca1a4 Extracting 1B\n 03a9acd43566 Downloading 2.097MB\n 2220e3c15749 Downloading 35.65MB\n 11422d7ca1a4 Extracting 1B\n d66fa994cd3b Downloading 1.049MB\n 03a9acd43566 Downloading 3.146MB\n 2220e3c15749 Downloading 36.7MB\n 11422d7ca1a4 Extracting 1B\n d66fa994cd3b Downloading 1.049MB\n 03a9acd43566 Downloading 3.146MB\n 2220e3c15749 Downloading 37.75MB\n 11422d7ca1a4 Extracting 2B\n 03a9acd43566 Downloading 3.146MB\n d66fa994cd3b Downloading 1.049MB\n 2220e3c15749 Downloading 38.8MB\n 11422d7ca1a4 Extracting 2B\n 03a9acd43566 Downloading 4.194MB\n d66fa994cd3b Downloading 2.097MB\n 2220e3c15749 Downloading 39.85MB\n 11422d7ca1a4 Extracting 2B\n d66fa994cd3b Downloading 2.097MB\n 03a9acd43566 Downloading 4.194MB\n 2220e3c15749 Downloading 40.89MB\n 11422d7ca1a4 Extracting 2B\n d66fa994cd3b Downloading 2.097MB\n 03a9acd43566 Download complete 0B\n 2220e3c15749 Downloading 41.94MB\n 4b603876a035 Pull complete 0B\n 11422d7ca1a4 Pull complete 0B\n d66fa994cd3b Downloading 3.146MB\n 2220e3c15749 Downloading 42.99MB\n 6b2f4b3ff830 Pull complete 0B\n 9d5d7c9fabc5 Extracting 1B\n d66fa994cd3b Downloading 3.146MB\n 2220e3c15749 Downloading 44.04MB\n 9d5d7c9fabc5 Extracting 1B\n d66fa994cd3b Downloading 3.146MB\n 2220e3c15749 Downloading 45.09MB\n 9d5d7c9fabc5 Extracting 1B\n d66fa994cd3b Downloading 4.194MB\n 2220e3c15749 Downloading 46.14MB\n 4f4fb700ef54 Pull complete 0B\n 9d5d7c9fabc5 Pull complete 0B\n aa7891908097 Pull complete 0B\n d66fa994cd3b Downloading 4.194MB\n 85320d1bc048 Downloading 1.25MB\n 2220e3c15749 Downloading 47.19MB\n 33eae4cc1a36 Pull complete 0B\n d66fa994cd3b Downloading 4.194MB\n 85320d1bc048 Download complete 0B\n 2220e3c15749 Downloading 48.23MB\n a0c21698d159 Download complete 0B\n d66fa994cd3b Downloading 5.243MB\n 2220e3c15749 Downloading 49.28MB\n d66fa994cd3b Downloading 5.243MB\n 2220e3c15749 Downloading 51.38MB\n d66fa994cd3b Downloading 6.291MB\n 2220e3c15749 Downloading 51.38MB\n d66fa994cd3b Downloading 6.291MB\n 2220e3c15749 Downloading 52.43MB\n d66fa994cd3b Downloading 6.291MB\n 2220e3c15749 Downloading 53.48MB\n d66fa994cd3b Downloading 7.34MB\n 2220e3c15749 Downloading 54.53MB\n d66fa994cd3b Downloading 7.34MB\n dacdcfbc697e Downloading 1.049MB\n 2220e3c15749 Downloading 55.57MB\n d66fa994cd3b Downloading 8.389MB\n dacdcfbc697e Downloading 1.049MB\n 2220e3c15749 Downloading 56.62MB\n d66fa994cd3b Downloading 8.389MB\n dacdcfbc697e Downloading 1.049MB\n 2220e3c15749 Downloading 57.67MB\n d66fa994cd3b Downloading 8.389MB\n dacdcfbc697e Downloading 1.049MB\n 2220e3c15749 Downloading 58.72MB\n dacdcfbc697e Downloading 2.097MB\n d66fa994cd3b Downloading 9.437MB\n 2220e3c15749 Downloading 59.77MB\n d66fa994cd3b Downloading 9.437MB\n dacdcfbc697e Downloading 2.097MB\n 2220e3c15749 Downloading 60.82MB\n d66fa994cd3b Downloading 10.49MB\n dacdcfbc697e Downloading 2.097MB\n 2220e3c15749 Downloading 61.87MB\n d66fa994cd3b Downloading 10.49MB\n dacdcfbc697e Downloading 2.097MB\n 2220e3c15749 Downloading 62.03MB\n d66fa994cd3b Downloading 11.53MB\n dacdcfbc697e Downloading 3.146MB\n 2220e3c15749 Downloading 62.91MB\n dacdcfbc697e Downloading 3.146MB\n d66fa994cd3b Downloading 11.53MB\n 2220e3c15749 Downloading 63.96MB\n dacdcfbc697e Downloading 3.146MB\n d66fa994cd3b Downloading 12.58MB\n 2220e3c15749 Downloading 65.01MB\n dacdcfbc697e Downloading 3.146MB\n d66fa994cd3b Downloading 12.58MB\n 2220e3c15749 Downloading 66.06MB\n dacdcfbc697e Downloading 4.194MB\n d66fa994cd3b Downloading 12.58MB\n 2220e3c15749 Downloading 67.11MB\n dacdcfbc697e Downloading 4.194MB\n d66fa994cd3b Downloading 13.63MB\n 2220e3c15749 Downloading 68.16MB\n dacdcfbc697e Downloading 4.194MB\n d66fa994cd3b Downloading 13.63MB\n 2220e3c15749 Downloading 69.21MB\n d66fa994cd3b Downloading 14.68MB\n dacdcfbc697e Downloading 4.194MB\n 2220e3c15749 Downloading 70.25MB\n d66fa994cd3b Downloading 14.68MB\n dacdcfbc697e Downloading 5.243MB\n 2220e3c15749 Downloading 71.3MB\n d66fa994cd3b Downloading 14.68MB\n dacdcfbc697e Downloading 5.243MB\n 2220e3c15749 Downloading 71.3MB\n d66fa994cd3b Downloading 15.73MB\n dacdcfbc697e Downloading 5.243MB\n 2220e3c15749 Downloading 73.04MB\n d66fa994cd3b Downloading 15.73MB\n dacdcfbc697e Downloading 6.291MB\n 2220e3c15749 Download complete 0B\n 2220e3c15749 Extracting 1B\n d66fa994cd3b Downloading 16.78MB\n dacdcfbc697e Downloading 6.291MB\n 2220e3c15749 Extracting 1B\n dacdcfbc697e Downloading 7.34MB\n 85a95895b814 Download complete 0B\n d66fa994cd3b Downloading 17.83MB\n 2220e3c15749 Extracting 1B\n dacdcfbc697e Downloading 7.34MB\n eee1703e0e36 Download complete 0B\n d66fa994cd3b Downloading 17.83MB\n 2220e3c15749 Extracting 1B\n eee1703e0e36 Extracting 1B\n dacdcfbc697e Download complete 0B\n d66fa994cd3b Downloading 18.87MB\n 88d6e4059ddb Download complete 0B\n 2220e3c15749 Extracting 1B\n eee1703e0e36 Extracting 1B\n d66fa994cd3b Downloading 19.92MB\n 2220e3c15749 Extracting 1B\n eee1703e0e36 Extracting 1B\n d66fa994cd3b Downloading 20.97MB\n 40a1c034d098 Download complete 0B\n 2220e3c15749 Extracting 1B\n eee1703e0e36 Extracting 1B\n 705db54eb6f9 Download complete 0B\n d66fa994cd3b Downloading 23.07MB\n 02082338f6fc Download complete 0B\n 2220e3c15749 Extracting 1B\n eee1703e0e36 Extracting 1B\n d66fa994cd3b Downloading 24.12MB\n 2220e3c15749 Extracting 1B\n eee1703e0e36 Pull complete 0B\n d66fa994cd3b Downloading 25.17MB\n 7041877869cb Download complete 0B\n 2220e3c15749 Extracting 1B\n 03a9acd43566 Extracting 1B\n d66fa994cd3b Downloading 27.26MB\n 2220e3c15749 Extracting 2B\n 03a9acd43566 Extracting 1B\n d66fa994cd3b Downloading 28.31MB\n 2220e3c15749 Extracting 2B\n 03a9acd43566 Pull complete 0B\n 85320d1bc048 Pull complete 0B\n dacdcfbc697e Extracting 1B\n d66fa994cd3b Downloading 30.41MB\n 2220e3c15749 Extracting 2B\n dacdcfbc697e Extracting 1B\n d66fa994cd3b Downloading 32.51MB\n 2220e3c15749 Extracting 2B\n dacdcfbc697e Extracting 1B\n d66fa994cd3b Downloading 33.55MB\n 2220e3c15749 Extracting 2B\n dacdcfbc697e Extracting 1B\n d66fa994cd3b Downloading 34.6MB\n 2220e3c15749 Extracting 2B\n dacdcfbc697e Pull complete 0B\n 705db54eb6f9 Extracting 1B\n d66fa994cd3b Downloading 35.65MB\n 88197588d635 Downloading 1.049MB\n 53d0115eec0b Download complete 0B\n 2220e3c15749 Extracting 2B\n a0c21698d159 Pull complete 0B\n 40a1c034d098 Pull complete 0B\n 705db54eb6f9 Pull complete 0B\n d66fa994cd3b Downloading 36.7MB\n 88197588d635 Downloading 1.049MB\n 2220e3c15749 Extracting 2B\n d66fa994cd3b Downloading 37.75MB\n 88197588d635 Downloading 2.373MB\n 2220e3c15749 Extracting 2B\n d66fa994cd3b Downloading 38.8MB\n 88197588d635 Download complete 0B\n 2220e3c15749 Extracting 2B\n d66fa994cd3b Downloading 40.89MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 41.94MB\n 2220e3c15749 Extracting 3B\n 837ceb5aa9a0 Download complete 0B\n d66fa994cd3b Downloading 44.04MB\n 2220e3c15749 Extracting 3B\n Image redis:7.4.11 Pulled \n d66fa994cd3b Downloading 46.14MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 47.19MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 49.28MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 50.33MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 52.43MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 53.48MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 55.57MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 57.31MB\n 2220e3c15749 Extracting 3B\n d66fa994cd3b Downloading 58.72MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 60.82MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 61.87MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 63.96MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 65.01MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 67.11MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 69.21MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 70.25MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 72.35MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 73.4MB\n 2220e3c15749 Extracting 4B\n d66fa994cd3b Downloading 75.5MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 77.59MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 78.64MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 80.74MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 81.79MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 83.89MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 84.93MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 87.03MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 89.13MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 90.18MB\n 2220e3c15749 Extracting 5B\n d66fa994cd3b Downloading 92.27MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 93.32MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 95.42MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 96.47MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 98.57MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 100.7MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 101.7MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 103.8MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 104.9MB\n 2220e3c15749 Extracting 6B\n d66fa994cd3b Downloading 107MB\n 2220e3c15749 Extracting 7B\n d66fa994cd3b Downloading 108MB\n 2220e3c15749 Extracting 7B\n d66fa994cd3b Downloading 110.1MB\n 2220e3c15749 Extracting 7B\n d66fa994cd3b Downloading 111.1MB\n 2220e3c15749 Pull complete 0B\n d66fa994cd3b Downloading 113.2MB\n a22ecdbf29cb Pull complete 0B\n Image motoserver/moto:5.2.5 Pulled \n d66fa994cd3b Downloading 115.3MB\n d66fa994cd3b Downloading 116.4MB\n d66fa994cd3b Downloading 118MB\n d66fa994cd3b Download complete 0B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 1B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 2B\n d66fa994cd3b Extracting 3B\n d66fa994cd3b Extracting 3B\n d66fa994cd3b Extracting 3B\n d66fa994cd3b Extracting 3B\n d66fa994cd3b Extracting 3B\n d66fa994cd3b Extracting 3B\n 53b079a925c4 Extracting 1B\n d66fa994cd3b Pull complete 0B\n 53b079a925c4 Pull complete 0B\n ae3b39dd856e Extracting 1B\n bbc81ca93e43 Pull complete 0B\n 85a95895b814 Pull complete 0B\n 88d6e4059ddb Pull complete 0B\n 02082338f6fc Pull complete 0B\n c8474e93cf43 Extracting 1B\n ae3b39dd856e Pull complete 0B\n c8474e93cf43 Pull complete 0B\n Image pgvector/pgvector:0.8.7-pg16 Pulled \n"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "up",
+      "-d"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Network p00-isolated-20261120_default Creating \n Network p00-isolated-20261120_default Creating \n Network p00-isolated-20261120_default Created \n Network p00-isolated-20261120_default Created \n Container p00-isolated-20261120-postgres-1 Creating \n Container p00-isolated-20261120-moto-1 Creating \n Container p00-isolated-20261120-redis-1 Creating \n Container p00-isolated-20261120-postgres-1 Created \n Container p00-isolated-20261120-redis-1 Created \n Container p00-isolated-20261120-moto-1 Created \n Container p00-isolated-20261120-redis-1 Starting \n Container p00-isolated-20261120-postgres-1 Starting \n Container p00-isolated-20261120-moto-1 Starting \n Container p00-isolated-20261120-redis-1 Started \n Container p00-isolated-20261120-postgres-1 Started \n Container p00-isolated-20261120-moto-1 Started \n"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "exec",
+      "-T",
+      "postgres",
+      "pg_isready",
+      "-U",
+      "supportops"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 2,
+    "stdout": "/var/run/postgresql:5432 - no response\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "exec",
+      "-T",
+      "postgres",
+      "pg_isready",
+      "-U",
+      "supportops"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "/var/run/postgresql:5432 - accepting connections\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-U",
+      "supportops",
+      "-d",
+      "supportops",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "CREATE EXTENSION IF NOT EXISTS vector; CREATE TEMP TABLE probe (v vector(3)); INSERT INTO probe VALUES (' [1,2,3]'); SELECT count(*) FROM probe;"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "CREATE EXTENSION\nCREATE TABLE\nINSERT 0 1\n count \n-------\n     1\n(1 row)\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "exec",
+      "-T",
+      "redis",
+      "redis-cli",
+      "SET",
+      "p00-probe",
+      "isolated"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "exec",
+      "-T",
+      "redis",
+      "redis-cli",
+      "GET",
+      "p00-probe"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "isolated\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "port",
+      "moto",
+      "5000"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "127.0.0.1:51988\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "{\"Command\":\"\\\"/usr/local/bin/moto\u00e2\u20ac\u00a6\\\"\",\"CreatedAt\":\"2026-11-20 11:23:13 -0300 -03\",\"Engine\":\"\",\"ExitCode\":0,\"Health\":\"\",\"ID\":\"efe72b25e1f9\",\"Image\":\"motoserver/moto:5.2.5\",\"Labels\":\"com.docker.compose.container-number=1,com.docker.compose.image=sha256:66b5ed54cea2e87de6cc4b31d4bb56c8909b9a3d3fd6cf7e813c9a68d66acc61,com.docker.compose.oneoff=False,com.docker.compose.project.config_files=C:\\\\estudo\\\\Golpe\\\\lab\\\\projects\\\\p00\\\\artifacts\\\\evidence\\\\local-services-e2e-20261120\\\\compose.yml,com.docker.compose.project.working_dir=C:\\\\estudo\\\\Golpe\\\\lab\\\\projects\\\\p00\\\\artifacts\\\\evidence\\\\local-services-e2e-20261120,desktop.docker.io/ports.scheme=v2,desktop.docker.io/ports/5000/tcp=127.0.0.1:,com.docker.compose.config-hash=ea51f2512e406764769afc4f518b59e453fd047899db0f2c6e005b24d05641b4,com.docker.compose.depends_on=,com.docker.compose.project=p00-isolated-20261120,com.docker.compose.service=moto,com.docker.compose.version=5.6.1\",\"LocalVolumes\":\"0\",\"Mounts\":\"\",\"Name\":\"p00-isolated-20261120-moto-1\",\"Names\":\"p00-isolated-20261120-moto-1\",\"Networks\":\"p00-isolated-20261120_default\",\"Ports\":\"127.0.0.1:51988-\\u003e5000/tcp\",\"Project\":\"p00-isolated-20261120\",\"Publishers\":[{\"URL\":\"127.0.0.1\",\"TargetPort\":5000,\"PublishedPort\":51988,\"Protocol\":\"tcp\"}],\"RunningFor\":\"7 seconds ago\",\"Service\":\"moto\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 4 seconds\"}\n{\"Command\":\"\\\"docker-entrypoint.s\u00e2\u20ac\u00a6\\\"\",\"CreatedAt\":\"2026-11-20 11:23:13 -0300 -03\",\"Engine\":\"\",\"ExitCode\":0,\"Health\":\"\",\"ID\":\"784c6d0d320b\",\"Image\":\"pgvector/pgvector:0.8.7-pg16\",\"Labels\":\"com.docker.compose.version=5.6.1,desktop.docker.io/ports.scheme=v2,com.docker.compose.depends_on=,com.docker.compose.project=p00-isolated-20261120,com.docker.compose.project.config_files=C:\\\\estudo\\\\Golpe\\\\lab\\\\projects\\\\p00\\\\artifacts\\\\evidence\\\\local-services-e2e-20261120\\\\compose.yml,desktop.docker.io/ports/5432/tcp=127.0.0.1:,com.docker.compose.config-hash=bf910b1cc41dcb4cd7ba2f52d123b427ecc0eeb3a3ecbe85f3beb5373ecbd18b,com.docker.compose.container-number=1,com.docker.compose.image=sha256:018b4a92e634c3a5715f613dd43497e3d8028ae051be7ba6fd127bcffb0e7957,com.docker.compose.oneoff=False,com.docker.compose.project.working_dir=C:\\\\estudo\\\\Golpe\\\\lab\\\\projects\\\\p00\\\\artifacts\\\\evidence\\\\local-services-e2e-20261120,com.docker.compose.service=postgres\",\"LocalVolumes\":\"1\",\"Mounts\":\"75fac7658c78b2\u00e2\u20ac\u00a6\",\"Name\":\"p00-isolated-20261120-postgres-1\",\"Names\":\"p00-isolated-20261120-postgres-1\",\"Networks\":\"p00-isolated-20261120_default\",\"Ports\":\"127.0.0.1:51986-\\u003e5432/tcp\",\"Project\":\"p00-isolated-20261120\",\"Publishers\":[{\"URL\":\"127.0.0.1\",\"TargetPort\":5432,\"PublishedPort\":51986,\"Protocol\":\"tcp\"}],\"RunningFor\":\"7 seconds ago\",\"Service\":\"postgres\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 4 seconds\"}\n{\"Command\":\"\\\"docker-entrypoint.s\u00e2\u20ac\u00a6\\\"\",\"CreatedAt\":\"2026-11-20 11:23:13 -0300 -03\",\"Engine\":\"\",\"ExitCode\":0,\"Health\":\"\",\"ID\":\"ba2264b2044f\",\"Image\":\"redis:7.4.11\",\"Labels\":\"com.docker.compose.config-hash=c48337e2ff37a7fd77b4db0192277f3b7771417a21a578d6478e9a5db6610712,com.docker.compose.container-number=1,com.docker.compose.depends_on=,com.docker.compose.image=sha256:026c880268ce52fb3a63b66150af583108a38c13af7633e325ae82a145f53a87,com.docker.compose.oneoff=False,com.docker.compose.project=p00-isolated-20261120,com.docker.compose.service=redis,com.docker.compose.version=5.6.1,com.docker.compose.project.config_files=C:\\\\estudo\\\\Golpe\\\\lab\\\\projects\\\\p00\\\\artifacts\\\\evidence\\\\local-services-e2e-20261120\\\\compose.yml,com.docker.compose.project.working_dir=C:\\\\estudo\\\\Golpe\\\\lab\\\\projects\\\\p00\\\\artifacts\\\\evidence\\\\local-services-e2e-20261120,desktop.docker.io/ports.scheme=v2,desktop.docker.io/ports/6379/tcp=127.0.0.1:\",\"LocalVolumes\":\"1\",\"Mounts\":\"9c9226be77aa72\u00e2\u20ac\u00a6\",\"Name\":\"p00-isolated-20261120-redis-1\",\"Names\":\"p00-isolated-20261120-redis-1\",\"Networks\":\"p00-isolated-20261120_default\",\"Ports\":\"127.0.0.1:51984-\\u003e6379/tcp\",\"Project\":\"p00-isolated-20261120\",\"Publishers\":[{\"URL\":\"127.0.0.1\",\"TargetPort\":6379,\"PublishedPort\":51984,\"Protocol\":\"tcp\"}],\"RunningFor\":\"7 seconds ago\",\"Service\":\"redis\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 5 seconds\"}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p00-isolated-20261120",
+      "-f",
+      "C:\\estudo\\Golpe\\lab\\projects\\p00\\artifacts\\evidence\\local-services-e2e-20261120\\compose.yml",
+      "down",
+      "--volumes"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Container p00-isolated-20261120-redis-1 Stopping \n Container p00-isolated-20261120-postgres-1 Stopping \n Container p00-isolated-20261120-moto-1 Stopping \n Container p00-isolated-20261120-redis-1 Stopped \n Container p00-isolated-20261120-redis-1 Removing \n Container p00-isolated-20261120-redis-1 Removed \n Container p00-isolated-20261120-moto-1 Stopped \n Container p00-isolated-20261120-moto-1 Removing \n Container p00-isolated-20261120-moto-1 Removed \n Container p00-isolated-20261120-postgres-1 Stopped \n Container p00-isolated-20261120-postgres-1 Removing \n Container p00-isolated-20261120-postgres-1 Removed \n Network p00-isolated-20261120_default Removing \n Network p00-isolated-20261120_default Removed \n"
+  },
+  {
+    "command": [
+      "docker",
+      "ps",
+      "-q"
+    ],
+    "cwd": "C:\\estudo\\Golpe\\lab\\projects\\p00",
+    "exit_code": 0,
+    "stdout": "1169b035b087\ndcfbc02ac00d\n0217c514313f\n95b2c8c2cb1c\nf20efa7837fd\n453dcdd31c5c\nfb4b9132a3e6\nd70d0173c9c8\naf66f3941aca\n8432fd2017ca\n209a55dd028d\n50a9062eee58\n52f2a3b6e050\n93828f75d410\n82e807456137\nc7b9d1a11242\n604b0ade2e35\nf9c0fce7b93d\nc0142aa616f8\n41a831825583\n92eab6273ae2\n14028846ef5e\n5cb909a3d6a3\n78da7355f3eb\n5a32b787dab9\nc39f65ed8d39\n2b6551ac517b\nd48bcee1f8c5\n10a670df9699\n910fb419edc8\n6f8812381363\n79110949610a\n12dc14020e7a\n2d1dd98c4f3b\nf21037a104b0\n89fd03a0855d\n760c87d0eead\n",
+    "stderr": ""
+  }
+]
